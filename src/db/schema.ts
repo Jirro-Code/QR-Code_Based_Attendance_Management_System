@@ -36,7 +36,9 @@ export const eventRelations = relations(events, ({ one }) => ({
 }));
 
 export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
 export type Event = typeof events.$inferSelect;
+export type NewEvent = typeof events.$inferInsert;
 
 export const insertUserSchema = createInsertSchema(users).omit({ 
     id: true, created_at: true, updated_at: true 

@@ -20,7 +20,7 @@ const envSchema = z.object({
     PORT: z.coerce.number().positive().default(3000),
     DATABASE_URL: z.string().startsWith(`mysql://`),
     JWT_SECRET: z.string().min(32, `must be at least 32 characters long`),
-    JWT_EXPIRES_IN: z.string().default(`3d`),
+    JWT_EXPIRES_IN: z.string().default(`5h`),
     BCRYPT_ROUNDS: z.coerce.number().min(18).max(20).default(12),
 });
 
