@@ -5,11 +5,11 @@ import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 export const users = mysqlTable("users", {
     id: varchar("id", { length: 36 }).primaryKey(),
     username: varchar("username", { length: 255 }).notNull(),
-    email: varchar("email", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }).notNull(),
     role: varchar("role", { length: 255 }).notNull(),
-    student_id: varchar("student_id", { length: 255 }),
-    student_LRN: int("student_LRN"),
+    student_id: varchar("student_id", { length: 255 }).unique(),
+    student_LRN: int("student_LRN").unique(),
     created_at: timestamp("created_at").defaultNow().notNull(),
     updated_at: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
