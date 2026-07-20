@@ -1,0 +1,20 @@
+{
+  "name": "qr-code_based_event_attendance_management_system",
+  "version": "1.0.0",
+  "description": "",
+  "homepage": "https://github.com/Jirro-Code/QR-Code_Based_Attendance_Management_System#readme",
+  "bugs": {
+    "url": "https://github.com/Jirro-Code/QR-Code_Based_Attendance_Management_System/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jirro-Code/QR-Code_Based_Attendance_Management_System.git"
+  },
+  "license": "ISC",
+  "author": "Jirro Santos",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
