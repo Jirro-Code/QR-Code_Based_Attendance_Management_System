@@ -2,10 +2,9 @@ import type { Response } from "express";
 import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import { users } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
-import { v4 as uuid } from "uuid";
-import Fuse from "fuse.js";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, or, like} from "drizzle-orm";
 import z from "zod";
+
 
 export const getAllUsers = async (req: AuthenticatedRequest, res: Response) => {
     try{
@@ -22,6 +21,7 @@ export const getAllUsers = async (req: AuthenticatedRequest, res: Response) => {
         res.status(500).json({message: "Error fetching users"});
     }
 }
+
 
 export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response) => {
     try{
@@ -48,21 +48,24 @@ export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response)
     }
 }
 
+
 export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
     try{
-        const term = z.string().parse(req.query.name);
+        const term = z.string().parse(req.query.search);
         
-        const allUsers = await db.query.users.findMany({
-            orderBy: desc(users.createdAt)
-        });
+        const usersList = await db.query.users.findMany({
+                where: and(
+                    term ? or(
+                        like(users.username, `%${term}%`),
+                        like(users.email, `%${term}%`),
+                        like(users.studentId, `%${term}%`),
+                        like(users.studentLRN, `%${term}%`)
+                    ) : undefined
+                )
+            }
+        );
         
-        const fuse = new Fuse(allUsers, {
-            keys: ["username", "email", "studentId", "studentLRN"],
-            threshold: 0.3
-        })
-        
-        const results = fuse.search(term);
-        const matchedUsers = results.map(result => result.item);
+        const matchedUsers = usersList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
         console.log("Search results:", matchedUsers);
         return res.status(200).json({users: matchedUsers});
@@ -75,5 +78,24 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
         
         console.error("Error searching users:", e);
         res.status(500).json({message: "Error searching users"});
+    }
+}
+
+
+export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.string().parse(req.params.id);
+        const updatedUser = await db.update(users).set(req.body).where(eq(users.id, userId));
+        
+        if(!updatedUser) {
+            return res.status(401).json({message: "Unautorized to update this user"});
+        }
+        
+        console.log("Updated user:", updatedUser);
+        res.status(200).json({message: "User updated successfully", user: updatedUser});
+    }
+    catch(e){
+        console.error("Error updating user:", e);
+        res.status(500).json({message: "Error updating user"});
     }
 }
