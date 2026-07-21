@@ -8,20 +8,20 @@ export const users = mysqlTable("users", {
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }).notNull(),
     role: varchar("role", { length: 255 }).notNull(),
-    student_id: varchar("student_id", { length: 255 }).unique(),
-    student_LRN: int("student_LRN").unique(),
-    created_at: timestamp("created_at").defaultNow().notNull(),
-    updated_at: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+    studentId: varchar("student_id", { length: 255 }).unique(),
+    studentLRN: int("student_LRN").unique(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export const events = mysqlTable("events", {
     id: varchar("id", { length: 36 }).primaryKey(),
-    created_by: varchar("created_by", { length: 36 }).references(() => users.id).notNull(),
-    event_name: varchar("event_name", { length: 255 }).notNull(),
-    event_description: text("event_description"),
-    event_date: date("event_date").notNull(),
-    created_at: timestamp("created_at").defaultNow().notNull(),
-    updated_at: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+    createdBy: varchar("created_by", { length: 36 }).references(() => users.id).notNull(),
+    eventName: varchar("event_name", { length: 255 }).notNull(),
+    eventDescription: text("event_description"),
+    eventDate: date("event_date").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export const userRelations = relations(users, ({ many }) => ({
@@ -29,8 +29,8 @@ export const userRelations = relations(users, ({ many }) => ({
 }));
 
 export const eventRelations = relations(events, ({ one }) => ({
-    created_by: one(users, {
-        fields: [events.created_by],
+    createdBy: one(users, {
+        fields: [events.createdBy],
         references: [users.id],
     }),
 }));
@@ -41,11 +41,11 @@ export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
 
 export const insertUserSchema = createInsertSchema(users).omit({ 
-    id: true, created_at: true, updated_at: true 
+    id: true, createdAt: true, updatedAt: true 
 });
 export const selectUserSchema = createSelectSchema(users);
 export const insertEventSchema = createInsertSchema(events).omit({
-    id: true, created_at: true, updated_at: true 
+    id: true, createdAt: true, updatedAt: true 
 });
 export const selectEventSchema = createSelectSchema(events);
 

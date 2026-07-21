@@ -57,7 +57,7 @@ export const loginUser = async (req: Request, res: Response) => {
         });
         
         const {password, ...userWithoutPassword} = user;     
-        res.status(201).json({message: "Login successful", token, user: userWithoutPassword});
+        res.status(201).json({message: "Login successful", user: userWithoutPassword, token});
     }
     catch(e) {
         console.error("Error logging in:", e);
