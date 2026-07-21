@@ -88,7 +88,7 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         const updatedUser = await db.update(users).set(req.body).where(eq(users.id, userId));
         
         if(!updatedUser) {
-            return res.status(401).json({message: "Unautorized to update this user"});
+            return res.status(401).json({message: "Unauthorized to update this user"});
         }
         
         console.log("Updated user:", updatedUser);
@@ -97,5 +97,29 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
     catch(e){
         console.error("Error updating user:", e);
         res.status(500).json({message: "Error updating user"});
+    }
+}
+
+
+export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.string().parse(req.params.id);
+        const deletedUser = await db.delete(users).where(eq(users.id, userId));
+
+        if(!deletedUser) {
+            console.error("User not found or unauthorized to delete");
+            return res.status(404).json({message: "User not found or unauthorized to delete"});
+        }
+
+        console.log("Deleted user:", deletedUser);
+        res.status(200).json({message: "User deleted successfully", user: deletedUser});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid user ID parameter:", e.issues);
+            return res.status(400).json({message: "Invalid user ID parameter", errors: e.issues});
+        }
+        console.error("Error deleting user:", e);
+        res.status(500).json({message: "Error deleting user"});
     }
 }
