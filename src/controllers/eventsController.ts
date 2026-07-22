@@ -7,14 +7,13 @@ import { z } from "zod";
 import { v4 as uuid } from "uuid";
 
 export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
-    try{
-        const userId = z.string().parse(req.user!.id);
+    try{        
         const eventId = uuid();
         
         const newEvent = {
             ...req.body,
             id: eventId,
-            userId: userId
+            createdBy: req.user!.id
         };
         
         await db.insert(events).values(newEvent);
@@ -23,6 +22,7 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
         res.status(201).json({message: "Event created successfully", event: newEvent});
     }
     catch(e){
+        console.error("Error creating event:", e);
         res.status(500).json({message: "Error creating event"});
     }
 }

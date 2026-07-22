@@ -20,7 +20,9 @@ export const users = mysqlTable("users", {
 
 export const events = mysqlTable("events", {
     id: varchar("id", { length: 36 }).primaryKey(),
-    createdBy: varchar("created_by", { length: 36 }).references(() => users.id).notNull(),
+    createdBy: varchar("created_by", { length: 36 }).references(() => users.id, {
+        onDelete: "cascade",
+    }).notNull(),
     eventName: varchar("event_name", { length: 255 }).notNull(),
     eventDescription: text("event_description"),
     eventLocation: varchar("event_location", { length: 255 }),
@@ -32,8 +34,12 @@ export const events = mysqlTable("events", {
 
 export const attendance = mysqlTable("attendance", {
     id: varchar("id", { length: 36 }).primaryKey(),
-    eventId: varchar("event_id", { length: 36 }).references(() => events.id).notNull(),
-    userId: varchar("user_id", { length: 36 }).references(() => users.id).notNull(),
+    eventId: varchar("event_id", { length: 36 }).references(() => events.id, {
+        onDelete: "cascade"
+    }).notNull(),
+    userId: varchar("user_id", { length: 36 }).references(() => users.id, {
+        onDelete: "cascade"
+    }).notNull(),
     attendedAt: timestamp("attended_at").defaultNow().notNull(),
     isLate: boolean("is_late").notNull().default(false)
 });
@@ -44,6 +50,7 @@ export const userRelations = relations(users, ({ many }) => ({
     attendance: many(attendance)
 }));
 
+
 export const eventRelations = relations(events, ({ one, many }) => ({
     createdBy: one(users, {
         fields: [events.createdBy],
@@ -51,6 +58,7 @@ export const eventRelations = relations(events, ({ one, many }) => ({
     }),
     attendance: many(attendance),
 }));
+
 
 export const attendanceRelations = relations(attendance, ({ one }) => ({
     event: one(events, {
@@ -63,12 +71,14 @@ export const attendanceRelations = relations(attendance, ({ one }) => ({
     }),
 }));
 
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
 export type Attendance = typeof attendance.$inferSelect;
 export type NewAttendance = typeof attendance.$inferInsert;
+
 
 export const insertUserSchema = createInsertSchema(users).omit({ 
     id: true, createdAt: true, updatedAt: true 

@@ -19,7 +19,7 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
         await db.insert(users).values(newUSer);
         
         const token = await generateToken({
-            userId: newUSer.id,
+            id: newUSer.id,
             username: newUSer.username,
             email: newUSer.email,
             role: newUSer.role
@@ -50,7 +50,7 @@ export const loginUser = async (req: Request, res: Response) => {
         }
         
         const token = await generateToken({
-            userId: user.id,
+            id: user.id,
             username: user.username,
             email: user.email,
             role: user.role

@@ -3,7 +3,7 @@ import { createSecretKey } from "crypto";
 import {env} from "../../env.ts";
 
 export interface JwtPayload extends JWTPayload {
-    userId: string;
+    id: string;
     username: string;
     email: string;
     role: string;
