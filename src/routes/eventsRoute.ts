@@ -2,7 +2,7 @@ import Router from "express";
 import { authAdminToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
 import z from "zod";
-import { createEvent } from "../controllers/eventsController.ts";
+import { createEvent, getAllEvents } from "../controllers/eventsController.ts";
 
 const router = Router();
 
@@ -15,5 +15,6 @@ const createEventSchema = z.object({
 
 router.use( authAdminToken );
 router.post("/create", validateBody(createEventSchema), createEvent);
+router.get("/all", getAllEvents);
 
 export default router;

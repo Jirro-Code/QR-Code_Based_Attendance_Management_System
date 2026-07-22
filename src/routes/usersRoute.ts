@@ -25,7 +25,7 @@ const uuidSchema = z.object({
 });
 
 router.use(authAdminToken);
-router.get("/", getAllUsers);
+router.get("/all", getAllUsers);
 router.get("/role/:role", getAllUserByRole);
 router.get("/search", validateQuery(searchSchema), searchUsers);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateUserSchema), updateUser);

@@ -27,3 +27,18 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
     }
 }
 
+export const getAllEvents = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventsList = await db.query.events.findMany({
+            orderBy: desc(events.eventDate)
+        });
+        
+        console.log("Fetched events:", eventsList);
+        res.status(200).json({events: eventsList});
+    }
+    catch (e){
+        console.error("Error fetching events:", e);
+        res.status(500).json({message: "Error fetching events"});
+    }
+}
+
