@@ -2,7 +2,7 @@ import Router from "express";
 import { authAdminToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
 import z from "zod";
-import { createEvent, getAllEvents } from "../controllers/eventsController.ts";
+import { createEvent, getAllEvents, searchEvents } from "../controllers/eventsController.ts";
 
 const router = Router();
 
@@ -13,8 +13,13 @@ const createEventSchema = z.object({
     eventLocation: z.string().optional()
 });
 
+const searchSchema = z.object({
+    search: z.string().min(1, "Search term must be at least 1 character long")
+});
+
 router.use( authAdminToken );
 router.post("/create", validateBody(createEventSchema), createEvent);
 router.get("/all", getAllEvents);
+router.get("/search", validateQuery(searchSchema), searchEvents);
 
 export default router;
