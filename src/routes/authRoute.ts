@@ -12,7 +12,7 @@ const loginSChema = z.object({
     email: z.email("Invalid email address")
 })
 
-router.post("/api/register", validateBody(insertUserSchema), registerUser);
-router.post("/api/login", validateBody(loginSChema), loginUser);
+router.post("/register", validateBody(insertUserSchema), registerUser);
+router.post("/login", validateBody(loginSChema), loginUser);
 
 export default router;

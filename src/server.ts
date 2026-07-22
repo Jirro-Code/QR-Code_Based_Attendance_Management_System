@@ -12,8 +12,8 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.use("/auth", authRoute);
-app.use("/users", usersRoute);
+app.use("/api/auth", authRoute);
+app.use("/api/users", usersRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");

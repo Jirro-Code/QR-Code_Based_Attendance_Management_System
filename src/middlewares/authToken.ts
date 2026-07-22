@@ -36,17 +36,18 @@ export const authAdminToken = async (req: AuthenticatedRequest, res: Response, n
             return res.status(401).json({message: "No token provided"});
         }
         
-        if(req.user?.role !== "admin"){
+        const payload = await verifyToken(token);
+        
+        if(payload.role !== "admin"){
             return res.status(403).json({message: "Access denied. Admins only."});
         }
-        
-        const payload = await verifyToken(token);
         
         req.user = payload;
         console.log("Authenticated user:", req.user);
         next();
     }
     catch(e){
+        console.error("Error in authAdminToken middleware:", e);
         res.status(403).json({message: "request is forbidden"});
     }
 }

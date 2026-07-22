@@ -1,5 +1,5 @@
 import Router from "express";
-import { authAdminToken, authToken } from "../middlewares/authToken.ts";
+import { authAdminToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
 import { getAllUserByRole, getAllUsers, searchUsers, updateUser, deleteUser} from "../controllers/usersController.ts";
 import z from "zod";
@@ -24,10 +24,10 @@ const uuidSchema = z.object({
     id: z.uuid("Invalid UUID format")
 });
 
-router.use(authToken);
-router.get("/api/users", getAllUsers);
-router.get("/api/users/role/:role", getAllUserByRole);
-router.get("/api/users/search", validateQuery(searchSchema), searchUsers);
-router.put("/api/users/update/:id", validateParams(uuidSchema), validateBody(updateUserSchema), updateUser);
-router.delete("/api/users/delete/:id", validateParams(uuidSchema), deleteUser);
+router.use(authAdminToken);
+router.get("/", getAllUsers);
+router.get("/role/:role", getAllUserByRole);
+router.get("/search", validateQuery(searchSchema), searchUsers);
+router.put("/update/:id", validateParams(uuidSchema), validateBody(updateUserSchema), updateUser);
+router.delete("/delete/:id", validateParams(uuidSchema), deleteUser);
 export default router;

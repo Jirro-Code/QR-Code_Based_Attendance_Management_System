@@ -2,6 +2,7 @@ import type { Response } from "express";
 import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import { users } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
+import { hashPassword } from "../utils/password.ts";
 import { eq, desc, and, or, like} from "drizzle-orm";
 import z from "zod";
 
@@ -85,10 +86,12 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
 export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.params.id);
-        const updatedUser = await db.update(users).set(req.body).where(eq(users.id, userId));
+        const userPassword = req.body.password ? await hashPassword(req.body.password) : undefined;
+        const updatedData = userPassword ? {...req.body, password: userPassword} : req.body;
+        const updatedUser = await db.update(users).set(updatedData).where(eq(users.id, userId));
         
-        if(!updatedUser) {
-            return res.status(401).json({message: "Unauthorized to update this user"});
+        if(updatedUser[0].affectedRows === 0) {
+            return res.status(404).json({message: "User not found"});
         }
         
         console.log("Updated user:", updatedUser);
