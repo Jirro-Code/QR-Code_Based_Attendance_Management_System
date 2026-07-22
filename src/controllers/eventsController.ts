@@ -72,3 +72,28 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
         res.status(500).json({message: "Error searching events"});
     }
 }
+
+
+export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventId = z.string().parse(req.params.id);
+        const updatedEvent = await db.update(events).set(req.body).where(eq(events.id, eventId));
+        
+        if(updatedEvent[0].affectedRows === 0){
+            console.error("Event not found:", eventId);
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        console.log("Event updated:", eventId);
+        return res.status(200).json({message: "Event updated successfully", updates: updatedEvent});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid event update", e.issues)
+            return res.status(400).json({message: "Invalid event update", error: e.issues})
+        }
+
+        console.error("Error occured while updating event", e);
+        return res.status(500).json({message: "Error updating event"})
+    }
+}
