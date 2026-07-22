@@ -92,8 +92,33 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
             console.error("Invalid event update", e.issues)
             return res.status(400).json({message: "Invalid event update", error: e.issues})
         }
-
+        
         console.error("Error occured while updating event", e);
         return res.status(500).json({message: "Error updating event"})
+    }
+}
+
+
+export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventId = z.string().parse(req.params.id);
+        const deletedEvent = await db.delete(events).where(eq(events.id, eventId));
+        
+        if(deletedEvent[0].affectedRows === 0){
+            console.error("Event not found:", eventId);
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        console.log("Event deleted:", eventId);
+        return res.status(200).json({message: "Event deleted successfully", event: deletedEvent});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid event ID parameter:", e.issues);
+            return res.status(400).json({message: "Invalid event ID parameter", errors: e.issues});
+        }
+        
+        console.error("Error occurred while deleting event:", e);
+        return res.status(500).json({message: "Error deleting event"});
     }
 }

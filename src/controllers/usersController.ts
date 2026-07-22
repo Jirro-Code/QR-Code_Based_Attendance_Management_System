@@ -109,7 +109,7 @@ export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
         const userId = z.string().parse(req.params.id);
         const deletedUser = await db.delete(users).where(eq(users.id, userId));
 
-        if(!deletedUser) {
+        if(deletedUser[0].affectedRows === 0) {
             console.error("User not found or unauthorized to delete");
             return res.status(404).json({message: "User not found or unauthorized to delete"});
         }

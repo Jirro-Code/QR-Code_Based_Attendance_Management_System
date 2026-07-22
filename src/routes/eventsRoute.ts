@@ -2,7 +2,7 @@ import Router from "express";
 import { authAdminToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
 import z from "zod";
-import { createEvent, getAllEvents, searchEvents, updateEvent } from "../controllers/eventsController.ts";
+import { createEvent, deleteEvent, getAllEvents, searchEvents, updateEvent } from "../controllers/eventsController.ts";
 
 const router = Router();
 
@@ -38,6 +38,6 @@ router.post("/create", validateBody(createEventSchema), createEvent);
 router.get("/all", getAllEvents);
 router.get("/search", validateQuery(searchSchema), searchEvents);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateEventSchema), updateEvent);
-
+router.delete("/delete/:id", validateParams(uuidSchema), deleteEvent);
 
 export default router;
