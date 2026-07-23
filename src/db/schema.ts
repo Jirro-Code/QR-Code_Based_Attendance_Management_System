@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, text, timestamp, date, boolean} from "drizzle-orm/mysql-core";
+import { mysqlTable, varchar, text, timestamp, date, boolean, unique} from "drizzle-orm/mysql-core";
 import {relations} from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
@@ -42,7 +42,12 @@ export const attendance = mysqlTable("attendance", {
     }).notNull(),
     attendedAt: timestamp("attended_at").defaultNow().notNull(),
     isLate: boolean("is_late").notNull().default(false)
-});
+    },
+    (table) => [
+        unique("attendance_user_event_unique").
+        on(table.eventId, table.userId)
+    ]
+);
 
 
 export const userRelations = relations(users, ({ many }) => ({

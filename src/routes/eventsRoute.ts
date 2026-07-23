@@ -40,4 +40,5 @@ router.get("/search", validateQuery(searchSchema), searchEvents);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateEventSchema), updateEvent);
 router.delete("/delete/:id", validateParams(uuidSchema), deleteEvent);
 
+
 export default router;

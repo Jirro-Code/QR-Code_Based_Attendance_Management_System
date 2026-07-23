@@ -1,6 +1,6 @@
 import type {Response} from "express";
 import type {AuthenticatedRequest} from "../middlewares/authToken.ts";
-import {events, users} from "../db/schema.ts";
+import {events} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
 import { eq, desc, and, or, like } from "drizzle-orm";
 import { z } from "zod";

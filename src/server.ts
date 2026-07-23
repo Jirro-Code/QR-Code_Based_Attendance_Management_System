@@ -2,6 +2,7 @@ import express from "express";
 import authRoute from "./routes/authRoute.ts";
 import usersRoute from "./routes/usersRoute.ts";
 import eventsRoute from "./routes/eventsRoute.ts";
+import attendanceRoute from "./routes/attendanceRoute.ts";
 import morgan from "morgan";
 import helmet from "helmet";
 import cors from "cors";
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/events", eventsRoute);
+app.use("/api/attendance", attendanceRoute);
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
