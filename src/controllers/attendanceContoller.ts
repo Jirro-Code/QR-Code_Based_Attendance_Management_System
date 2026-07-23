@@ -95,7 +95,7 @@ export const getUserAttendance = async (req: AuthenticatedRequest, res: Response
 
 export const getEventAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
-        const eventId = z.string().uuid().parse(req.params.id);
+        const eventId = z.uuid().parse(req.params.id);
         const event = await db.query.attendance.findMany({
             where: eq(attendance.eventId, eventId)
         })
@@ -115,5 +115,30 @@ export const getEventAttendance = async (req: AuthenticatedRequest, res: Respons
         
         console.error("Error fetching attendance by ID:", e);
         res.status(500).json({message: "Error fetching attendance by ID"});
+    }
+}
+
+
+export const updateAttendance = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.uuid().parse(req.params.id);
+        const isLate = z.boolean().parse(req.body.isLate);
+        
+        const updatedAttendance = await db.update(attendance).set({ isLate }).where(eq(attendance.userId, userId));
+        
+        if(updatedAttendance[0].affectedRows === 0){
+            console.error("Attendance not found for user:", userId);
+            return res.status(404).json({message: "Attendance not found for this user"});
+        }
+        console.log("Attendance updated:", updatedAttendance);
+        res.status(200).json({message: "Attendance updated successfully", attendance: updatedAttendance});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid attendance update", e.issues);
+            return res.status(400).json({message: "Invalid attendance update", error: e.issues});
+        }
+        console.error("Error updating attendance:", e);
+        res.status(500).json({message: "Error updating attendance"});
     }
 }
