@@ -29,7 +29,7 @@ const searchSchema = z.object({
 
 
 const uuidSchema = z.object({
-    id: z.string().uuid("Invalid UUID format")
+    id: z.uuid("Invalid UUID format")
 });
 
 

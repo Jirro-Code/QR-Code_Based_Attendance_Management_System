@@ -28,10 +28,10 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
         
         const attendanceExist = await db.query.attendance.findFirst({
             where: 
-                and(eq(users.id, req.body.userId), eq(events.id, req.body.eventId))
+                and(eq(attendance.userId, req.body.userId), eq(attendance.eventId, req.body.eventId))
         });
         
-        if (!attendanceExist) {
+        if (attendanceExist) {
             return res.status(400).json({message: "Attendance already marked for this user and event"});
         }
         
@@ -58,7 +58,7 @@ export const getAllAttendance = async (req: AuthenticatedRequest, res: Response)
         const attendanceList = await db.query.attendance.findMany();
         
         console.log("Fetched attendance:", attendanceList);
-        res.status(200).json({attendance: attendanceList});
+        res.status(200).json({message: "Attendance fetched successfully", attendance: attendanceList});
     }
     catch (e){
         console.error("Error fetching attendance:", e);
@@ -67,3 +67,27 @@ export const getAllAttendance = async (req: AuthenticatedRequest, res: Response)
 }
 
 
+export const getAttendanceByUserId = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.string().uuid().parse(req.params.id);
+        const user = await db.query.attendance.findMany({
+            where: eq(attendance.userId, userId)
+        })
+        
+        if (!user) {
+            return res.status(404).json({message: "Attendance not found for this user"});
+        }
+        
+        console.log("Fetched attendance for user:", user);
+        return res.status(200).json({message: "Attendance fetched successfully", attendance: user});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid attendance ID:", e.issues);
+            return res.status(400).json({message: "Invalid attendance ID", errors: e.issues});
+        }
+        
+        console.error("Error fetching attendance by ID:", e);
+        res.status(500).json({message: "Error fetching attendance by ID"});
+    }
+}
