@@ -67,7 +67,7 @@ export const getAllAttendance = async (req: AuthenticatedRequest, res: Response)
 }
 
 
-export const getAttendanceByUserId = async (req: AuthenticatedRequest, res: Response) => {
+export const getUserAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().uuid().parse(req.params.id);
         const user = await db.query.attendance.findMany({
@@ -83,8 +83,34 @@ export const getAttendanceByUserId = async (req: AuthenticatedRequest, res: Resp
     }
     catch(e){
         if(e instanceof z.ZodError){
-            console.error("Invalid attendance ID:", e.issues);
-            return res.status(400).json({message: "Invalid attendance ID", errors: e.issues});
+            console.error("Invalid user ID:", e.issues);
+            return res.status(400).json({message: "Invalid user ID", errors: e.issues});
+        }
+        
+        console.error("Error fetching attendance by ID:", e);
+        res.status(500).json({message: "Error fetching attendance by ID"});
+    }
+}
+
+
+export const getEventAttendance = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventId = z.string().uuid().parse(req.params.id);
+        const event = await db.query.attendance.findMany({
+            where: eq(attendance.eventId, eventId)
+        })
+        
+        if (!event) {
+            return res.status(404).json({message: "Attendance not found for this event"});
+        }
+        
+        console.log("Fetched attendance for event:", event);
+        return res.status(200).json({message: "Attendance fetched successfully", attendance: event});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid event ID:", e.issues);
+            return res.status(400).json({message: "Invalid event ID", errors: e.issues});
         }
         
         console.error("Error fetching attendance by ID:", e);
