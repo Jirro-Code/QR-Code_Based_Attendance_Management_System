@@ -1,0 +1,3 @@
+# API documents
+
+## Authentication routes

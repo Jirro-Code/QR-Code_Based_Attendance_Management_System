@@ -69,9 +69,11 @@ export const getAllAttendance = async (req: AuthenticatedRequest, res: Response)
 
 export const getUserAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
-        const userId = z.string().uuid().parse(req.params.id);
+        const userId = req.user!.role === "admin" ? z.uuid().parse(req.params.id) : req.user!.id;
+        
         const user = await db.query.attendance.findMany({
-            where: eq(attendance.userId, userId)
+            where: eq(attendance.userId, userId),
+            orderBy: desc(attendance.attendedAt)
         })
         
         if (!user) {
