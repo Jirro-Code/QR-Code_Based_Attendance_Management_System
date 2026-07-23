@@ -79,7 +79,7 @@ export const getUserAttendance = async (req: AuthenticatedRequest, res: Response
         }
         
         console.log("Fetched attendance for user:", user);
-        return res.status(200).json({message: "Attendance fetched successfully", attendance: user});
+        res.status(200).json({message: "Attendance fetched successfully", attendance: user});
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -105,7 +105,7 @@ export const getEventAttendance = async (req: AuthenticatedRequest, res: Respons
         }
         
         console.log("Fetched attendance for event:", event);
-        return res.status(200).json({message: "Attendance fetched successfully", attendance: event});
+        res.status(200).json({message: "Attendance fetched successfully", attendance: event});
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -140,5 +140,30 @@ export const updateAttendance = async (req: AuthenticatedRequest, res: Response)
         }
         console.error("Error updating attendance:", e);
         res.status(500).json({message: "Error updating attendance"});
+    }
+}
+
+
+export const deleteUserAttendance = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.uuid().parse(req.params.id);
+        const deletedUser = await db.delete(attendance).where(eq(attendance.userId, userId))
+        
+        if(deletedUser[0].affectedRows===0){
+            console.error("User not found", userId);
+            return res.status(404).json({message: "User not found"})
+        }
+        
+        console.log("User attendance deleted successfully:", deletedUser);
+        res.status(200).json({message: "User attendance deleted successfully", user: deletedUser})
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid user id", e);
+            return res.status(400).json({message: "Invalid user id",error: e.issues})
+        }
+        
+        console.error("Error deleting attendance:", e);
+        res.status(500).json({message: "Error deleting attendance"})
     }
 }

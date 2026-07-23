@@ -60,7 +60,7 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
         );
         
         console.log("Search results:", eventsList);
-        return res.status(200).json({events: eventsList});
+        res.status(200).json({events: eventsList});
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -85,7 +85,7 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
         }
         
         console.log("Event updated:", eventId);
-        return res.status(200).json({message: "Event updated successfully", updates: updatedEvent});
+        res.status(200).json({message: "Event updated successfully", updates: updatedEvent});
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -94,7 +94,7 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
         }
         
         console.error("Error occured while updating event", e);
-        return res.status(500).json({message: "Error updating event"})
+        res.status(500).json({message: "Error updating event"})
     }
 }
 
@@ -110,7 +110,7 @@ export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
         }
         
         console.log("Event deleted:", eventId);
-        return res.status(200).json({message: "Event deleted successfully", event: deletedEvent});
+        res.status(200).json({message: "Event deleted successfully", event: deletedEvent});
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -119,6 +119,6 @@ export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
         }
         
         console.error("Error occurred while deleting event:", e);
-        return res.status(500).json({message: "Error deleting event"});
+        res.status(500).json({message: "Error deleting event"});
     }
 }
