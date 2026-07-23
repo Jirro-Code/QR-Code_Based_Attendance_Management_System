@@ -53,3 +53,17 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
 }
 
 
+export const getAllAttendance = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const attendanceList = await db.query.attendance.findMany();
+        
+        console.log("Fetched attendance:", attendanceList);
+        res.status(200).json({attendance: attendanceList});
+    }
+    catch (e){
+        console.error("Error fetching attendance:", e);
+        res.status(500).json({message: "Error fetching attendance"});
+    }
+}
+
+
