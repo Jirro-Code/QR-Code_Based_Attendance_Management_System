@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Socket.IO Attendance Notification Test</title>
+  <style>
+    :root {
+      --bg: #f3f7fb;
+      --panel: #ffffff;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --border: #dbe3ee;
+      --ok: #0f9d58;
+      --warn: #d97706;
+      --err: #dc2626;
+      --card: #eef7ff;
+    }
+    
+    * {
+      box-sizing: border-box;
+    }
+    
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(160deg, #f8fbff 0%, #eef5ff 45%, #f5faff 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+    
+    .wrap {
+      max-width: 720px;
+      margin: 0 auto;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 20px;
+      box-shadow: 0 10px 24px rgba(31, 41, 55, 0.08);
+    }
+    
+    h1 {
+      margin: 0 0 10px;
+      font-size: 1.5rem;
+    }
+    
+    .help {
+      margin: 0 0 18px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    
+    .status-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #f8fafc;
+      margin-bottom: 18px;
+    }
+    
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 999px;
+      background: var(--warn);
+      flex-shrink: 0;
+    }
+    
+    .dot.connected {
+      background: var(--ok);
+    }
+    
+    .dot.disconnected {
+      background: var(--err);
+    }
+    
+    .status-text {
+      font-weight: 600;
+    }
+    
+    .status-detail {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-left: auto;
+      text-align: right;
+    }
+    
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.1rem;
+    }
+    
+    #notifications {
+      display: grid;
+      gap: 10px;
+    }
+    
+    .empty-state {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      color: var(--muted);
+      background: #fcfdff;
+    }
+    
+    .card {
+      border: 1px solid #c9e2ff;
+      background: var(--card);
+      border-radius: 10px;
+      padding: 12px;
+    }
+    
+    .card .title {
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .meta {
+      color: #334155;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>Socket.IO Attendance Notification Test</h1>
+    <p class="help">
+      This page auto-connects to your Socket.IO backend using the JWT token set in the script.
+      No login form and no room join button are needed.
+    </p>
+    
+    <section class="status-row" aria-live="polite">
+      <span id="statusDot" class="dot" aria-hidden="true"></span>
+      <span id="statusText" class="status-text">Connecting...</span>
+      <span id="statusDetail" class="status-detail">Initializing Socket.IO client</span>
+    </section>
+    
+    <h2>Attendance Notifications</h2>
+    <div id="notifications">
+      <div id="emptyState" class="empty-state">Waiting for "attendance:marked" notifications...</div>
+    </div>
+  </main>
+  
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    
+    const JWT_TOKEN = "";
+    
+    // Socket.IO backend URL. Change this for staging/production later.
+    const SOCKET_SERVER_URL = "http://localhost:3000";
+    
+    const statusDot = document.getElementById("statusDot");
+    const statusText = document.getElementById("statusText");
+    const statusDetail = document.getElementById("statusDetail");
+    const notifications = document.getElementById("notifications");
+    const emptyState = document.getElementById("emptyState");
+    
+    function setStatus(state, detailText) {
+      statusDot.classList.remove("connected", "disconnected");
+      
+      if (state === "Connected") {
+        statusDot.classList.add("connected");
+      } else if (state === "Disconnected") {
+        statusDot.classList.add("disconnected");
+      }
+      
+      statusText.textContent = state;
+      statusDetail.textContent = detailText || "";
+    }
+    
+    function addNotificationCard(payload) {
+      if (emptyState) {
+        emptyState.remove();
+      }
+      
+      const receivedAt = new Date();
+      const timeText = receivedAt.toLocaleTimeString();
+      const message = payload && payload.message ? payload.message : "Attendance notification received.";
+      const eventId = payload && payload.eventId ? payload.eventId : "826ccc42-57e2-43ec-a579-3a3d7d429d6b";
+      
+      const card = document.createElement("article");
+      card.className = "card";
+      card.innerHTML = `
+        <div class="title">Attendance Marked</div>
+        <div class="meta"><strong>Message:</strong> ${message}</div>
+        <div class="meta"><strong>Event ID:</strong> ${eventId}</div>
+        <div class="meta"><strong>Received At:</strong> ${timeText}</div>
+      `;
+      
+      notifications.prepend(card);
+    }
+    
+    setStatus("Connecting", "Trying to connect to " + SOCKET_SERVER_URL);
+    
+    const socket = io(SOCKET_SERVER_URL, {
+      auth: {
+        token: JWT_TOKEN
+      }
+    });
+    
+    socket.on("connect", function () {
+      console.log("Socket connected:", socket.id);
+      setStatus("Connected", "Socket ID: " + socket.id);
+    });
+    
+    socket.on("connect_error", function (error) {
+      const message = error && error.message ? error.message : "Unknown connection error";
+      console.error("Socket connection error:", message, error);
+      setStatus("Disconnected", "Connection error: " + message);
+    });
+    
+    socket.on("disconnect", function (reason) {
+      console.warn("Socket disconnected:", reason);
+      setStatus("Disconnected", "Reason: " + reason);
+    });
+    
+    socket.on("attendance:marked", function (data) {
+      console.log("Attendance notification received:", data);
+      addNotificationCard(data);
+    });
+  </script>
+</body>
+</html>

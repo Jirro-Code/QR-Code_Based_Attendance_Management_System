@@ -5,6 +5,7 @@ import {db} from "../db/connections.ts";
 import { eq, desc, and, or, like } from "drizzle-orm";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
+import { io } from "../index.ts";
 
 export const markAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{      
@@ -42,6 +43,13 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
         };
         
         await db.insert(attendance).values(newAttendance);
+        
+        // Emit a socket event to notify the user that their attendance has been marked
+        io.to(`userId-${req.body.userId}`).emit("attendance:marked", {
+            message: "You have been marked as present!",
+            eventId: req.body.eventId,
+            attendance: newAttendance,
+        });
         
         console.log("Attendance marked:", newAttendance);
         res.status(201).json({message: "Attendance marked successfully", attendance: newAttendance});
