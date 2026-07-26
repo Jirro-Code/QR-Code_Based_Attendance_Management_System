@@ -47,3 +47,19 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
     return { testUser, userToken, testAdmin, adminToken, testUserPassword: "testUser", testAdminPassword: "testAdmin" };
 }
 
+
+export const createTestEvent = async (eventData: Partial<NewEvent> = {}, adminId: string) => {
+    const testEvent = {
+        id: uuid(),
+        eventName: `Test Event ${Date.now()}`,
+        createdBy: adminId, 
+        eventDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        eventLocation: "Test Location",
+        eventDescription: "This is a test event",
+        date: new Date(),
+        ...eventData
+    }
+    
+    await db.insert(events).values(testEvent);
+    return testEvent;
+}
