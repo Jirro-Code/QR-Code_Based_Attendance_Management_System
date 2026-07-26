@@ -73,7 +73,7 @@ export const createTestAttendance = async (attendanceData: Partial<NewAttendance
         ...attendanceData
     }
     await db.insert(attendance).values(testAttendance);
-
+    
     return testAttendance;
 }
 
