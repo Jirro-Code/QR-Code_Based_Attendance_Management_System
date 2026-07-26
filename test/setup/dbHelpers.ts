@@ -63,3 +63,23 @@ export const createTestEvent = async (eventData: Partial<NewEvent> = {}, adminId
     await db.insert(events).values(testEvent);
     return testEvent;
 }
+
+
+export const createTestAttendance = async (attendanceData: Partial<NewAttendance> = {}, userId: string, eventId: string) => {
+    const testAttendance = {
+        id: uuid(),
+        userId: userId,
+        eventId: eventId,
+        ...attendanceData
+    }
+    await db.insert(attendance).values(testAttendance);
+
+    return testAttendance;
+}
+
+
+export const clearDatabase = async () => {
+    await db.delete(attendance).execute();
+    await db.delete(events).execute();
+    await db.delete(users).execute();
+}

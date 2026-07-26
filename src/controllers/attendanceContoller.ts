@@ -2,7 +2,7 @@ import type {Response} from "express";
 import type {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import {attendance, users, events} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
-import { eq, desc, and, or, like } from "drizzle-orm";
+import { eq, desc, and} from "drizzle-orm";
 import { z } from "zod";
 import { v4 as uuid } from "uuid";
 import { io } from "../index.ts";
