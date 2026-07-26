@@ -8,6 +8,12 @@ import { eq } from "drizzle-orm";
 
 export const registerUser = async (req: Request<any, any, NewUser>, res: Response) => {
     try{
+        
+        if(req.body.role === "user" && (req.body.studentId === undefined || req.body.studentLRN === undefined || req.body.studentStrand === undefined || req.body.studentSection === undefined)){
+            console.error("Missing required fields for user role:", req.body);
+            return res.status(400).json({message: "Missing required fields for user role"});
+        }
+        
         const hashedPassword = await hashPassword(req.body.password);
         const newUSer = {
             ...req.body,

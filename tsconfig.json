@@ -44,5 +44,5 @@
     "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": ["src", "env.ts", "custom-env.d.ts"],
+  "include": ["src", "env.ts", "custom-env.d.ts", "test"],
 }

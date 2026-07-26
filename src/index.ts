@@ -7,12 +7,14 @@ import { verifyToken } from "./utils/jwt.ts";
 
 const httpServer = http.createServer(app);
 
+
 // io will be used as a server variable to handle socket connections and events
 export const io = new Server(httpServer, {
   cors: {
     origin: "*",
   }
 });
+
 
 // Middleware to authenticate the JWT token for socket connections
 io.use(async (socket, next) => {
