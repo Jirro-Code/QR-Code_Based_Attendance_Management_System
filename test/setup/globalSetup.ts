@@ -3,11 +3,11 @@ import { users, events, attendance } from "../../src/db/schema.ts";
 import { sql } from "drizzle-orm";
 import { execSync } from "child_process"; 
 
-export default async function Setup() {
+export default async function setUp() {
     console.log("Setting up test environment...");
     
     try{
-        const tablestToDrop = [users, events, attendance];
+        const tablestToDrop = [attendance, events, users];
         
         for (const table of tablestToDrop) {
             await db.execute(sql`DROP TABLE IF EXISTS ${table} CASCADE`);
@@ -26,10 +26,10 @@ export default async function Setup() {
         console.error("Error setting up test environment:", e);
         throw e;
     }
-
+    
     return async () => {
         try{
-            const tablestToDrop = [users, events, attendance];
+            const tablestToDrop = [attendance, events, users];
             
             for (const table of tablestToDrop) {
                 await db.execute(sql`DROP TABLE IF EXISTS ${table} CASCADE`);

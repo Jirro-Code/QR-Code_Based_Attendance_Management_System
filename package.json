@@ -18,7 +18,7 @@
     "node": ">=26.3.1"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "cross-env APP_STAGE=test vitest run",
     "dev": "tsx --watch src/index.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
@@ -28,6 +28,7 @@
     "@epic-web/remember": "^1.1.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
+    "cross-env": "^10.1.0",
     "custom-env": "^2.0.6",
     "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10",
@@ -43,13 +44,15 @@
     "socket.io": "^4.8.3",
     "tsx": "^4.23.1",
     "typescript": "^7.0.2",
-    "uuid": "^14.0.1"
+    "uuid": "^14.0.1",
+    "vitest": "^4.1.10"
   },
   "allowScripts": {
     "esbuild@0.28.1": true,
     "bcrypt@6.0.0": true,
     "esbuild@0.18.20": true,
-    "esbuild@0.25.12": true
+    "esbuild@0.25.12": true,
+    "unrs-resolver@1.12.2": true
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
