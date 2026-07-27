@@ -2,6 +2,8 @@ import request from "supertest";
 import app from "../src/server.ts";
 import { v4 as uuid } from "uuid";
 import { createTestUser, clearDatabase } from "./setup/dbHelpers.ts";
+import { hashPassword } from "../src/utils/password.ts";
+
 
 describe("Authentication Tests", () => {
     afterEach(async () => {
@@ -64,3 +66,30 @@ describe("Authentication Tests", () => {
         })
     })
 });
+
+
+describe("Error Handling Authentication Tests", () => {
+    afterEach(async () =>{
+        await clearDatabase();
+    })
+    
+    describe("POST /api/auth/register", () =>{
+        it("should return an error for missing fields for user role", async () => {
+            const userData = {
+                id: uuid(),
+                username: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}`,
+                email: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
+                password: await hashPassword("testUser"),
+                role: "user"
+            };
+            
+            const response = await request(app)
+                .post("/api/auth/register")
+                .send(userData)
+                .expect(400);
+            
+            console.log("Register Response:", response.body);
+            expect(response.body).toHaveProperty("message");
+        })
+    })
+})
