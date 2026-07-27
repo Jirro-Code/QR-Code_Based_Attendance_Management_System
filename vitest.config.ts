@@ -9,11 +9,9 @@ export default defineConfig({
         restoreMocks: true,
          // Ensure tests run sequentially to avoid database conflicts
         pool: 'threads',
-        poolOptions: {
-            threads: {
-                singleThread: true
-            },
-        },
+        fileParallelism: false,
+        isolate: false,
+        vmMemoryLimit: 512,
     },
     plugins: [],
 })

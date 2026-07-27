@@ -51,12 +51,13 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
 export const createTestEvent = async (eventData: Partial<NewEvent>, adminId: string ) => {
     const testEvent = {
         id: uuid(),
-        eventName: `Test Event ${Date.now()}`,
         createdBy: adminId, 
+        eventName: `Test Event ${Date.now()}`,
         eventDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-        eventLocation: "Test Location",
+        createdAt: new Date(),
+        updatedAt: new Date(),
         eventDescription: "This is a test event",
-        ...eventData
+        eventLocation: "Test Location"
     }
     
     await db.insert(events).values(testEvent);
@@ -70,7 +71,8 @@ export const createTestAttendance = async (attendanceData: Partial<NewAttendance
         id: uuid(),
         userId: userId,
         eventId: eventId,
-        ...attendanceData
+        attendedAt: new Date(),
+        isLate: false
     }
     
     await db.insert(attendance).values(testAttendance);
