@@ -10,10 +10,10 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
         username: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}`,
         email: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
         password: await hashPassword("testUser"),
-        role: "user",
+        role: "user" as const,
         studentId: `${new Date().getFullYear()}-${Math.floor(Math.random() * 9999)}-ICP`,
         studentLRN: `${Math.floor(Math.random() * 999999999999)}`,
-        studentStrand: "ICT",
+        studentStrand: "ICT" as const,
         studentSection: "ICT-12-5",
         ...userData
     }
@@ -30,7 +30,7 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
         username: `testadmin_${Date.now()}_${Math.floor(Math.random() * 100)}`,
         email: `testadmin_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
         password: await hashPassword("testAdmin"),
-        role: "admin",
+        role: "admin" as const,
         ...userData
     }
     

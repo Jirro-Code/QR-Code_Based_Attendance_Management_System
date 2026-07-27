@@ -1,4 +1,4 @@
-import { mysqlTable, varchar, text, timestamp, date, boolean, unique} from "drizzle-orm/mysql-core";
+import { mysqlTable, varchar, text, timestamp, date, boolean, unique, mysqlEnum} from "drizzle-orm/mysql-core";
 import {relations} from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
@@ -8,10 +8,10 @@ export const users = mysqlTable("users", {
     username: varchar("username", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }).notNull(),
-    role: varchar("role", { length: 255 }).notNull(),
+    role: mysqlEnum("role", ["user", "admin"]).notNull(),
     studentId: varchar("student_id", { length: 13 }).unique(),
     studentLRN: varchar("student_LRN", { length: 12 }).unique(),
-    studentStrand: varchar("student_strand", { length: 255 }),
+    studentStrand: mysqlEnum("student_strand", ["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]),
     studentSection: varchar("student_section", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
