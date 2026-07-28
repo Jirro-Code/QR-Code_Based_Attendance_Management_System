@@ -46,7 +46,7 @@ export const loginUser = async (req: Request, res: Response) => {
         })
         
         if(!user){
-            return res.status(401).json({message: "Invalid Credentials"});
+            return res.status(404).json({message: "User not found"});
         }
         
         const isPasswordValid = await comparePassword(req.body.password, user.password);

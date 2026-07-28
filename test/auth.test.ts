@@ -104,7 +104,7 @@ describe("Error Handling Authentication Tests", () => {
             expect(response.body).toHaveProperty("message");
         })
         
-        it("should return an error for invalid login credentials fot admin", async () => {
+        it("should return an error for invalid login credentials fot admin and user", async () => {
             const { testAdmin } = await createTestUser();
             const response = await request(app)
                 .post("/api/auth/login")
@@ -114,7 +114,31 @@ describe("Error Handling Authentication Tests", () => {
                     password: "wrongpassword"
                 })
                 .expect(401);
+            console.log("Login Response:", response.body);
+            expect(response.body).toHaveProperty("message");
             
+            const { testUser } = await createTestUser();
+            const response2 = await request(app)
+                .post("/api/auth/login")
+                .send({
+                    username: testUser.username,
+                    email: testUser.email,
+                    password: "wrongpassword"
+                })
+                .expect(401);
+            console.log("Login Response:", response2.body);
+            expect(response2.body).toHaveProperty("message");
+        })
+        
+        it("should return an error for non-existing user", async () => {
+            const response = await request(app)
+                .post("/api/auth/login")
+                .send({
+                    username: "nonexistinguser",
+                    email: "none@example.com",
+                    password: "wrongpassword"
+                })
+                .expect(404);
             console.log("Login Response:", response.body);
             expect(response.body).toHaveProperty("message");
         })
