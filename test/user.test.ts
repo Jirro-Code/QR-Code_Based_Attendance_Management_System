@@ -22,4 +22,18 @@ describe("user controller tests", () => {
             console.log("GET /api/users/all Response:", response.body);
         })
     })
+
+    describe("GET /api/users/role/:role", () => {
+        it("should return 200 and a list of users with the specified role for admin", async () => {
+            const { testUsers, testAdmins, testAdminsToken } = await createMultipleUser();
+            console.log("Created test users:", testUsers);
+            console.log("Created test admins:", testAdmins);
+            
+            const response = await request(app)
+                .get("/api/users/role/user")
+                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .expect(200);
+            console.log("GET /api/users/role/:role Response:", response.body);
+        })
+    })
 })
