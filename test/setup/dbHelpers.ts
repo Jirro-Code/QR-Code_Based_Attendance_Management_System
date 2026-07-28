@@ -47,8 +47,9 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
     return { testUser, userToken, testAdmin, adminToken, testUserPassword: "testUser", testAdminPassword: "testAdmin" };
 }
 
-export const createMultipleUser = async (userData: Partial<NewUser>) => {
+export const createMultipleUser = async (userData: Partial<NewUser> = {}) => {
     const testUsers = [];
+    const testUsersToken = []
     for(let i = 0; i < 5; i++){
         const testUser = {
             id: uuid(),
@@ -64,9 +65,18 @@ export const createMultipleUser = async (userData: Partial<NewUser>) => {
         }
         testUsers.push(testUser);
         await db.insert(users).values(testUser);
+        
+        const userToken = await generateToken({
+            id: testUser.id,
+            username: testUser.username,
+            email: testUser.email,
+            role: testUser.role
+        })
+        testUsersToken.push(userToken);
     }
     
     const testAdmins = [];
+    const testAdminsToken = []
     for(let i = 0; i < 3; i++){
         const testAdmin = {
             id: uuid(),
@@ -78,9 +88,17 @@ export const createMultipleUser = async (userData: Partial<NewUser>) => {
         }
         testAdmins.push(testAdmin);
         await db.insert(users).values(testAdmin);
+        
+        const adminToken = await generateToken({
+            id: testAdmin.id,
+            username: testAdmin.username,
+            email: testAdmin.email,
+            role: testAdmin.role
+        });
+        testAdminsToken.push(adminToken);
     }
     
-    return { testUsers, testAdmins };
+    return { testUsers, testUsersToken, testAdmins, testAdminsToken };
 }
 
 export const createTestEvent = async (eventData: Partial<NewEvent>, adminId: string ) => {
