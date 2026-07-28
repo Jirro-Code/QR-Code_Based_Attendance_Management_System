@@ -16,7 +16,7 @@ export const getAllUsers = async (req: AuthenticatedRequest, res: Response) => {
         const usersWithoutPasswords = usersList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
         console.log("Fetched users:", usersList);
-        res.status(200).json({users: usersWithoutPasswords});
+        res.status(200).json({message: "Users retrieved successfully", users: usersWithoutPasswords});
     }
     catch(e){
         res.status(500).json({message: "Error fetching users"});
@@ -36,7 +36,7 @@ export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response)
         const usersWithoutPasswords = userList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
         console.log("Fetched users:", usersWithoutPasswords);
-        res.status(200).json({users: usersWithoutPasswords});
+        res.status(200).json({message: "Users retrieved successfully", users: usersWithoutPasswords});
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -69,7 +69,7 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
         const matchedUsers = usersList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
         console.log("Search results:", matchedUsers);
-        return res.status(200).json({users: matchedUsers});
+        return res.status(200).json({message: "Users retrieved successfully", users: matchedUsers});
     }
     catch(e){
         if(e instanceof z.ZodError){

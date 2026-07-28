@@ -18,8 +18,8 @@ const registerSchema = z.object({
     password: z.string().min(6, "Password must be at least 6 characters long"),
     email: z.email("Invalid email address"),
     role: userRoleSchema,
-    studentId: z.string().optional(),
-    studentLRN: z.string().optional(),
+    studentId: z.string().length(13, "Student ID must be exactly 13 characters long").optional(),
+    studentLRN: z.string().length(12, "Student LRN must be exactly 12 characters long").optional(),
     studentStrand: userStrandSchema.optional(),
     studentSection: z.string().optional()
 })

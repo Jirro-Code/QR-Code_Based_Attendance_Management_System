@@ -35,7 +35,7 @@ export const getAllEvents = async (req: AuthenticatedRequest, res: Response) => 
         });
         
         console.log("Fetched events:", eventsList);
-        res.status(200).json({events: eventsList});
+        res.status(200).json({message: "Events retrieved successfully", events: eventsList});
     }
     catch (e){
         console.error("Error fetching events:", e);
@@ -60,7 +60,7 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
         );
         
         console.log("Search results:", eventsList);
-        res.status(200).json({events: eventsList});
+        res.status(200).json({message: "Events retrieved successfully", events: eventsList});
     }
     catch(e){
         if(e instanceof z.ZodError){

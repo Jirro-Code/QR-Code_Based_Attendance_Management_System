@@ -47,10 +47,10 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
     return { testUser, userToken, testAdmin, adminToken, testUserPassword: "testUser", testAdminPassword: "testAdmin" };
 }
 
-export const createMultipleUser = async (userData: Partial<NewUser> = {}) => {
+export const createMultipleUser = async (userData: Partial<NewUser>, userCount: number, adminCount: number) => {
     const testUsers = [];
     const testUsersToken = []
-    for(let i = 0; i < 5; i++){
+    for(let i = 0; i < userCount; i++){
         const testUser = {
             id: uuid(),
             username: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}`,
@@ -77,7 +77,7 @@ export const createMultipleUser = async (userData: Partial<NewUser> = {}) => {
     
     const testAdmins = [];
     const testAdminsToken = []
-    for(let i = 0; i < 3; i++){
+    for(let i = 0; i < adminCount; i++){
         const testAdmin = {
             id: uuid(),
             username: `testadmin_${Date.now()}_${Math.floor(Math.random() * 100)}`,

@@ -6,8 +6,8 @@ import z from "zod";
 
 export const userRoles = ["user", "admin"] as const;
 export const userStrands = ["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"] as const;
-export const userRoleSchema = z.enum(userRoles);
-export const userStrandSchema = z.enum(userStrands);
+export const userRoleSchema = z.enum(userRoles, "Invalid user role");
+export const userStrandSchema = z.enum(userStrands, "Invalid student strand");
 
 
 export const users = mysqlTable("users", {
