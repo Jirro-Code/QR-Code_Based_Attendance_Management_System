@@ -2,6 +2,7 @@ import Router from "express";
 import { authAdminToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
 import { getAllUserByRole, getAllUsers, searchUsers, updateUser, deleteUser} from "../controllers/usersController.ts";
+import { userRoleSchema, userStrandSchema } from "../db/schema.ts";
 import z from "zod";
 
 const router = Router();
@@ -15,9 +16,10 @@ const searchSchema = z.object({
 const updateUserSchema = z.object({
     username: z.string().optional(),
     email: z.email("Invalid email address").optional(),
-    role: z.string().optional(),
+    role: userRoleSchema.optional(),
     studentId: z.string().optional(),
     studentLRN: z.string().optional(),
+    studentStrand: userStrandSchema.optional(),
     password: z.string().min(6, "Password must be at least 6 characters long").optional()
 });
 

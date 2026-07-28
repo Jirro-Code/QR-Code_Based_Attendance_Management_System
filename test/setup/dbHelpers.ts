@@ -47,6 +47,41 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
     return { testUser, userToken, testAdmin, adminToken, testUserPassword: "testUser", testAdminPassword: "testAdmin" };
 }
 
+export const createMultipleUser = async (userData: Partial<NewUser>) => {
+    const testUsers = [];
+    for(let i = 0; i < 5; i++){
+        const testUser = {
+            id: uuid(),
+            username: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}`,
+            email: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
+            password: await hashPassword(`testUser ${i}`),
+            role: "user" as const,
+            studentId: `${new Date().getFullYear()}-${Math.floor(Math.random() * 9999)}-ICP`,
+            studentLRN: `${Math.floor(Math.random() * 999999999999)}`,
+            studentStrand: "ICT" as const,
+            studentSection: "ICT-12-5",
+            ...userData
+        }
+        testUsers.push(testUser);
+        await db.insert(users).values(testUser);
+    }
+    
+    const testAdmins = [];
+    for(let i = 0; i < 3; i++){
+        const testAdmin = {
+            id: uuid(),
+            username: `testadmin_${Date.now()}_${Math.floor(Math.random() * 100)}`,
+            email: `testadmin_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
+            password: await hashPassword(`testAdmin ${i}`),
+            role: "admin" as const,
+            ...userData
+        }
+        testAdmins.push(testAdmin);
+        await db.insert(users).values(testAdmin);
+    }
+    
+    return { testUsers, testAdmins };
+}
 
 export const createTestEvent = async (eventData: Partial<NewEvent>, adminId: string ) => {
     const testEvent = {
@@ -61,7 +96,7 @@ export const createTestEvent = async (eventData: Partial<NewEvent>, adminId: str
     }
     
     await db.insert(events).values(testEvent);
-
+    
     return {testEvent};
 }
 

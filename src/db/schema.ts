@@ -1,6 +1,13 @@
 import { mysqlTable, varchar, text, timestamp, date, boolean, unique, mysqlEnum} from "drizzle-orm/mysql-core";
 import {relations} from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import z from "zod";
+
+
+export const userRoles = ["user", "admin"] as const;
+export const userStrands = ["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"] as const;
+export const userRoleSchema = z.enum(userRoles);
+export const userStrandSchema = z.enum(userStrands);
 
 
 export const users = mysqlTable("users", {
@@ -8,10 +15,10 @@ export const users = mysqlTable("users", {
     username: varchar("username", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }).notNull(),
-    role: mysqlEnum("role", ["user", "admin"]).notNull(),
+    role: mysqlEnum("role", userRoles).notNull(),
     studentId: varchar("student_id", { length: 13 }).unique(),
     studentLRN: varchar("student_LRN", { length: 12 }).unique(),
-    studentStrand: mysqlEnum("student_strand", ["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]),
+    studentStrand: mysqlEnum("student_strand", userStrands),
     studentSection: varchar("student_section", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),

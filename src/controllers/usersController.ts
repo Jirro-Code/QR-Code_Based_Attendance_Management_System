@@ -1,6 +1,6 @@
 import type { Response } from "express";
 import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
-import { users } from "../db/schema.ts";
+import { users, userRoleSchema } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
 import { hashPassword } from "../utils/password.ts";
 import { eq, desc, and, or, like} from "drizzle-orm";
@@ -26,7 +26,7 @@ export const getAllUsers = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response) => {
     try{
-        const role = z.string().parse(req.params.role);
+        const role = userRoleSchema.parse(req.params.role);
         
         const userList = await db.query.users.findMany({
             where: eq(users.role, role),
@@ -108,12 +108,12 @@ export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.params.id);
         const deletedUser = await db.delete(users).where(eq(users.id, userId));
-
+        
         if(deletedUser[0].affectedRows === 0) {
             console.error("User not found or unauthorized to delete");
             return res.status(404).json({message: "User not found or unauthorized to delete"});
         }
-
+        
         console.log("Deleted user:", deletedUser);
         res.status(200).json({message: "User deleted successfully", user: deletedUser});
     }
