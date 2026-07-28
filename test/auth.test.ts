@@ -74,6 +74,19 @@ describe("Error Handling Authentication Tests", () => {
     })
     
     describe("POST /api/auth/register", () =>{
+        it("should return an error for missing fields", async () => {
+            const userData = {
+                id: uuid()
+            }
+            const response = await request(app)
+                .post("/api/auth/register")
+                .send(userData)
+                .expect(400);
+            
+            console.log("Register Response:", response.body);
+            expect(response.body)
+        })
+        
         it("should return an error for missing fields for user role", async () => {
             const userData = {
                 id: uuid(),
@@ -82,13 +95,27 @@ describe("Error Handling Authentication Tests", () => {
                 password: await hashPassword("testUser"),
                 role: "user"
             };
-            
             const response = await request(app)
                 .post("/api/auth/register")
                 .send(userData)
                 .expect(400);
             
             console.log("Register Response:", response.body);
+            expect(response.body).toHaveProperty("message");
+        })
+        
+        it("should return an error for invalid login credentials fot admin", async () => {
+            const { testAdmin } = await createTestUser();
+            const response = await request(app)
+                .post("/api/auth/login")
+                .send({
+                    username: testAdmin.username,
+                    email: testAdmin.email,
+                    password: "wrongpassword"
+                })
+                .expect(401);
+            
+            console.log("Login Response:", response.body);
             expect(response.body).toHaveProperty("message");
         })
     })
