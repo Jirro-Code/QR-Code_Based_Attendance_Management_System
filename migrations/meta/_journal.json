@@ -1,12 +1,12 @@
 {
   "version": "7",
-  "dialect": "mysql",
+  "dialect": "postgresql",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1784541920934,
-      "tag": "0000_glossy_kronos",
+      "version": "7",
+      "when": 1785773721966,
+      "tag": "0000_wet_triathlon",
       "breakpoints": true
     }
   ]

@@ -1,5 +1,5 @@
 {
-  "name": "qr-code_based_event_attendance_management_system",
+  "name": "backend",
   "version": "1.0.0",
   "description": "",
   "homepage": "https://github.com/Jirro-Code/QR-Code_Based_Attendance_Management_System#readme",
@@ -41,7 +41,7 @@
     "http": "^0.0.1-security",
     "jose": "^6.2.3",
     "morgan": "^1.11.0",
-    "mysql2": "^3.23.1",
+    "pg": "^8.22.0",
     "socket.io": "^4.8.3",
     "supertest": "^7.2.2",
     "tsx": "^4.23.1",
@@ -62,6 +62,7 @@
     "@types/express": "^5.0.6",
     "@types/morgan": "^1.9.10",
     "@types/node": "^26.1.1",
+    "@types/pg": "^8.20.3",
     "@types/supertest": "^7.2.1"
   }
 }

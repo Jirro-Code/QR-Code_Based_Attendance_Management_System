@@ -4,7 +4,6 @@ import {attendance, users, events} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
 import { eq, desc, and} from "drizzle-orm";
 import { z } from "zod";
-import { v4 as uuid } from "uuid";
 import { io } from "../index.ts";
 
 export const markAttendance = async (req: AuthenticatedRequest, res: Response) => {
@@ -36,10 +35,8 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
             return res.status(400).json({message: "Attendance already marked for this user and event"});
         }
         
-        const attendanceId = uuid();
         const newAttendance = {
-            ...req.body,
-            id: attendanceId
+            ...req.body
         };
         
         await db.insert(attendance).values(newAttendance);
@@ -134,9 +131,9 @@ export const updateAttendance = async (req: AuthenticatedRequest, res: Response)
         const userId = z.uuid().parse(req.params.id);
         const isLate = z.boolean().parse(req.body.isLate);
         
-        const updatedAttendance = await db.update(attendance).set({ isLate }).where(eq(attendance.userId, userId));
+        const [updatedAttendance] = await db.update(attendance).set({ isLate }).where(eq(attendance.userId, userId)).returning();
         
-        if(updatedAttendance[0].affectedRows === 0){
+        if(!updatedAttendance){
             console.error("Attendance not found for user:", userId);
             return res.status(404).json({message: "Attendance not found for this user"});
         }
@@ -157,9 +154,9 @@ export const updateAttendance = async (req: AuthenticatedRequest, res: Response)
 export const deleteUserAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.uuid().parse(req.params.id);
-        const deletedUser = await db.delete(attendance).where(eq(attendance.userId, userId))
+        const [deletedUser] = await db.delete(attendance).where(eq(attendance.userId, userId)).returning();
         
-        if(deletedUser[0].affectedRows===0){
+        if(!deletedUser){
             console.error("User not found", userId);
             return res.status(404).json({message: "User not found"})
         }

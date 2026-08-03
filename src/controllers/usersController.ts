@@ -88,9 +88,9 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         const userId = z.string().parse(req.params.id);
         const userPassword = req.body.password ? await hashPassword(req.body.password) : undefined;
         const updatedData = userPassword ? {...req.body, password: userPassword} : req.body;
-        const updatedUser = await db.update(users).set(updatedData).where(eq(users.id, userId));
+        const [updatedUser] = await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
         
-        if(updatedUser[0].affectedRows === 0) {
+        if(!updatedUser) {
             return res.status(404).json({message: "User not found"});
         }
         
@@ -107,9 +107,9 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
 export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.params.id);
-        const deletedUser = await db.delete(users).where(eq(users.id, userId));
+        const [deletedUser] = await db.delete(users).where(eq(users.id, userId)).returning();
         
-        if(deletedUser[0].affectedRows === 0) {
+        if(!deletedUser) {
             console.error("User not found or unauthorized to delete");
             return res.status(404).json({message: "User not found or unauthorized to delete"});
         }

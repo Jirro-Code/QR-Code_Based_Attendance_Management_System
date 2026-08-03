@@ -1,7 +1,6 @@
 import {users, type NewUser} from "../db/schema.ts";
 import type {Request, Response} from "express";
 import {db} from "../db/connections.ts";
-import {v4 as uuid} from "uuid";
 import { comparePassword, hashPassword } from "../utils/password.ts";
 import { generateToken } from "../utils/jwt.ts";
 import { eq } from "drizzle-orm";
@@ -17,21 +16,30 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
         const hashedPassword = await hashPassword(req.body.password);
         const newUSer = {
             ...req.body,
-            id: uuid(),
             password: hashedPassword
         }
         
-        const {password, ...userWithoutPassword} = newUSer;
-        await db.insert(users).values(newUSer);
+        
+        const [newUser] = await db
+        .insert(users)
+        .values({
+            ...req.body,
+            password: hashedPassword
+        }).returning({
+            id: users.id,
+            username: users.username,
+            email: users.email,
+            role: users.role
+        });
         
         const token = await generateToken({
-            id: newUSer.id,
-            username: newUSer.username,
-            email: newUSer.email,
-            role: newUSer.role
+            id: newUser!.id,
+            username: newUser!.username,
+            email: newUser!.email,
+            role: newUser!.role
         })
         
-        res.status(201).json({message: "User registered successfully", user: userWithoutPassword, token });
+        res.status(201).json({message: "User registered successfully", user: newUser, token });
     }
     catch (e) {
         console.error("Error registering user:", e);

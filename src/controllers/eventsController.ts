@@ -4,19 +4,14 @@ import {events} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
 import { eq, desc, and, or, like } from "drizzle-orm";
 import { z } from "zod";
-import { v4 as uuid } from "uuid";
+
 
 export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
-    try{        
-        const eventId = uuid();
-        
-        const newEvent = {
+    try{                
+        const [newEvent] = await db.insert(events).values({
             ...req.body,
-            id: eventId,
             createdBy: req.user!.id
-        };
-        
-        await db.insert(events).values(newEvent);
+        }).returning();
         
         console.log("Event created:", newEvent);
         res.status(201).json({message: "Event created successfully", event: newEvent});
@@ -47,17 +42,19 @@ export const getAllEvents = async (req: AuthenticatedRequest, res: Response) => 
 export const searchEvents = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const term = z.string().parse(req.query.search);
-        
-        const eventsList = await db.query.events.findMany({
-                where: and(
-                    term ? or(
-                        like(events.eventName, `%${term}%`),
-                        like(events.eventDate, `%${term}%`),
-                        like(events.eventLocation, `%${term}%`)
-                    ) : undefined
-                )
-            }
-        );
+        // If the term looks like a date (YYYY-MM-DD), search by exact date as well.
+        const maybeDate = (() => {
+            const d = new Date(term);
+            return !Number.isNaN(d.getTime()) ? d.toISOString().split("T")[0] : null;
+        })();
+
+        const whereClause = term ? or(
+            like(events.eventName, `%${term}%`),
+            like(events.eventLocation, `%${term}%`),
+            maybeDate ? eq(events.eventDate, maybeDate) : undefined
+        ) : undefined;
+
+        const eventsList = await db.query.events.findMany({ where: and(whereClause) });
         
         console.log("Search results:", eventsList);
         res.status(200).json({message: "Events retrieved successfully", events: eventsList});
@@ -77,9 +74,9 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
 export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.string().parse(req.params.id);
-        const updatedEvent = await db.update(events).set(req.body).where(eq(events.id, eventId));
+        const [updatedEvent] = await db.update(events).set(req.body).where(eq(events.id, eventId)).returning();
         
-        if(updatedEvent[0].affectedRows === 0){
+        if(!updatedEvent){
             console.error("Event not found:", eventId);
             return res.status(404).json({message: "Event not found"});
         }
@@ -102,9 +99,9 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
 export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.string().parse(req.params.id);
-        const deletedEvent = await db.delete(events).where(eq(events.id, eventId));
+        const [deletedEvent] = await db.delete(events).where(eq(events.id, eventId)).returning();
         
-        if(deletedEvent[0].affectedRows === 0){
+        if(!deletedEvent){
             console.error("Event not found:", eventId);
             return res.status(404).json({message: "Event not found"});
         }

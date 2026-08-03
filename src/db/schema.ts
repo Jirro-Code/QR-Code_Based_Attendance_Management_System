@@ -1,33 +1,35 @@
-import { mysqlTable, varchar, text, timestamp, date, boolean, unique, mysqlEnum} from "drizzle-orm/mysql-core";
+import { pgTable, uuid, varchar, text, timestamp, date, boolean, unique, pgEnum} from "drizzle-orm/pg-core";
 import {relations} from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
 
+const roleEnum = ["user", "admin"] as const;
+const userStrandEnum = ["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"] as const;
 
-export const userRoles = ["user", "admin"] as const;
-export const userStrands = ["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"] as const;
-export const userRoleSchema = z.enum(userRoles, "Invalid user role");
-export const userStrandSchema = z.enum(userStrands, "Invalid student strand");
+export const userRoles = pgEnum("role", roleEnum);
+export const userStrands = pgEnum("student_strand", userStrandEnum);
+export const userRoleSchema = z.enum(roleEnum, "Invalid user role");
+export const userStrandSchema = z.enum(userStrandEnum, "Invalid student strand");
 
 
-export const users = mysqlTable("users", {
-    id: varchar("id", { length: 36 }).primaryKey(),
+export const users = pgTable("users", {
+    id: uuid("id").primaryKey().defaultRandom(),
     username: varchar("username", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }).notNull(),
-    role: mysqlEnum("role", userRoles).notNull(),
+    role: userRoles().notNull(),
     studentId: varchar("student_id", { length: 13 }).unique(),
     studentLRN: varchar("student_LRN", { length: 12 }).unique(),
-    studentStrand: mysqlEnum("student_strand", userStrands),
+    studentStrand: userStrands().notNull(),
     studentSection: varchar("student_section", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 
-export const events = mysqlTable("events", {
-    id: varchar("id", { length: 36 }).primaryKey(),
-    createdBy: varchar("created_by", { length: 36 }).references(() => users.id, {
+export const events = pgTable("events", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    createdBy: uuid("created_by").references(() => users.id, {
         onDelete: "cascade",
     }).notNull(),
     eventName: varchar("event_name", { length: 255 }).notNull(),
@@ -35,16 +37,16 @@ export const events = mysqlTable("events", {
     eventLocation: varchar("event_location", { length: 255 }),
     eventDate: date("event_date").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 
-export const attendance = mysqlTable("attendance", {
-    id: varchar("id", { length: 36 }).primaryKey(),
-    eventId: varchar("event_id", { length: 36 }).references(() => events.id, {
+export const attendance = pgTable("attendance", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: uuid("event_id").references(() => events.id, {
         onDelete: "cascade"
     }).notNull(),
-    userId: varchar("user_id", { length: 36 }).references(() => users.id, {
+    userId: uuid("user_id").references(() => users.id, {
         onDelete: "cascade"
     }).notNull(),
     attendedAt: timestamp("attended_at").defaultNow().notNull(),
@@ -101,7 +103,7 @@ export const insertEventSchema = createInsertSchema(events).omit({
 });
 export const selectEventSchema = createSelectSchema(events);
 export const insertAttendanceSchema = createInsertSchema(attendance).omit({
-    id: true, attendedAt: true
+    id: true,attendedAt: true
 });
 export const selectAttendanceSchema = createSelectSchema(attendance);
 

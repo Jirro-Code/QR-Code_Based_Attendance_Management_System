@@ -13,11 +13,12 @@ describe("Authentication Tests", () => {
     describe("POST /api/auth/register", () => {
         it("should return 201 and a token for valid credentials", async () => {
             const adminData = {
-                id: uuid(),
                 username: "adminuser",
                 email: "admin@example.com",
                 password: "adminpassword",
-                role: "admin"
+                role: "admin",
+                studentStrand: "ICT",
+                studentSection: "ICT-Admin"
             };
             
             const response = await request(app)
@@ -80,7 +81,6 @@ describe("Authentication Tests", () => {
         
         it("should return an error for missing fields for user role", async () => {
             const userData = {
-                id: uuid(),
                 username: `testuser`,
                 email: `testuser@example.com`,
                 password: "testUser",
@@ -271,7 +271,6 @@ describe("Authentication Tests", () => {
             const response = await request(app)
                 .post("/api/auth/register")
                 .send({
-                    id: uuid(),
                     username: "a",
                     email: "testuser@example.com",
                     password: "testUser",
@@ -291,7 +290,6 @@ describe("Authentication Tests", () => {
             const response = await request(app)
                 .post("/api/auth/register")
                 .send({
-                    id: uuid(),
                     username: "testuser",
                     email: "testuser@example.com",
                     password: "testUser",
@@ -311,7 +309,6 @@ describe("Authentication Tests", () => {
             const response = await request(app)
                 .post("/api/auth/register")
                 .send({
-                    id: uuid(),
                     username: "testuser",
                     email: "testuser@example.com",
                     password: "testUser",
@@ -331,7 +328,6 @@ describe("Authentication Tests", () => {
             const response = await request(app)
                 .post("/api/auth/register")
                 .send({
-                    id: uuid(),
                     username: "testuser",
                     email: "testuser@example.com",
                     password: "testUser",
@@ -354,7 +350,6 @@ describe("Authentication Tests", () => {
             const response = await request(app)
                 .post("/api/auth/register")
                 .send({
-                    id: uuid(),
                     username: "testuser2",
                     email: testUser.email,
                     password: "testUser2",
@@ -397,7 +392,6 @@ describe("Authentication Tests", () => {
             const response = await request(app)
                 .post("/api/auth/register")
                 .send({
-                    id: uuid(),
                     username: "testuser2",
                     email: "testuser2@example.com",
                     password: "testUser2",

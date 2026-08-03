@@ -18,7 +18,7 @@ const envSchema = z.object({
     NODE_ENV: z.enum([`production`, `development`, `test`]).default(`development`),
     APP_STAGE: z.enum([`production`, `development`, `test`]).default(`development`),
     PORT: z.coerce.number().positive().default(3000),
-    DATABASE_URL: z.string().startsWith(`mysql://`),
+    DATABASE_URL: z.string().startsWith(`postgresql://`),
     JWT_SECRET: z.string().min(32, `must be at least 32 characters long`),
     JWT_EXPIRES_IN: z.string().default(`5h`),
     BCRYPT_ROUNDS: z.coerce.number().min(18).max(20).default(12),
@@ -35,7 +35,7 @@ try{
         //null, 2 is used to pretty print the JSON output, meaning 2 indentation
         //flatten() used to convert errors intro more readable format, fieldErrors is used to get the errors related to each field
         console.error(JSON.stringify(e.flatten().fieldErrors, null, 2));
-
+        
         e.issues.forEach(err =>{ 
             const path = err.path.join(`.`);
             console.log(`${path}: ${err.message}`);
@@ -43,7 +43,7 @@ try{
         
         process.exit(1);
     }
-
+    
     throw e;
 }
 
