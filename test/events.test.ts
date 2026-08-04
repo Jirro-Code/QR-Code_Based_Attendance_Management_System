@@ -14,7 +14,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .get("/api/events/all")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .expect(200);
             
             console.log("GET all events Response:", response.body);
@@ -29,7 +29,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .post("/api/events/create")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .send(testEvent)
                 .expect(201);
             
@@ -45,7 +45,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .get(`/api/events/search?search=${testEvent.eventName}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .expect(200);
             
             console.log("GET search events Response:", response.body);
@@ -60,7 +60,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/events/update/${testEvent.id}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .send({ eventName: "Updated Event" })
                 .expect(200);
             
@@ -76,7 +76,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .delete(`/api/events/delete/${testEvent.id}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .expect(200);
             
             console.log("DELETE event Response:", response.body);
@@ -99,7 +99,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .get("/api/events/all")
-                .set("Authorization", `Bearer ${userToken}`)
+                .set("Cookie", `token=${userToken}`)
                 .expect(403);
             
             console.log("GET all events Response:", response.body);
@@ -111,7 +111,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .post("/api/events/create")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .send({})
                 .expect(400);
             
@@ -124,7 +124,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .post("/api/events/create")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .send({
                     eventName: "Past Event",
                     eventDate: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString()
@@ -140,7 +140,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .get("/api/events/search")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .expect(400);
             
             console.log("GET search events Response:", response.body);
@@ -152,7 +152,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .put("/api/events/update/not-a-uuid")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .send({ eventName: "Updated Event" })
                 .expect(400);
             
@@ -166,7 +166,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/events/update/${testEvent.id}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .send({ eventName: "" })
                 .expect(400);
             
@@ -179,7 +179,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/events/update/${uuid()}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .send({ eventName: "Updated Event" })
                 .expect(404);
             
@@ -192,7 +192,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .delete("/api/events/delete/not-a-uuid")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .expect(400);
             
             console.log("DELETE event Response:", response.body);
@@ -204,7 +204,7 @@ describe("event controller tests", () => {
             
             const response = await request(app)
                 .delete(`/api/events/delete/${uuid()}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", `token=${adminToken}`)
                 .expect(404);
             
             console.log("DELETE event Response:", response.body);

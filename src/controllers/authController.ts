@@ -4,6 +4,16 @@ import {db} from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
 import { generateToken } from "../utils/jwt.ts";
 import { eq } from "drizzle-orm";
+import { env } from "../../env.ts";
+import ms from "ms";
+
+const cookieOptions = {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax" as const,
+    path: "/",
+    maxAge: ms(env.JWT_EXPIRES_IN as ms.StringValue)
+};
 
 export const registerUser = async (req: Request<any, any, NewUser>, res: Response) => {
     try{
@@ -14,11 +24,6 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
         }
         
         const hashedPassword = await hashPassword(req.body.password);
-        const newUSer = {
-            ...req.body,
-            password: hashedPassword
-        }
-        
         
         const [newUser] = await db
         .insert(users)
@@ -39,6 +44,9 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
             role: newUser!.role
         })
         
+        res.cookie("token", token, cookieOptions);
+        
+        // Keep the token in the response for development/testing; remove in production.
         res.status(201).json({message: "User registered successfully", user: newUser, token });
     }
     catch (e) {
@@ -71,10 +79,30 @@ export const loginUser = async (req: Request, res: Response) => {
         });
         
         const {password, ...userWithoutPassword} = user;     
+        res.cookie("token", token, cookieOptions);
+        
+        // Keep the token in the response for development/testing; remove in production.
         res.status(201).json({message: "Login successful", user: userWithoutPassword, token});
     }
     catch(e) {
         console.error("Error logging in:", e);
+        res.status(500).json({message: "Internal server error"});
+    }
+}
+
+export const logoutUser = async (req: Request, res: Response) => {
+    try {
+        res.clearCookie("token", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax",
+            path: "/"
+        });
+        
+        res.status(200).json({message: "Logout successful"});
+    }
+    catch (e) {
+        console.error("Error logging out:", e);
         res.status(500).json({message: "Internal server error"});
     }
 }

@@ -4,6 +4,9 @@ import { generateToken } from "../../src/utils/jwt.ts";
 import { hashPassword } from "../../src/utils/password.ts";
 
 
+export const buildAuthCookie = (token: string | undefined) => `token=${token ?? ""}`;
+
+
 export const createTestUser = async (userData: Partial<NewUser> = {}) => {
     const testUser = {
         username: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}`,

@@ -14,7 +14,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .get("/api/users/all")
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(200);
             
             console.log("GET all users Response:", response.body);
@@ -29,7 +29,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .get("/api/users/role/user")
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(200);
             
             console.log("GET all users by role of user Response:", response.body);
@@ -37,7 +37,7 @@ describe("user controller tests", () => {
             expect(response.body.users).toHaveLength(5);
             const response2 = await request(app)
                 .get("/api/users/role/admin")
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(200);
             
             console.log("GET all users by role of admin Response:", response2.body);
@@ -52,7 +52,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .get(`/api/users/search?search=${testUsers[0]!.username}`)
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(200);
             
             console.log("GET all users by search term Response:", response.body);
@@ -66,7 +66,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/users/update/${testUsers[2]!.id}`)
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .send({ username: "updateduser" })
                 .expect(200);
             
@@ -81,7 +81,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .delete(`/api/users/delete/${testUsers[0]!.id}`)
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(200);
             
             console.log("DELETE user Response:", response.body);
@@ -104,7 +104,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .get("/api/users/all")
-                .set("Authorization", `Bearer ${testUsersToken[0]}`)
+                .set("Cookie", `token=${testUsersToken[0] ?? ""}`)
                 .expect(403);
             
             console.log("GET all users Response:", response.body);
@@ -114,7 +114,7 @@ describe("user controller tests", () => {
         it("should return 403 for a malformed token", async () => {
             const response = await request(app)
                 .get("/api/users/all")
-                .set("Authorization", "Bearer invalid.token.value")
+                .set("Cookie", "token=invalid.token.value")
                 .expect(403);
             
             console.log("GET all users Response:", response.body);
@@ -126,7 +126,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .get("/api/users/role/not-a-role")
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(400);
             
             console.log("GET users by invalid role Response:", response.body);
@@ -138,7 +138,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .get("/api/users/search")
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(400);
             
             console.log("GET users by search Response:", response.body);
@@ -150,7 +150,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .put("/api/users/update/not-a-uuid")
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .send({ username: "updateduser" })
                 .expect(400);
             
@@ -163,7 +163,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/users/update/${testUsers[0]!.id}`)
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .send({ email: "invalid-email" })
                 .expect(400);
             
@@ -176,7 +176,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/users/update/${uuid()}`)
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .send({ username: "updateduser" })
                 .expect(404);
             
@@ -189,7 +189,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .delete("/api/users/delete/not-a-uuid")
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(400);
             
             console.log("DELETE user Response:", response.body);
@@ -201,7 +201,7 @@ describe("user controller tests", () => {
             
             const response = await request(app)
                 .delete(`/api/users/delete/${uuid()}`)
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(404);
             
             console.log("DELETE user Response:", response.body);

@@ -1,7 +1,7 @@
 import request from "supertest";
 import app from "../src/server.ts";
 import { v4 as uuid } from "uuid";
-import { clearDatabase, createTestUser, createMultipleUser ,createTestEvent, createTestAttendance } from "./setup/dbHelpers.ts";
+import { buildAuthCookie, clearDatabase, createTestUser, createMultipleUser ,createTestEvent, createTestAttendance } from "./setup/dbHelpers.ts";
 
 describe("attendance controller tests", () => {
     afterEach(async () => {
@@ -16,7 +16,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .get("/api/attendance/myAttendance")
-                .set("Authorization", `Bearer ${userToken}`)
+                .set("Cookie", buildAuthCookie(userToken))
                 .expect(200);
             
             console.log("GET my attendance Response:", response.body);
@@ -35,7 +35,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .get("/api/attendance/all")
-                .set("Authorization", `Bearer ${testAdminsToken[0]}`)
+                .set("Cookie", buildAuthCookie(testAdminsToken[0]))
                 .expect(200);
             
             console.log("GET all attendance Response:", response.body);
@@ -49,7 +49,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .post("/api/attendance/mark")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({
                     userId: testUser.id,
                     eventId: testEvent.id
@@ -67,7 +67,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/attendance/update/${testUser.id}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({ isLate: true })
                 .expect(200);
             
@@ -82,7 +82,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .delete(`/api/attendance/delete/${testUser.id}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .expect(200);
             
             console.log("DELETE attendance Response:", response.body);
@@ -103,7 +103,7 @@ describe("attendance controller tests", () => {
         it("should return 403 for a malformed token", async () => {
             const response = await request(app)
                 .get("/api/attendance/myAttendance")
-                .set("Authorization", "Bearer invalid.token.value")
+                .set("Cookie", buildAuthCookie("invalid.token.value"))
                 .expect(403);
             
             console.log("GET my attendance Response:", response.body);
@@ -115,7 +115,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .get("/api/attendance/all")
-                .set("Authorization", `Bearer ${userToken}`)
+                .set("Cookie", buildAuthCookie(userToken))
                 .expect(403);
             
             console.log("GET all attendance Response:", response.body);
@@ -123,13 +123,13 @@ describe("attendance controller tests", () => {
         })
         
         it("should return 400 when attendance is marked twice for the same user and event", async () => {
-            const { testUser, adminToken, testAdmin } = await createTestUser();
+            const { testUser, testAdmin, adminToken } = await createTestUser();
             const { testEvent } = await createTestEvent({}, testAdmin.id);
             await createTestAttendance({}, testUser.id, testEvent.id);
             
             const response = await request(app)
                 .post("/api/attendance/mark")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({
                     userId: testUser.id,
                     eventId: testEvent.id,
@@ -146,7 +146,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .post("/api/attendance/mark")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({ userId: uuid() })
                 .expect(400);
             
@@ -160,7 +160,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .post("/api/attendance/mark")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({
                     userId: uuid(),
                     eventId: testEvent.id,
@@ -177,7 +177,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .get("/api/attendance/userId/not-a-uuid")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .expect(400);
             
             console.log("GET attendance by user Response:", response.body);
@@ -189,7 +189,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .get("/api/attendance/eventId/not-a-uuid")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .expect(400);
                 
             console.log("GET attendance by event Response:", response.body);
@@ -203,7 +203,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/attendance/update/${testUser.id}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({})
                 .expect(400);
             
@@ -216,7 +216,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .put(`/api/attendance/update/${uuid()}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({ isLate: true })
                 .expect(404);
             
@@ -229,7 +229,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .delete("/api/attendance/delete/not-a-uuid")
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .expect(400);
             
             console.log("DELETE attendance Response:", response.body);
@@ -241,7 +241,7 @@ describe("attendance controller tests", () => {
             
             const response = await request(app)
                 .delete(`/api/attendance/delete/${uuid()}`)
-                .set("Authorization", `Bearer ${adminToken}`)
+                .set("Cookie", buildAuthCookie(adminToken))
                 .expect(404);
             
             console.log("DELETE attendance Response:", response.body);

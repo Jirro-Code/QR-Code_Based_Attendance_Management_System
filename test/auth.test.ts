@@ -1,6 +1,6 @@
 import request from "supertest";
 import app from "../src/server.ts";
-import { createTestUser, clearDatabase } from "./setup/dbHelpers.ts";
+import { buildAuthCookie, createTestUser, clearDatabase } from "./setup/dbHelpers.ts";
 
 
 describe("Authentication Tests", () => {
@@ -27,6 +27,7 @@ describe("Authentication Tests", () => {
             console.log("Register Response:", response.body);
             expect(response.body).toHaveProperty("token");
             expect(response.body).toHaveProperty("user");
+            expect(response.headers["set-cookie"]).toBeDefined();
             expect(response.body.user).toMatchObject({
                 username: adminData.username,
                 email: adminData.email,
@@ -53,6 +54,7 @@ describe("Authentication Tests", () => {
             console.log("Login Response:", response.body);
             expect(response.body).toHaveProperty("token");
             expect(response.body).toHaveProperty("user");
+            expect(response.headers["set-cookie"]).toBeDefined();
             expect(response.body.user).toMatchObject({
                 username: testUser.username,
                 email: testUser.email,
@@ -62,6 +64,28 @@ describe("Authentication Tests", () => {
                 studentStrand: testUser.studentStrand,
                 studentSection: testUser.studentSection
             });
+        })
+
+        it("should clear the auth cookie on logout", async () => {
+            const { testUser, testUserPassword } = await createTestUser();
+
+            const loginResponse = await request(app)
+                .post("/api/auth/login")
+                .send({
+                    username: testUser.username,
+                    email: testUser.email,
+                    password: testUserPassword
+                })
+                .expect(201);
+
+            const response = await request(app)
+                .post("/api/auth/logout")
+                .set("Cookie", loginResponse.headers["set-cookie"]?.[0] ?? buildAuthCookie(loginResponse.body.token))
+                .expect(200);
+
+            console.log("Logout Response:", response.body);
+            expect(response.body).toHaveProperty("message", "Logout successful");
+            expect(response.headers["set-cookie"]?.[0]).toContain("token=");
         })
     })
     
