@@ -74,7 +74,7 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
 export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.string().parse(req.params.id);
-        const [updatedEvent] = await db.update(events).set(req.body).where(eq(events.id, eventId)).returning();
+        const [updatedEvent] = await db.update(events).set({...req.body, updatedAt: new Date()}).where(eq(events.id, eventId)).returning();
         
         if(!updatedEvent){
             console.error("Event not found:", eventId);

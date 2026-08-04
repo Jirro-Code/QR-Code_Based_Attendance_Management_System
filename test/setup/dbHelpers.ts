@@ -4,7 +4,7 @@ import { generateToken } from "../../src/utils/jwt.ts";
 import { hashPassword } from "../../src/utils/password.ts";
 
 
-export const createTestUser = async (userData: Partial<NewUser> = {}): Promise<{ testUser: any; userToken: string; testAdmin: any; adminToken: string; testUserPassword: string; testAdminPassword: string }> => {
+export const createTestUser = async (userData: Partial<NewUser> = {}) => {
     const testUser = {
         username: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}`,
         email: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
@@ -16,9 +16,9 @@ export const createTestUser = async (userData: Partial<NewUser> = {}): Promise<{
         studentSection: "ICT-12-5",
         ...userData
     }
-    const [createdUser] = await db.insert(users).values([testUser as any]).returning();
+    const [createdUser] = await db.insert(users).values(testUser).returning();
     if (!createdUser) throw new Error("Failed to create test user");
-
+    
     const userToken = await generateToken({
         id: createdUser.id,
         username: createdUser.username,
@@ -31,30 +31,27 @@ export const createTestUser = async (userData: Partial<NewUser> = {}): Promise<{
         email: `testadmin_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
         password: await hashPassword("testAdmin"),
         role: "admin" as const,
-        // admin still needs a valid studentStrand per schema
-        studentStrand: "ICT" as const,
-        studentSection: "ICT-Admin",
         ...userData
-    } as Partial<NewUser>;
-
-    const [createdAdmin] = await db.insert(users).values([testAdmin as any]).returning();
+    };
+    
+    const [createdAdmin] = await db.insert(users).values(testAdmin).returning();
     if (!createdAdmin) throw new Error("Failed to create test admin");
-
+    
     const adminToken = await generateToken({
         id: createdAdmin.id,
         username: createdAdmin.username,
         email: createdAdmin.email,
         role: createdAdmin.role
     })
-
+    
     return { testUser: createdUser, userToken, testAdmin: createdAdmin, adminToken, testUserPassword: "testUser", testAdminPassword: "testAdmin" };
 }
 
-export const createMultipleUser = async (userData: Partial<NewUser>, userCount: number, adminCount: number): Promise<{ testUsers: any[]; testUsersToken: string[]; testAdmins: any[]; testAdminsToken: string[] }> => {
-    const testUsers = [] as any[];
-    const testUsersToken: string[] = []
+export const createMultipleUser = async (userData: Partial<NewUser>, userCount: number, adminCount: number) => {
+    const testUsers = [];
+    const testUsersToken = [];
     for(let i = 0; i < userCount; i++){
-        const seed: Partial<NewUser> = {
+        const seed = {
             username: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}`,
             email: `testuser_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
             password: await hashPassword(`testUser ${i}`),
@@ -65,8 +62,8 @@ export const createMultipleUser = async (userData: Partial<NewUser>, userCount: 
             studentSection: "ICT-12-5",
             ...userData
         }
-
-            const [createdUser] = await db.insert(users).values([seed as any]).returning();
+        
+            const [createdUser] = await db.insert(users).values(seed).returning();
             if (!createdUser) throw new Error("Failed to create test user");
             testUsers.push(createdUser);
         
@@ -79,10 +76,10 @@ export const createMultipleUser = async (userData: Partial<NewUser>, userCount: 
         testUsersToken.push(userToken);
     }
     
-    const testAdmins = [] as any[];
-    const testAdminsToken: string[] = []
+    const testAdmins = [];
+    const testAdminsToken = [];
     for(let i = 0; i < adminCount; i++){
-        const seed: Partial<NewUser> = {
+        const seed = {
             username: `testadmin_${Date.now()}_${Math.floor(Math.random() * 100)}`,
             email: `testadmin_${Date.now()}_${Math.floor(Math.random() * 100)}@example.com`,
             password: await hashPassword(`testAdmin ${i}`),
@@ -91,8 +88,8 @@ export const createMultipleUser = async (userData: Partial<NewUser>, userCount: 
             studentSection: "ICT-Admin",
             ...userData
         }
-
-        const [createdAdmin] = await db.insert(users).values([seed as any]).returning();
+        
+        const [createdAdmin] = await db.insert(users).values(seed).returning();
         if (!createdAdmin) throw new Error("Failed to create test admin");
         testAdmins.push(createdAdmin);
         
@@ -111,19 +108,19 @@ export const createMultipleUser = async (userData: Partial<NewUser>, userCount: 
 export const createTestEvent = async (eventData: Partial<NewEvent>, adminId: string ) => {
     const rawDate = eventData.eventDate ?? new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     const eventDateStr = rawDate instanceof Date ? rawDate.toISOString().split("T")[0] : String(rawDate);
-
-    const seed: any = {
-        ...eventData,
+    
+    const seed = {
         createdBy: adminId,
         eventName: `Test Event ${Date.now()}`,
         eventDate: eventDateStr,
         eventDescription: "This is a test event",
         eventLocation: "Test Location",
+        ...eventData
     }
-
-    const [createdEvent] = await db.insert(events).values([seed as any]).returning();
+    
+    const [createdEvent] = await db.insert(events).values(seed as any).returning();
     if (!createdEvent) throw new Error("Failed to create test event");
-
+    
     return {testEvent: createdEvent};
 }
 
@@ -136,10 +133,10 @@ export const createTestAttendance = async (attendanceData: Partial<NewAttendance
         isLate: false,
         ...attendanceData
     }
-
-    const [createdAttendance] = await db.insert(attendance).values([seed]).returning();
+    
+    const [createdAttendance] = await db.insert(attendance).values(seed).returning();
     if (!createdAttendance) throw new Error("Failed to create attendance");
-
+    
     return {testAttendance: createdAttendance};
 }
 

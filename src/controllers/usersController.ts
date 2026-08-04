@@ -87,7 +87,7 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.params.id);
         const userPassword = req.body.password ? await hashPassword(req.body.password) : undefined;
-        const updatedData = userPassword ? {...req.body, password: userPassword} : req.body;
+        const updatedData = userPassword ? {...req.body, password: userPassword, updatedAt: new Date()} : {...req.body, updatedAt: new Date()};
         const [updatedUser] = await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
         
         if(!updatedUser) {

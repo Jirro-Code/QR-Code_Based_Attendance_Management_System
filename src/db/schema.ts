@@ -20,7 +20,7 @@ export const users = pgTable("users", {
     role: userRoles().notNull(),
     studentId: varchar("student_id", { length: 13 }).unique(),
     studentLRN: varchar("student_LRN", { length: 12 }).unique(),
-    studentStrand: userStrands().notNull(),
+    studentStrand: userStrands(),
     studentSection: varchar("student_section", { length: 255 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
