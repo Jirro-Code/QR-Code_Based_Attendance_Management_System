@@ -1,0 +1,121 @@
+import type {Response} from "express";
+import type {AuthenticatedRequest} from "../middlewares/authToken.ts";
+import {events} from "../db/schema.ts";
+import {db} from "../db/connections.ts";
+import { eq, desc, and, or, like } from "drizzle-orm";
+import { z } from "zod";
+
+
+export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
+    try{                
+        const [newEvent] = await db.insert(events).values({
+            ...req.body,
+            createdBy: req.user!.id
+        }).returning();
+        
+        console.log("Event created:", newEvent);
+        res.status(201).json({message: "Event created successfully", event: newEvent});
+    }
+    catch(e){
+        console.error("Error creating event:", e);
+        res.status(500).json({message: "Error creating event"});
+    }
+}
+
+
+export const getAllEvents = async ( _req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventsList = await db.query.events.findMany({
+            orderBy: desc(events.eventDate)
+        });
+        
+        console.log("Fetched events:", eventsList);
+        res.status(200).json({message: "Events retrieved successfully", events: eventsList});
+    }
+    catch (e){
+        console.error("Error fetching events:", e);
+        res.status(500).json({message: "Error fetching events"});
+    }
+}
+
+
+export const searchEvents = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const term = z.string().parse(req.query.search);
+        // If the term looks like a date (YYYY-MM-DD), search by exact date as well.
+        const maybeDate = (() => {
+            const d = new Date(term);
+            return !Number.isNaN(d.getTime()) ? d.toISOString().split("T")[0] : null;
+        })();
+        
+        const whereClause = term ? or(
+            like(events.eventName, `%${term}%`),
+            like(events.eventLocation, `%${term}%`),
+            maybeDate ? eq(events.eventDate, maybeDate) : undefined
+        ) : undefined;
+        
+        const eventsList = await db.query.events.findMany({ where: and(whereClause) });
+        
+        console.log("Search results:", eventsList);
+        res.status(200).json({message: "Events retrieved successfully", events: eventsList});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid search query:", e.issues);
+            return res.status(400).json({message: "Invalid search query", errors: e.issues});
+        }
+        
+        console.error("Error searching events:", e);
+        res.status(500).json({message: "Error searching events"});
+    }
+}
+
+
+export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventId = z.string().parse(req.params.id);
+        const [updatedEvent] = await db.update(events).set({...req.body, updatedAt: new Date()}).where(eq(events.id, eventId)).returning();
+        
+        if(!updatedEvent){
+            console.error("Event not found:", eventId);
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        console.log("Event updated:", eventId);
+        res.status(200).json({message: "Event updated successfully", updates: updatedEvent});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid event update", e.issues)
+            return res.status(400).json({message: "Invalid event update", error: e.issues})
+        }
+        
+        console.error("Error occured while updating event", e);
+        res.status(500).json({message: "Error updating event"})
+    }
+}
+
+
+export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventId = z.string().parse(req.params.id);
+        const [deletedEvent] = await db.delete(events).where(eq(events.id, eventId)).returning();
+        
+        if(!deletedEvent){
+            console.error("Event not found:", eventId);
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        console.log("Event deleted:", eventId);
+        res.status(200).json({message: "Event deleted successfully", event: deletedEvent});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid event ID parameter:", e.issues);
+            return res.status(400).json({message: "Invalid event ID parameter", errors: e.issues});
+        }
+        
+        console.error("Error occurred while deleting event:", e);
+        res.status(500).json({message: "Error deleting event"});
+    }
+}
