@@ -24,7 +24,17 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
             return res.status(400).json({message: "Missing required fields for user role"});
         }
         
+        const existingUser = await db.query.users.findFirst({
+            where: req.body.role === "user" ? 
+            eq(users.studentId, req.body.studentId!) : eq(users.email, req.body.email)
+        });
+        
         const hashedPassword = await hashPassword(req.body.password);
+        
+        if(existingUser){
+            console.error("User already exists:", existingUser);
+            return res.status(409).json({message: "User already exists"});
+        }
         
         const [newUser] = await db
         .insert(users)
