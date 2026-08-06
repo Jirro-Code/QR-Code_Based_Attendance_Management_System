@@ -11,7 +11,7 @@ export interface JwtPayload extends JWTPayload {
 
 export const generateToken = async (payload: JwtPayload) => {
     const secretKey = createSecretKey(env.JWT_SECRET, "utf-8");
-
+    
     return await new SignJWT(payload)
         .setProtectedHeader({ alg: "HS256", typ: "JWT" })
         .setIssuedAt()

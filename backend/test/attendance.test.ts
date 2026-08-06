@@ -100,14 +100,14 @@ describe("attendance controller tests", () => {
             expect(response.body).toHaveProperty("message", "No token provided");
         })
         
-        it("should return 403 for a malformed token", async () => {
+        it("should return 401 for a malformed token", async () => {
             const response = await request(app)
                 .get("/api/attendance/myAttendance")
                 .set("Cookie", buildAuthCookie("invalid.token.value"))
-                .expect(403);
+                .expect(401);
             
             console.log("GET my attendance Response:", response.body);
-            expect(response.body).toHaveProperty("message", "request is forbidden");
+            expect(response.body).toHaveProperty("message", "Invalid or expired token");
         })
         
         it("should return 403 for a valid student token on admin-only routes", async () => {

@@ -111,14 +111,14 @@ describe("user controller tests", () => {
             expect(response.body).toHaveProperty("message", "Access denied. Admins only.");
         })
         
-        it("should return 403 for a malformed token", async () => {
+        it("should return 401 for a malformed token", async () => {
             const response = await request(app)
                 .get("/api/users/all")
                 .set("Cookie", "token=invalid.token.value")
-                .expect(403);
+                .expect(401);
             
             console.log("GET all users Response:", response.body);
-            expect(response.body).toHaveProperty("message", "request is forbidden");
+            expect(response.body).toHaveProperty("message", "Invalid or expired token");
         })
         
         it("should return 400 for an invalid role parameter", async () => {

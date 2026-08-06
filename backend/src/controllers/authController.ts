@@ -3,7 +3,7 @@ import type {Request, Response} from "express";
 import {db} from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
 import { generateToken } from "../utils/jwt.ts";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { env } from "../../env.ts";
 import ms from "ms";
 import type { AuthenticatedRequest } from "../middlewares/authToken.ts";
@@ -58,10 +58,10 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
 
 export const loginUser = async (req: Request, res: Response) => {
     try{
-
+        
         const user = await db.query.users.findFirst({
             where: req.body.role === "user" ? 
-            eq(users.studentId, req.body.studentId) : eq(users.email, req.body.email)
+            and(eq(users.studentId, req.body.studentId), eq(users.role, req.body.role)) : and(eq(users.email, req.body.email), eq(users.role, req.body.role))
         })
         
         if(!user){

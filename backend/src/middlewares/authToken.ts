@@ -21,7 +21,8 @@ export const authToken = async (req: AuthenticatedRequest, res: Response, next: 
         next();
     }
     catch(e){
-        res.status(403).json({message: "request is forbidden"});
+        console.error("Error in authToken middleware:", e);
+        res.status(401).json({message: "Invalid or expired token"});
     }
 }
 
@@ -45,6 +46,6 @@ export const authAdminToken = async (req: AuthenticatedRequest, res: Response, n
     }
     catch(e){
         console.error("Error in authAdminToken middleware:", e);
-        res.status(403).json({message: "request is forbidden"});
+        res.status(401).json({message: "Invalid or expired token"});
     }
 }
