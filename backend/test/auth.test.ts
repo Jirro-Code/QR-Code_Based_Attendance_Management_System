@@ -1,6 +1,6 @@
 import request from "supertest";
 import app from "../src/server.ts";
-import { buildAuthCookie, createTestUser, clearDatabase } from "./setup/dbHelpers.ts";
+import { buildAdminLoginBody, buildAuthCookie, buildUserLoginBody, createTestUser, clearDatabase } from "./setup/dbHelpers.ts";
 
 
 describe("Authentication Tests", () => {
@@ -40,15 +40,9 @@ describe("Authentication Tests", () => {
         it("should return 201 and a token for valid credentials", async () => {
             const { testUser, testUserPassword } = await createTestUser();
             
-            const loginData = {
-                username: testUser.username,
-                email: testUser.email,
-                password: testUserPassword
-            };
-            
             const response = await request(app)
                 .post("/api/auth/login")
-                .send(loginData)
+                .send(buildUserLoginBody(testUser.studentId!, testUserPassword))
                 .expect(201);
             
             console.log("Login Response:", response.body);
@@ -64,7 +58,26 @@ describe("Authentication Tests", () => {
                 studentStrand: testUser.studentStrand,
                 studentSection: testUser.studentSection
             });
-        })
+        });
+        
+        it("should return 201 and a token for valid admin credentials", async () => {
+            const { testAdmin, testAdminPassword } = await createTestUser();
+            
+            const response = await request(app)
+                .post("/api/auth/login")
+                .send(buildAdminLoginBody(testAdmin.email, testAdminPassword))
+                .expect(201);
+            
+            console.log("Login Response:", response.body);
+            expect(response.body).toHaveProperty("token");
+            expect(response.body).toHaveProperty("user");
+            expect(response.headers["set-cookie"]).toBeDefined();
+            expect(response.body.user).toMatchObject({
+                username: testAdmin.username,
+                email: testAdmin.email,
+                role: testAdmin.role
+            });
+        });
         
         it("should clear the auth cookie on logout", async () => {
             const { testUser, testUserPassword } = await createTestUser();
@@ -72,8 +85,8 @@ describe("Authentication Tests", () => {
             const loginResponse = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    username: testUser.username,
-                    email: testUser.email,
+                    role: "user",
+                    studentId: testUser.studentId,
                     password: testUserPassword
                 })
                 .expect(201);
@@ -86,7 +99,7 @@ describe("Authentication Tests", () => {
             console.log("Logout Response:", response.body);
             expect(response.body).toHaveProperty("message", "Logout successful");
             expect(response.headers["set-cookie"]?.[0]).toContain("token=");
-        })
+        });
     })
     
     describe("Error handling tests for auth controller", () =>{
@@ -123,7 +136,7 @@ describe("Authentication Tests", () => {
             const response = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    username: testAdmin.username,
+                    role: "admin",
                     email: testAdmin.email,
                     password: "wrongpassword"
                 })
@@ -135,8 +148,8 @@ describe("Authentication Tests", () => {
             const response2 = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    username: testUser.username,
-                    email: testUser.email,
+                    role: "user",
+                    studentId: testUser.studentId,
                     password: "wrongpassword"
                 })
                 .expect(401);
@@ -145,11 +158,11 @@ describe("Authentication Tests", () => {
             expect(response2.body).toHaveProperty("message", "Invalid Credentials");
         })
         
-        it("should return an error for non-existing user", async () => {
+        it("should return an error for non-existing admin", async () => {
             const response = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    username: "nonexistinguser",
+                    role: "admin",
                     email: "none@example.com",
                     password: "wrongpassword"
                 })
@@ -159,11 +172,25 @@ describe("Authentication Tests", () => {
             expect(response.body).toHaveProperty("message", "User not found");
         })
         
-        it("should return an error for invalid email format", async () => {
+        it("should return an error for non-existing user", async () => {
             const response = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    username: "testuser",
+                    role: "user",
+                    studentId: "2026-9999-ICP",
+                    password: "wrongpassword"
+                })
+                .expect(404);
+            
+            console.log("Login Response:", response.body);
+            expect(response.body).toHaveProperty("message", "User not found");
+        })
+        
+        it("should return an error for invalid admin email format", async () => {
+            const response = await request(app)
+                .post("/api/auth/login")
+                .send({
+                    role: "admin",
                     email: "invalid-email",
                     password: "wrongpassword"
                 })
@@ -173,12 +200,26 @@ describe("Authentication Tests", () => {
             expect(response.body.details[0].message).toBe("Invalid email address");
         })
         
+        it("should return an error for invalid student ID format", async () => {
+            const response = await request(app)
+                .post("/api/auth/login")
+                .send({
+                    role: "user",
+                    studentId: "isdf",
+                    password: "wrongpassword"
+                })
+                .expect(400);
+            
+            console.log("Login Response:", response.body);
+            expect(response.body.details[0].message).toBe("Student ID must be exactly 13 characters long");
+        })
+        
         it("should return an error for invalid password format", async () => {
             const response = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    username: "testuser",
-                    email: "testuser@example.com",
+                    role: "user",
+                    studentId: "2026-1234-ICP",
                     password: "a"
                 })
                 .expect(400);
@@ -187,73 +228,58 @@ describe("Authentication Tests", () => {
             expect(response.body.details[0].message).toBe("Password must be at least 6 characters long");
         })
         
-        it("should return an error for invalid username format", async () => {
+        it("should return an error for missing student ID", async () => {
             const response = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    username: "a",
-                    email: "testuser@example.com",
+                    role: "user",
                     password: "wrongpassword"
                 })
                 .expect(400);
             
             console.log("Login Response:", response.body);
-            expect(response.body.details[0].message).toBe("Username must be at least 3 characters long");
+            expect(response.body).toHaveProperty("error", "Validation failed");
         })
         
-        it("should return an error for missing username", async () => {
+        it("should return an error for missing admin email", async () => {
             const response = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    email: "testuser@example.com",
+                    role: "admin",
                     password: "wrongpassword"
                 })
                 .expect(400);
             
             console.log("Login Response:", response.body);
-            expect(response.body.details[0].message).toBe("Invalid input: expected string, received undefined");
-        })
-        
-        it("should return an error for missing email", async () => {
-            const response = await request(app)
-                .post("/api/auth/login")
-                .send({
-                    username: "testuser",
-                    password: "wrongpassword"
-                })
-                .expect(400);
-            
-            console.log("Login Response:", response.body);
-            expect(response.body.details[0].message).toBe("Invalid email address");
+            expect(response.body).toHaveProperty("error", "Validation failed");
         })
         
         it("should return an error for missing password", async () => {
             const response = await request(app)
                 .post("/api/auth/login")
                 .send({
-                    username: "testuser",
-                    email: "testuser@example.com"
+                    role: "user",
+                    studentId: "2026-1234-ICP"
                 })
                 .expect(400);
             
             console.log("Login Response:", response.body);
             expect(response.body.details[0].message).toBe("Invalid input: expected string, received undefined");
-        })
+        });
         
-        it("should return an error for invalid register role", async () => {
+        it("should return an error for invalid login role", async () => {
             const response = await request(app)
-                .post("/api/auth/register")
+                .post("/api/auth/login")
                 .send({
-                    username: "testuser",
+                    role: "invalidrole",
                     email: "testuser@example.com",
-                    password: "testUser",
-                    role: "invalidrole"
+                    password: "testUser"
                 })
                 .expect(400);
             
-            console.log("Register Response:", response.body);
-            expect(response.body.details[0].message).toBe("Invalid user role");
-        })
+            console.log("Login Response:", response.body);
+            expect(response.body.details[0].message).toBe("Invalid discriminator value. Expected 'user' | 'admin'");
+        });
         
         it("should return an error for invalid register email format", async () => {
             const response = await request(app)

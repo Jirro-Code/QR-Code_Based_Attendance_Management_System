@@ -58,8 +58,10 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
 
 export const loginUser = async (req: Request, res: Response) => {
     try{
+
         const user = await db.query.users.findFirst({
-            where: eq(users.email, req.body.email)
+            where: req.body.role === "user" ? 
+            eq(users.studentId, req.body.studentId) : eq(users.email, req.body.email)
         })
         
         if(!user){

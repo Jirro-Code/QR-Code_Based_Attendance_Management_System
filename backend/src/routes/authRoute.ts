@@ -8,11 +8,18 @@ import { authToken } from "../middlewares/authToken.ts";
 const router = Router();
 
 
-const loginSchema = z.object({
-    username: z.string().min(3, "Username must be at least 3 characters long"),
-    password: z.string().min(6, "Password must be at least 6 characters long"),
-    email: z.email("Invalid email address")
-})
+const loginSchema = z.discriminatedUnion("role", [
+    z.object({
+        role: z.literal("user"),
+        password: z.string().min(6, "Password must be at least 6 characters long"),
+        studentId: z.string().length(13, "Student ID must be exactly 13 characters long")
+    }),
+    z.object({
+        role: z.literal("admin"),
+        password: z.string().min(6, "Password must be at least 6 characters long"),
+        email: z.email("Invalid email address")
+    })
+]);
 
 const registerSchema = z.object({
     username: z.string().min(3, "Username must be at least 3 characters long"),

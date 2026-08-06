@@ -6,6 +6,18 @@ import { hashPassword } from "../../src/utils/password.ts";
 
 export const buildAuthCookie = (token: string | undefined) => `token=${token ?? ""}`;
 
+export const buildUserLoginBody = (studentId: string, password: string) => ({
+    role: "user" as const,
+    studentId,
+    password
+});
+
+export const buildAdminLoginBody = (email: string, password: string) => ({
+    role: "admin" as const,
+    email,
+    password
+});
+
 
 export const createTestUser = async (userData: Partial<NewUser> = {}) => {
     const testUser = {
