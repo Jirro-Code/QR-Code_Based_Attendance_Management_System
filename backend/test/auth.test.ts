@@ -428,10 +428,10 @@ describe("Authentication Tests", () => {
                     studentStrand: "ICT" as const,
                     studentSection: "ICT-12-5"
                 })
-                .expect(500);
+                .expect(409);
             
             console.log("Register Response:", response.body);
-            expect(response.body).toHaveProperty("message", "Internal server error");
+            expect(response.body).toHaveProperty("message", "User already exists");
         })
         
         it("should return an error for duplicate student LRN", async () => {
