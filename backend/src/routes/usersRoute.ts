@@ -1,7 +1,7 @@
 import Router from "express";
-import { authAdminToken } from "../middlewares/authToken.ts";
+import { authAdminToken, authToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
-import { getAllUserByRole, getAllUsers, searchUsers, updateUser, deleteUser} from "../controllers/usersController.ts";
+import { getAllUserByRole, getUserById, getAllUsers, searchUsers, updateUser, deleteUser} from "../controllers/usersController.ts";
 import { userRoleSchema, userStrandSchema } from "../db/schema.ts";
 import z from "zod";
 
@@ -27,6 +27,10 @@ const updateUserSchema = z.object({
 const uuidSchema = z.object({
     id: z.uuid("Invalid UUID format")
 });
+
+
+router.use(authToken);
+router.get("/me", getUserById);
 
 
 router.use(authAdminToken);
