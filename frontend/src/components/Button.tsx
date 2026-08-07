@@ -1,6 +1,7 @@
-
-export const BackButton = () => {
+import {useNavigate } from "react-router-dom";
+export function BackButton ( {path}: {path: string}){
+    const navigate = useNavigate();
     return (
-        <button onClick={() => {window.history.back();}}>Back</button>
+        <button onClick={() => {navigate(path);}}>Back</button>
     ); 
 }

@@ -1,10 +1,9 @@
-
-
-function SelectionField({ label, id, options, value, onChange}: {label: string; id: string; options: string[]; value: string; onChange: (e: React.ChangeEvent<HTMLSelectElement>) => void;}) {
+function SelectionField({ label, id, options, value, onChange, placeholder = "Select an option" }: {label: string; id: string; options: string[]; value: string; onChange: React.ChangeEventHandler<HTMLSelectElement>; placeholder?: string;}) {
     return (
         <div className="selectionField">
             <label htmlFor={id}>{label}:</label><br/>
             <select id={id} name={id} value={value} onChange={onChange} required>
+                <option value="" disabled hidden>{placeholder}</option>
                 {options.map((option, index) => (
                     <option key={index} value={option}>{option}</option>
                 ))}

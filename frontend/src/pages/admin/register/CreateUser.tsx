@@ -15,7 +15,7 @@ function CreateUser() {
                 <button onClick={() => {navigate("/create-admin");}}>ADMIN</button>
             </div>
             <div className="backButton">
-                <BackButton />
+                <BackButton path="/admin-dashboard" />
             </div>  
         </div>
     )
