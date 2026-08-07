@@ -40,3 +40,14 @@ export const SearchUsers = async (query: string) => {
         credentials: "include"
     });
 }
+
+export const UpdateUser = async (id: string, userData: Partial<User>) => {
+    return await apiFetch(`/users/update/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(userData),
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include"
+    });
+}

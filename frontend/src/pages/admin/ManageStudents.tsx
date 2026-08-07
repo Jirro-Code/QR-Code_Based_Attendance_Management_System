@@ -1,24 +1,22 @@
-import useViewUsers from "../../hooks/useViewUsers";
+import useViewUsers from "../../hooks/useView.ts";
 import type { User } from "../../services/users";
 import { useEffect, useState } from "react";
 import SearchBar from "../../components/SearchBar.tsx";
+import ListCell from "../../components/ListCell.tsx";
+import UpdateCard from "../../components/UpdateCard.tsx";
 
 function ManageUsers() {
     const { viewAllUsers, searchUsers } = useViewUsers();
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [userArray, setUserArray] = useState<User[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const refreshUserList = () => {
+        viewAllUsers(setUserArray);
+    }
+    
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const users = await viewAllUsers();
-                setUserArray(users);
-            } catch (error) {
-                console.error("Error fetching users:", error);
-            }
-        };
-        
-        fetchUsers();
-    }, []);
+        viewAllUsers(setUserArray);
+    }, [setUserArray]);
     
     const handleSearch = async () => {
         const searchedUsers = await searchUsers(searchQuery);
@@ -30,16 +28,14 @@ function ManageUsers() {
             <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} />
             <h1>Manage Users</h1>
             <p>This is the Manage Users page.</p>
-            <ul>
-                {userArray.map((user: { id: string; username: string; email: string; role: string }) => (
-                    <li key={user.id}>
-                        ID: {user.id}, Username: {user.username}, Email: {user.email}, Role: {user.role}
-                    </li>
-                ))}
-            </ul>
             
+            {userArray.map((user: { id: string; username: string; email: string; role: string }) => (
+                
+                    <ListCell key={user.id} user={user} onUpdate={() => setSelectedUser(user)} />
+                
+            ))}  
+            {selectedUser && <UpdateCard userId={selectedUser.id} onUpdated={refreshUserList} />}
         </div>
     );
 }
-
 export default ManageUsers;

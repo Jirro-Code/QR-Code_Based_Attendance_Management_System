@@ -57,7 +57,7 @@ function StudentRegister() {
                     <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" />
                     <Input label="Student LRN" id="studentLRN" type="number" placeholder="Student LRN" onChange={handleChange} name="studentLRN" />
                     <Input label="Student ID" id="studentID" type="text" placeholder="Student ID" onChange={handleChange} name="studentId" />
-                    <SelectionField label="Student Strand" id="studentStrand" value={studentData.studentStrand} onChange={handleChange}
+                    <SelectionField label="Student Strand" id="studentStrand" value={studentData.studentStrand} onChange={handleChange} isRequired={true}
                         placeholder="Select strand"
                         options={[
                             "ICT",
