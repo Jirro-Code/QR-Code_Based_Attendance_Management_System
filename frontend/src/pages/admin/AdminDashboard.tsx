@@ -20,7 +20,7 @@ function AdminDashboard() {
         <div>
             <h1>Admin Dashboard</h1>
             <p>Welcome back, {adminData.username}!</p>
-            <button>Manage Students</button>
+            <button onClick={() => navigate("/manage-students")}>Manage Students</button>
             <button onClick={() => navigate("/create-user")}>Create User</button>
             <button>View Reports</button>
             <button onClick={() => logout("/admin-login")}>Logout</button>
