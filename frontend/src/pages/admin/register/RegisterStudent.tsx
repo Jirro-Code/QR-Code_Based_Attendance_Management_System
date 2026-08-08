@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { BackButton } from "../../../components/Button.tsx";
-import Input from "../../../components/Input.tsx";
+import { BackButton } from "../../../components/Button/Button.tsx";
+import Input from "../../../components/Input/Input.tsx";
 import SelectionField from "../../../components/SelectionField.tsx";
 import { type StudentRegisterPayload } from "../../../services/auth.ts";
 import useRegister from "../../../hooks/useRegister.ts";
@@ -60,6 +60,7 @@ function StudentRegister() {
         <div className="registerStudentPage">
             <h1>Register Student</h1>
             <p>Welcome to the student registration page!</p>
+            <div className="backButton"><BackButton path="/admin-dashboard" /></div>
             
             <div className="registerStudentForm">
                 <h2>Register a New Student</h2>
@@ -79,8 +80,8 @@ function StudentRegister() {
                     <button type="submit">Register Student</button>
                 </form>
             </div>
+            
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
-            <div className="backButton"><BackButton path="/manage-students" /></div>
             
         </div>
     );

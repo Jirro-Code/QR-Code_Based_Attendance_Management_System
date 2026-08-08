@@ -1,6 +1,6 @@
 import useUpdate from "../../hooks/useUpdate.ts";
 import {useState} from "react";
-import Input from "../Input.tsx";
+import Input from "../Input/Input.tsx";
 import { type User } from "../../services/users.ts";
 import SelectionField from "../SelectionField.tsx";
 

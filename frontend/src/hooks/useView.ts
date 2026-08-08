@@ -1,4 +1,5 @@
 import { logout } from "../services/auth";
+import { GetAllEvents, type Event } from "../services/events";
 import { GetAllUsers, SearchUsers, type User } from "../services/users";
 
 function useViewUsers() {
@@ -14,6 +15,10 @@ function useViewUsers() {
                 }
                 if(response.status === 403) {
                     throw new Error(data?.message ?? "Access denied. You do not have permission to perform this action.");
+                }
+                if(response.status === 404) {
+                    setUserArray([]);
+                    throw new Error(data?.message ?? "No users found.");
                 }
                 if (!response.ok) {
                     throw new Error(data?.message ?? "Failed to fetch users");
@@ -37,6 +42,10 @@ function useViewUsers() {
                 await logout("/");
                 throw new Error(data?.message ?? "Unauthorized. Please log in.");
             }
+            if (response.status === 404) {
+                setError("No users found matching the search query.");
+                throw new Error(data?.message ?? "No users found matching the search query.");
+            }
             if (response.status === 403) {
                 setError("Access denied. You do not have permission to perform this action.");
                 throw new Error(data?.message ?? "Access denied. You do not have permission to perform this action.");
@@ -52,7 +61,36 @@ function useViewUsers() {
         }
     }
     
-    return { viewAllUsers, searchUsers, };
+    async function viewAllEvents(setEventArray: React.Dispatch<React.SetStateAction<Event[]>>) {
+        const fetchEvents = async () => {
+            try {
+                const response = await GetAllEvents();
+                const data = await response.json();
+                if(response.status === 401) {
+                    await logout("/");
+                    throw new Error(data?.message ?? "Unauthorized. Please log in.");
+                }
+                if(response.status === 403) {
+                    throw new Error(data?.message ?? "Access denied. You do not have permission to perform this action.");
+                }
+                if(response.status === 404) {
+                    setEventArray([]);
+                    throw new Error(data?.message ?? "No events found.");
+                }
+                if (!response.ok) {
+                    throw new Error(data?.message ?? "Failed to fetch events");
+                }
+                setEventArray(data.events);
+            } 
+            catch (error) {
+                throw new Error("An error occurred while fetching events. Please try again.");
+            }
+        };
+        
+        fetchEvents();
+    }
+
+    return { viewAllUsers, searchUsers, viewAllEvents };
 }
 
 export default useViewUsers;

@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { BackButton } from "../../../components/Button.tsx";
+import { BackButton } from "../../../components/Button/Button.tsx";
 import NotificationCard from "../../../components/cards/NotificationCard.tsx";
-import Input from "../../../components/Input.tsx";
+import Input from "../../../components/Input/Input.tsx";
 import useRegister from "../../../hooks/useRegister.ts";
 import { type AdminRegisterPayload } from "../../../services/auth.ts";
 
@@ -50,6 +50,7 @@ function RegisterAdmin() {
         <div className="registerAdminPage">
             <h1>Register Admin</h1>
             <p>Welcome to the admin registration page!</p>
+            <div className="backButton"><BackButton path="/admin-dashboard" /></div>
             
             <div className="registerAdminForm">
                 <h2>Register a New Admin</h2>
@@ -63,7 +64,6 @@ function RegisterAdmin() {
                 </form>
             </div>
             
-            <div className="backButton"><BackButton path="/manage-students" /></div>
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
         </div>
     );

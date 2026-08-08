@@ -2,15 +2,15 @@ import useViewUsers from "../../hooks/useView.ts";
 import type { User } from "../../services/users";
 import { useEffect, useState } from "react";
 import SearchBar from "../../components/SearchBar.tsx";
-import {BackButton} from "../../components/Button.tsx";
+import {BackButton} from "../../components/Button/Button.tsx";
 import ListCell from "../../components/ListCell.tsx";
 import UpdateCard from "../../components/cards/UpdateCard.tsx";
 import DeleteCard from "../../components/cards/DeleteCard.tsx";
 import NotificationCard from "../../components/cards/NotificationCard.tsx";
-import SelectionCard from "../../components/cards/SelectionCards.tsx";
+
 
 function ManageUsers() {
-    const [isSelecting, setIsSelecting] = useState<boolean>(false);
+    
     const { viewAllUsers, searchUsers } = useViewUsers();
     const [error, setError] = useState<string>("");
     const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
@@ -54,18 +54,13 @@ function ManageUsers() {
         setIsOnSearch(true);
     };
     
-    const isSelectingHandler = () => {
-        setIsSelecting(false);
-    }
     
     return (
         <div>
-            
             <h1>Manage Users</h1>
             <p>This is the Manage Users page.</p>
             <BackButton path="/admin-dashboard" />
             <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} />
-            <button onClick={() => setIsSelecting(true)}>Create User</button>
             <p>{error}</p>
             {userArray.length > 0 ? (
                 userArray.map((user: { id: string; username: string; email: string; role: string }) => (
@@ -78,7 +73,7 @@ function ManageUsers() {
             
             {showUpdateCard && selectedUser && <UpdateCard userId={selectedUser.id} onUpdated={refreshUserList} onSetNotif={setNotificationMessage} setShowNotification={setShowNotification} />}            
             {showDeleteCard && selectedUser && <DeleteCard userId={selectedUser.id} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
-            {isSelecting && <SelectionCard onClose={() => isSelectingHandler()} />}
+            
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </div>
     );

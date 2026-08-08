@@ -1,7 +1,7 @@
 import { type User } from "../services/users";
 
 function ListCell({ user, onUpdate, onLoadUpdate, onDelete, onLoadDelete}: {  user: User, onUpdate: () => void, onDelete: () => void, onLoadUpdate: () => void, onLoadDelete: () => void }) {
-
+    
     function handleUpdate() {
         onUpdate();
         onLoadUpdate();

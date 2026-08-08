@@ -1,10 +1,11 @@
 import { Route, Routes } from "react-router-dom";
-import SelectionPage from "./pages/logs/LoginPage.tsx";
-import AdminLoginPage from "./pages/logs/AdminLoginPage.tsx";
+import SelectionPage from "./pages/logs/LoginPage/LoginPage.tsx";
+import AdminLoginPage from "./pages/logs/AdminLogin/AdminLoginPage.tsx";
 import AdminDashboard from "./pages/admin/AdminDashboard.tsx";
 import StudentRegister from "./pages/admin/register/RegisterStudent.tsx";
 import AdminRegister from "./pages/admin/register/RegisterAdmin.tsx";
 import ManageUsers from "./pages/admin/ManageStudents.tsx";
+import ManageEvents from "./pages/admin/Events.tsx";
 
 function App() {
     return (
@@ -16,6 +17,7 @@ function App() {
                 <Route path="/create-student" element={<StudentRegister />} />
                 <Route path="/create-admin" element={<AdminRegister />} />
                 <Route path="/manage-students" element={<ManageUsers />} />
+                <Route path="/manage-events" element={<ManageEvents />} />
             </Routes>
         </div>
     );

@@ -1,3 +1,5 @@
+import styles from "./Input.module.css";
+
 type InputProps = {
     label: string;
     id: string;
@@ -11,9 +13,9 @@ type InputProps = {
 
 function Input({ label, id, type, placeholder, onChange, name, isRequired, value }: InputProps) {
     return (
-        <div className="inputField">
-            <label htmlFor={id}>{label}:</label><br/>
-            <input id={id} type={type} placeholder={placeholder} onChange={onChange} name={name} required={isRequired ?? true} value={value} /><br/>
+        <div className={styles.inputContainer}>
+            <label className={styles.inputLabel} htmlFor={id}>{label}:</label><br/>
+            <input className={styles.inputField} id={id} type={type} placeholder={placeholder} onChange={onChange} name={name} required={isRequired ?? true} value={value} /><br/>
         </div>
     );
 }
