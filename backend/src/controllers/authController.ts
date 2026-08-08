@@ -3,7 +3,7 @@ import type {Request, Response} from "express";
 import {db} from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
 import { generateToken } from "../utils/jwt.ts";
-import { and, eq } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { env } from "../../env.ts";
 import ms from "ms";
 import type { AuthenticatedRequest } from "../middlewares/authToken.ts";
@@ -26,7 +26,7 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
         
         const existingUser = await db.query.users.findFirst({
             where: req.body.role === "user" ? 
-            eq(users.studentId, req.body.studentId!) : eq(users.email, req.body.email)
+            or(eq(users.email, req.body.email), eq(users.studentId, req.body.studentId!), eq(users.studentLRN, req.body.studentLRN!)) : eq(users.email, req.body.email)
         });
         
         if(existingUser){
@@ -48,17 +48,7 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
             role: users.role
         });
         
-        const token = await generateToken({
-            id: newUser!.id,
-            username: newUser!.username,
-            email: newUser!.email,
-            role: newUser!.role
-        })
-        
-        res.cookie("token", token, cookieOptions);
-        
-        // Keep the token in the response for development/testing; remove in production.
-        res.status(201).json({message: "User registered successfully", user: newUser, token });
+        res.status(201).json({message: "User registered successfully", user: newUser});
     }
     catch (e) {
         console.error("Error registering user:", e);
@@ -94,8 +84,7 @@ export const loginUser = async (req: Request, res: Response) => {
         const {password, ...userWithoutPassword} = user;     
         res.cookie("token", token, cookieOptions);
         
-        // Keep the token in the response for development/testing; remove in production.
-        res.status(201).json({message: "Login successful", user: userWithoutPassword, token});
+        res.status(201).json({message: "Login successful", user: userWithoutPassword});
     }
     catch(e) {
         console.error("Error logging in:", e);

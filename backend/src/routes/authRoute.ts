@@ -3,7 +3,7 @@ import { registerUser, loginUser, logoutUser } from "../controllers/authControll
 import { validateBody } from "../middlewares/validation.ts";
 import { userRoleSchema, userStrandSchema } from "../db/schema.ts";
 import z from "zod";
-import { authToken } from "../middlewares/authToken.ts";
+import { authAdminToken, authToken } from "../middlewares/authToken.ts";
 
 const router = Router();
 
@@ -33,9 +33,10 @@ const registerSchema = z.object({
 })
 
 
-router.post("/register", validateBody(registerSchema), registerUser);
 router.post("/login", validateBody(loginSchema), loginUser);
 router.post("/logout", authToken, logoutUser);
 
+router.use(authAdminToken);
+router.post("/register", validateBody(registerSchema), registerUser);
 
 export default router;

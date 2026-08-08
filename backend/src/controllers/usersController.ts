@@ -3,7 +3,7 @@ import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import { users, userRoleSchema } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
 import { hashPassword } from "../utils/password.ts";
-import { eq, desc, and, or, like} from "drizzle-orm";
+import { eq, desc, and, or, ilike} from "drizzle-orm";
 import z from "zod";
 
 
@@ -15,7 +15,6 @@ export const getAllUsers = async ( _req: AuthenticatedRequest, res: Response) =>
         
         const usersWithoutPasswords = usersList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
-        console.log("Fetched users:", usersList);
         res.status(200).json({message: "Users retrieved successfully", users: usersWithoutPasswords});
     }
     catch(e){
@@ -36,7 +35,6 @@ export const getUserById = async (req: AuthenticatedRequest, res: Response) => {
         
         const {password, ...userWithoutPassword} = user;
         
-        console.log("Fetched user:", userWithoutPassword);
         res.status(200).json({message: "User retrieved successfully", user: userWithoutPassword});
     }
     catch(e){
@@ -61,7 +59,6 @@ export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response)
         
         const usersWithoutPasswords = userList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
-        console.log("Fetched users:", usersWithoutPasswords);
         res.status(200).json({message: "Users retrieved successfully", users: usersWithoutPasswords});
     }
     catch(e){
@@ -83,10 +80,10 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
         const usersList = await db.query.users.findMany({
                 where: and(
                     term ? or(
-                        like(users.username, `%${term}%`),
-                        like(users.email, `%${term}%`),
-                        like(users.studentId, `%${term}%`),
-                        like(users.studentLRN, `%${term}%`)
+                        ilike(users.username, `%${term}%`),
+                        ilike(users.email, `%${term}%`),
+                        ilike(users.studentId, `%${term}%`),
+                        ilike(users.studentLRN, `%${term}%`)
                     ) : undefined
                 )
             }
@@ -94,7 +91,6 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
         
         const matchedUsers = usersList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
-        console.log("Search results:", matchedUsers);
         return res.status(200).json({message: "Users retrieved successfully", users: matchedUsers});
     }
     catch(e){
@@ -120,7 +116,6 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
             return res.status(404).json({message: "User not found"});
         }
         
-        console.log("Updated user:", updatedUser);
         res.status(200).json({message: "User updated successfully", user: updatedUser});
     }
     catch(e){
@@ -140,7 +135,6 @@ export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
             return res.status(404).json({message: "User not found or unauthorized to delete"});
         }
         
-        console.log("Deleted user:", deletedUser);
         res.status(200).json({message: "User deleted successfully", user: deletedUser});
     }
     catch(e){
