@@ -3,24 +3,9 @@ import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import { users, userRoleSchema } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
 import { hashPassword } from "../utils/password.ts";
-import { eq, desc, and, or, ilike} from "drizzle-orm";
+import { eq, asc, and, or, ilike} from "drizzle-orm";
 import z from "zod";
 
-
-export const getAllUsers = async ( _req: AuthenticatedRequest, res: Response) => {
-    try{
-        const usersList = await db.query.users.findMany({
-            orderBy: desc(users.createdAt)
-        });
-        
-        const usersWithoutPasswords = usersList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
-        
-        res.status(200).json({message: "Users retrieved successfully", users: usersWithoutPasswords});
-    }
-    catch(e){
-        res.status(500).json({message: "Error fetching users"});
-    }
-}
 
 export const getUserById = async (req: AuthenticatedRequest, res: Response) => {
     try{
@@ -54,7 +39,7 @@ export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response)
         
         const userList = await db.query.users.findMany({
             where: eq(users.role, role),
-            orderBy: desc(users.createdAt)
+            orderBy: asc(users.updatedAt)
         });
         
         const usersWithoutPasswords = userList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
