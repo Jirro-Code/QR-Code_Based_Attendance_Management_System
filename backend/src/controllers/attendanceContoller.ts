@@ -139,7 +139,11 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
             return res.status(404).json({message: "Event not found"});
         }
         
-        const groupAttendance = await db.select({attendance: attendance}).from(attendance).innerJoin(users, eq(attendance.userId, users.id)).where(and(eq(attendance.eventId, eventId), eq(users.studentStrand, groupStrand)));
+        const groupAttendance = await 
+        db.select({attendance: attendance}).
+        from(attendance).
+        innerJoin(users, eq(attendance.userId, users.id)).
+        where(and(eq(attendance.eventId, eventId), eq(users.studentStrand, groupStrand)));
         
         if (groupAttendance.length === 0) {
             return res.status(404).json({message: "Attendance not found for this group"});

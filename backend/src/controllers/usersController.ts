@@ -42,6 +42,11 @@ export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response)
             orderBy: asc(users.updatedAt)
         });
         
+        if(userList.length === 0){
+            console.error("No users found for role:", role);
+            return res.status(404).json({message: "No users found for role"});
+        }
+        
         const usersWithoutPasswords = userList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
         res.status(200).json({message: "Users retrieved successfully", users: usersWithoutPasswords});

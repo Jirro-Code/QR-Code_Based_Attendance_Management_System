@@ -34,10 +34,10 @@ export const events = pgTable("events", {
     }).notNull(),
     eventName: varchar("event_name", { length: 255 }).notNull(),
     eventDescription: text("event_description"),
-    eventLocation: varchar("event_location", { length: 255 }),
+    eventLocation: varchar("event_location", { length: 255 }).notNull(),
     eventDate: date("event_date").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
 

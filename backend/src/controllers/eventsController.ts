@@ -1,9 +1,10 @@
 import type {Response} from "express";
 import type {AuthenticatedRequest} from "../middlewares/authToken.ts";
-import {events} from "../db/schema.ts";
+import {events, users} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
 import { eq, desc, and, or, like } from "drizzle-orm";
 import { z } from "zod";
+
 
 
 export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
@@ -13,7 +14,6 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
             createdBy: req.user!.id
         }).returning();
         
-        console.log("Event created:", newEvent);
         res.status(201).json({message: "Event created successfully", event: newEvent});
     }
     catch(e){
@@ -25,11 +25,22 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
 
 export const getAllEvents = async ( _req: AuthenticatedRequest, res: Response) => {
     try{
-        const eventsList = await db.query.events.findMany({
-            orderBy: desc(events.eventDate)
-        });
+        const eventsList = await db.select({ 
+                                            eventId: events.id,
+                                            eventName: events.eventName, 
+                                            eventDescription: events.eventDescription, 
+                                            eventDate: events.eventDate, 
+                                            eventLocation: events.eventLocation,
+                                            creator: users.username}).
+                                            from(events).
+                                            innerJoin(users, eq(events.createdBy, users.id)).
+                                            orderBy(desc(events.eventDate));
         
-        console.log("Fetched events:", eventsList);
+        if(eventsList.length === 0){
+            console.error("No events found");
+            return res.status(404).json({message: "No events found"});
+        }
+        
         res.status(200).json({message: "Events retrieved successfully", events: eventsList});
     }
     catch (e){
@@ -38,6 +49,32 @@ export const getAllEvents = async ( _req: AuthenticatedRequest, res: Response) =
     }
 }
 
+export const getEventById = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventId = z.string().parse(req.params.id);
+        const event = await db.select({ eventName: events.eventName,
+                                        eventDescription: events.eventDescription,
+                                        eventDate: events.eventDate,
+                                        eventLocation: events.eventLocation,
+                                        creator: users.username}).from(events).
+                                        innerJoin(users, and(eq(events.createdBy, users.id), eq(events.id, eventId)));
+        
+        if(event.length === 0){
+            console.error("Event not found for event ID:", eventId);
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        res.status(200).json({message: "Event retrieved successfully", event: event[0]});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid event ID parameter:", e.issues);
+            return res.status(400).json({message: "Invalid event ID parameter", errors: e.issues});
+        }
+        console.error("Error fetching event:", e);
+        res.status(500).json({message: "Error fetching event"});
+    }
+};
 
 export const searchEvents = async (req: AuthenticatedRequest, res: Response) => {
     try{
@@ -54,9 +91,16 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
             maybeDate ? eq(events.eventDate, maybeDate) : undefined
         ) : undefined;
         
-        const eventsList = await db.query.events.findMany({ where: and(whereClause) });
+        const eventsList = await db.select({ eventName: events.eventName,
+                                            eventDescription: events.eventDescription,
+                                            eventDate: events.eventDate,
+                                            eventLocation: events.eventLocation,
+                                            creator: users.username }).
+                                            from(events).
+                                            leftJoin(users, eq(events.createdBy, users.id)).
+                                            where(whereClause).
+                                            orderBy(desc(events.eventDate));
         
-        console.log("Search results:", eventsList);
         res.status(200).json({message: "Events retrieved successfully", events: eventsList});
     }
     catch(e){
