@@ -1,11 +1,21 @@
 import { type User } from "../services/users";
 
-function ListCell({ user, onUpdate }: {  user: User, onUpdate: () => void }) {
+function ListCell({ user, onUpdate, onLoadUpdate, onDelete, onLoadDelete}: {  user: User, onUpdate: () => void, onDelete: () => void, onLoadUpdate: () => void, onLoadDelete: () => void }) {
+
+    function handleUpdate() {
+        onUpdate();
+        onLoadUpdate();
+    }
+    function handleDelete() {
+        onDelete();
+        onLoadDelete();
+    }
+    
     return (
         <div className="list-cell">
             <p><b>Username:</b> {user.username}, <b>Email:</b> {user.email}, <b>Role:</b> {user.role}</p>
-            <button onClick={() => onUpdate()}>Edit</button>
-            <button onClick={() => console.log("Delete user:", user)}>Delete</button>
+            <button onClick={handleUpdate}>Edit</button>
+            <button onClick={handleDelete}>Delete</button>
         </div>
     );
 }

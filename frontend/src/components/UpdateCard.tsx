@@ -3,44 +3,58 @@ import {useState} from "react";
 import Input from "./Input.tsx";
 import { type User } from "../services/users.ts";
 import SelectionField from "./SelectionField.tsx";
-import NotificationCard from "./NotificationCard.tsx";
 
 type UpdateCardProps = {
     userId: string;
     onUpdated: () => void;
+    setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
+    onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
 };
 
-function UpdateCard({ userId, onUpdated }: UpdateCardProps) {
-    const [showNotification, setShowNotification] = useState(false);
+function UpdateCard({ userId, onUpdated, setShowNotification, onSetNotif }: UpdateCardProps) {
     const { updateData } = useUpdate();
     const [formData, setFormData] = useState<User>({} as User);
+    const [confirmPassword, setConfirmPassword] = useState<string>("");
+    const [error, setError] = useState<string>("");
     
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
+        if (e.target.name === "confirmPassword") {
+            setConfirmPassword("");
+        }
     }
+    
     const handleUpdate = async (data: User) => {
         try {
-            await updateData({ ...data, id: userId });
+            await updateData({ ...data, id: userId }, setError);
             onUpdated();
+            onSetNotif({
+                title: "Update Successful",
+                message: "Data updated successfully!"
+            });
             setShowNotification(true);
         } 
         catch (error) {
             console.error("Error updating data:", error);
-            setShowNotification(false);
+            onSetNotif({
+                title: "Update Failed",
+                message: "Failed to update data.",
+            });
         }
     };
+    
     
     return (
         <div className="update-card">
             <h2>Update Card</h2>
             <p>This is the update card component.</p>
             <form className="update-form">
-                <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleFormChange} name="username" isRequired={false} />
-                <Input label="Email" id="studentEmail" type="email" placeholder="Email" onChange={handleFormChange} name="email" isRequired={false} />
-                <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" isRequired={false} />
-                <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" isRequired={false} />
-                <Input label="Student LRN" id="studentLRN" type="number" placeholder="Student LRN" onChange={handleFormChange} name="studentLRN" isRequired={false} />
-                <Input label="Student ID" id="studentID" type="text" placeholder="Student ID" onChange={handleFormChange} name="studentId" isRequired={false} />
+                <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} />
+                <Input label="Email" id="studentEmail" type="email" placeholder="Email" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} />
+                <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} />
+                <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} />
+                <Input label="Student LRN" id="studentLRN" type="number" placeholder="Student LRN" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} />
+                <Input label="Student ID" id="studentID" type="text" placeholder="Student ID" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} />
                 <SelectionField label="Student Strand" id="studentStrand" value={formData.studentStrand ?? ""} onChange={handleFormChange} isRequired={false} 
                     placeholder="Select strand"
                     options={[
@@ -53,13 +67,13 @@ function UpdateCard({ userId, onUpdated }: UpdateCardProps) {
                         "AAD"
                     ]}
                 />
-                <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" isRequired={false} />
+                <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
                     
                 <button type="button" onClick={() => handleUpdate(formData)}>
                     Update
                 </button>
+                <p>{error}</p>
             </form>
-            {showNotification && <NotificationCard title="Update Successful" message="Data updated successfully!" onClose={() => setShowNotification(false)} />}
         </div>
     );
 }

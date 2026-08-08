@@ -19,6 +19,7 @@ export interface User {
     username: string;
     email: string;
     role: string;
+    password?: string;
     studentId?: string;
     studentLRN?: string;
     studentStrand?: string;
@@ -48,6 +49,13 @@ export const UpdateUser = async (id: string, userData: Partial<User>) => {
         headers: {
             "Content-Type": "application/json"
         },
+        credentials: "include"
+    });
+}
+
+export const DeleteUser = async (id: string) => {
+    return await apiFetch(`/users/delete/${id}`, {
+        method: "DELETE",
         credentials: "include"
     });
 }

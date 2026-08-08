@@ -4,11 +4,16 @@ import Input from "../../../components/Input.tsx";
 import SelectionField from "../../../components/SelectionField.tsx";
 import { type StudentRegisterPayload } from "../../../services/auth.ts";
 import useRegister from "../../../hooks/useRegister.ts";
-
+import NotificationCard from "../../../components/NotificationCard.tsx";
 
 function StudentRegister() {
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [showNotification, setShowNotification] = useState(false);
+    const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
+        title: "",
+        message: ""
+    });
     const [studentData, setStudentData] = useState<StudentRegisterPayload>({
         role: "user",
         username: "",
@@ -19,14 +24,10 @@ function StudentRegister() {
         studentStrand: "",
         studentSection: ""
     });
-    const {handleRegister} = useRegister("/student-login", studentData, setError);
+    const {handleRegister} = useRegister("/student-login", studentData, setError, setShowNotification, setNotificationMessage);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        if (e.target.name === "confirmPassword") {
-            setConfirmPassword(e.target.value);
-            return;
-        }
-        
+        setConfirmPassword(e.target.name === "confirmPassword" ? e.target.value : confirmPassword);
         setStudentData((current) => ({...current, [e.target.name]: e.target.value}));
     }
     
@@ -37,47 +38,49 @@ function StudentRegister() {
             alert("Passwords do not match!");
             return;
         }
-        
         handleRegister();
     }
     
+    const reloadPage = () => {
+        setStudentData({
+            role: "user",
+            username: "",
+            email: "",
+            password: "",
+            studentId: "",
+            studentLRN: "",
+            studentStrand: "",
+            studentSection: ""
+        });
+        setConfirmPassword("");
+        setShowNotification(false);
+    }
     
     return (
         <div className="registerStudentPage">
             <h1>Register Student</h1>
             <p>Welcome to the student registration page!</p>
+            
             <div className="registerStudentForm">
-                
                 <h2>Register a New Student</h2>
                 <p>{error}</p>
                 <form onSubmit={handleSubmit}>
-                    <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleChange} name="username" />
-                    <Input label="Email" id="studentEmail" type="email" placeholder="Email" onChange={handleChange} name="email" />
-                    <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" />
-                    <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" />
-                    <Input label="Student LRN" id="studentLRN" type="number" placeholder="Student LRN" onChange={handleChange} name="studentLRN" />
-                    <Input label="Student ID" id="studentID" type="text" placeholder="Student ID" onChange={handleChange} name="studentId" />
+                    <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleChange} name="username" value={studentData.username} />
+                    <Input label="Email" id="studentEmail" type="email" placeholder="Email" onChange={handleChange} name="email" value={studentData.email} />
+                    <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={studentData.password} />
+                    <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} />
+                    <Input label="Student LRN" id="studentLRN" type="number" placeholder="Student LRN" onChange={handleChange} name="studentLRN" value={studentData.studentLRN} />
+                    <Input label="Student ID" id="studentID" type="text" placeholder="Student ID" onChange={handleChange} name="studentId" value={studentData.studentId} />
                     <SelectionField label="Student Strand" id="studentStrand" value={studentData.studentStrand} onChange={handleChange} isRequired={true}
                         placeholder="Select strand"
-                        options={[
-                            "ICT",
-                            "HRCTO",
-                            "GAS",
-                            "HUMSS",
-                            "ABM",
-                            "STEM",
-                            "AAD"
-                        ]}
+                        options={["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]}
                     />
-                    <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleChange} name="studentSection" />
-                    
+                    <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleChange} name="studentSection" value={studentData.studentSection} />
                     <button type="submit">Register Student</button>
                 </form>
             </div>
-            
-            <div className="backButton">
-                <BackButton path="/create-user" />
-            </div>
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
+            <div className="backButton"><BackButton path="/create-user" /></div>
             
         </div>
     );

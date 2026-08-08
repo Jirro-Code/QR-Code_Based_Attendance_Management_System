@@ -9,11 +9,6 @@ function useLogin(path: string, setError: React.Dispatch<React.SetStateAction<st
             const response = await login(form);
             const data = await response.json().catch(() => null);
             
-            if (response.ok) {
-                navigate(path, { replace: true });
-                return;
-            }
-            
             if (response.status === 401) {
                 setError(data?.message ?? "Invalid credentials.");
                 return;
@@ -24,7 +19,11 @@ function useLogin(path: string, setError: React.Dispatch<React.SetStateAction<st
                 return;
             }
             
-            setError(data?.message ?? "Unable to log in.");
+            if (!response.ok) {
+                setError(data?.message ?? "An error occurred during login.");
+                return;
+            }
+            navigate(path);
         }
         catch (e) {
             console.error("Error during login:", e);

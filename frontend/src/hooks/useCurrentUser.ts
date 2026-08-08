@@ -10,17 +10,19 @@ export function useCurrentUser( path: string, setUserData: React.Dispatch<React.
         const getCurrentUser = async () => {
             try {
                 const response = await getUserById();
-                
-                if (!response.ok) {
-                    throw new Error("Failed to fetch current user");
-                }
-                
                 const data = await response.json();
+                
+                if (response.status === 401) {
+                    await logout(path);
+                    throw new Error(data?.message ?? "Unauthorized. Please log in.");
+                }
+                if (!response.ok) {
+                    throw new Error(data?.message ?? "Failed to fetch current user");
+                }
                 setUserData(data.user);
             }
-            
             catch (error) {
-                alert("Error fetching current user. Please log in again.");
+                alert("Something went wrong. Please log in again.");
                 console.error("Error fetching current user:", error);
                 logout(path);
             }

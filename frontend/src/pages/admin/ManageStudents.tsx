@@ -2,15 +2,29 @@ import useViewUsers from "../../hooks/useView.ts";
 import type { User } from "../../services/users";
 import { useEffect, useState } from "react";
 import SearchBar from "../../components/SearchBar.tsx";
+import {BackButton} from "../../components/Button.tsx";
 import ListCell from "../../components/ListCell.tsx";
 import UpdateCard from "../../components/UpdateCard.tsx";
+import DeleteCard from "../../components/DeleteCard.tsx";
+import NotificationCard from "../../components/NotificationCard.tsx";
 
 function ManageUsers() {
     const { viewAllUsers, searchUsers } = useViewUsers();
+    const [error, setError] = useState<string>("");
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [userArray, setUserArray] = useState<User[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [showUpdateCard, setShowUpdateCard] = useState<boolean>(false);
+    const [showDeleteCard, setShowDeleteCard] = useState<boolean>(false);
+    const [showNotification, setShowNotification] = useState<boolean>(false);
+    const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
+        title: "",
+        message: ""
+    });
+    
     const refreshUserList = () => {
+        setShowUpdateCard(false);
+        setShowDeleteCard(false);
         viewAllUsers(setUserArray);
     }
     
@@ -19,22 +33,26 @@ function ManageUsers() {
     }, [setUserArray]);
     
     const handleSearch = async () => {
-        const searchedUsers = await searchUsers(searchQuery);
+        const searchedUsers = await searchUsers(searchQuery, setError);
         setUserArray(searchedUsers);
     };
     
     return (
         <div>
+            <BackButton path="/admin-dashboard" />
             <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} />
             <h1>Manage Users</h1>
             <p>This is the Manage Users page.</p>
-            
+            <p>{error}</p>
             {userArray.map((user: { id: string; username: string; email: string; role: string }) => (
-                
-                    <ListCell key={user.id} user={user} onUpdate={() => setSelectedUser(user)} />
-                
+                    <ListCell key={user.id} user={user} onUpdate={() => setSelectedUser(user)} onDelete={() => {setSelectedUser(user)}}
+                                                        onLoadUpdate={() => setShowUpdateCard(true)} onLoadDelete={() => setShowDeleteCard(true)} />
             ))}  
-            {selectedUser && <UpdateCard userId={selectedUser.id} onUpdated={refreshUserList} />}
+            
+            {showUpdateCard && selectedUser && <UpdateCard userId={selectedUser.id} onUpdated={refreshUserList} onSetNotif={setNotificationMessage} setShowNotification={setShowNotification} />}            
+            {showDeleteCard && selectedUser && <DeleteCard userId={selectedUser.id} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
+            
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </div>
     );
 }
