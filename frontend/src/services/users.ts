@@ -29,7 +29,7 @@ export interface User {
 }
 
 export const GetAllUsers = () => {
-    return apiFetch("/users/all", {
+    return apiFetch("/users/role/user", {
         method: "GET",
         credentials: "include"
     });

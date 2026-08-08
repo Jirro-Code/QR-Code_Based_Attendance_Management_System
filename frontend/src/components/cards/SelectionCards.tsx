@@ -1,12 +1,15 @@
 import {useNavigate} from "react-router-dom";
-import { BackButton } from "../../../components/Button.tsx";
 
-function CreateUser() {
+type SelectionCardProps = {
+    onClose: () => void;
+};
+
+function SelectionCard({ onClose }: SelectionCardProps) {
     
     const navigate = useNavigate();
     
     return (
-        <div className="createUserPage">
+        <div className="selection-cards">
             <h1>Create User</h1>
             <p>Welcome to the create user page!</p>
             <div className="createUserForm">
@@ -15,11 +18,11 @@ function CreateUser() {
                 <button onClick={() => {navigate("/create-admin");}}>ADMIN</button>
             </div>
             <div className="backButton">
-                <BackButton path="/admin-dashboard" />
+                <button onClick={() => onClose()}>Back</button>
             </div>  
         </div>
     )
 }
 
 
-export default CreateUser;
+export default SelectionCard;

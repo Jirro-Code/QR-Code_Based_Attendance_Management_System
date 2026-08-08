@@ -4,13 +4,16 @@ import { useEffect, useState } from "react";
 import SearchBar from "../../components/SearchBar.tsx";
 import {BackButton} from "../../components/Button.tsx";
 import ListCell from "../../components/ListCell.tsx";
-import UpdateCard from "../../components/UpdateCard.tsx";
-import DeleteCard from "../../components/DeleteCard.tsx";
-import NotificationCard from "../../components/NotificationCard.tsx";
+import UpdateCard from "../../components/cards/UpdateCard.tsx";
+import DeleteCard from "../../components/cards/DeleteCard.tsx";
+import NotificationCard from "../../components/cards/NotificationCard.tsx";
+import SelectionCard from "../../components/cards/SelectionCards.tsx";
 
 function ManageUsers() {
+    const [isSelecting, setIsSelecting] = useState<boolean>(false);
     const { viewAllUsers, searchUsers } = useViewUsers();
     const [error, setError] = useState<string>("");
+    const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [userArray, setUserArray] = useState<User[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -23,9 +26,17 @@ function ManageUsers() {
     });
     
     const refreshUserList = () => {
-        setShowUpdateCard(false);
-        setShowDeleteCard(false);
-        viewAllUsers(setUserArray);
+        if (isOnSearch) {
+            setShowUpdateCard(false);
+            setShowDeleteCard(false);
+            handleSearch();
+        }
+        else {
+            setShowUpdateCard(false);
+            setShowDeleteCard(false);
+            setIsOnSearch(false);
+            viewAllUsers(setUserArray);
+        }
     }
     
     useEffect(() => {
@@ -33,25 +44,41 @@ function ManageUsers() {
     }, [setUserArray]);
     
     const handleSearch = async () => {
+        if (searchQuery === "") {
+            viewAllUsers(setUserArray);
+            setIsOnSearch(false);
+            return;
+        }
         const searchedUsers = await searchUsers(searchQuery, setError);
         setUserArray(searchedUsers);
+        setIsOnSearch(true);
     };
+    
+    const isSelectingHandler = () => {
+        setIsSelecting(false);
+    }
     
     return (
         <div>
-            <BackButton path="/admin-dashboard" />
-            <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} />
+            
             <h1>Manage Users</h1>
             <p>This is the Manage Users page.</p>
+            <BackButton path="/admin-dashboard" />
+            <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} />
+            <button onClick={() => setIsSelecting(true)}>Create User</button>
             <p>{error}</p>
-            {userArray.map((user: { id: string; username: string; email: string; role: string }) => (
+            {userArray.length > 0 ? (
+                userArray.map((user: { id: string; username: string; email: string; role: string }) => (
                     <ListCell key={user.id} user={user} onUpdate={() => setSelectedUser(user)} onDelete={() => {setSelectedUser(user)}}
                                                         onLoadUpdate={() => setShowUpdateCard(true)} onLoadDelete={() => setShowDeleteCard(true)} />
-            ))}  
+                ))
+            ) : (
+                <p>No users found.</p>
+            )}
             
             {showUpdateCard && selectedUser && <UpdateCard userId={selectedUser.id} onUpdated={refreshUserList} onSetNotif={setNotificationMessage} setShowNotification={setShowNotification} />}            
             {showDeleteCard && selectedUser && <DeleteCard userId={selectedUser.id} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
-            
+            {isSelecting && <SelectionCard onClose={() => isSelectingHandler()} />}
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </div>
     );

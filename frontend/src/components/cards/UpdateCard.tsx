@@ -1,8 +1,8 @@
-import useUpdate from "../hooks/useUpdate.ts";
+import useUpdate from "../../hooks/useUpdate.ts";
 import {useState} from "react";
-import Input from "./Input.tsx";
-import { type User } from "../services/users.ts";
-import SelectionField from "./SelectionField.tsx";
+import Input from "../Input.tsx";
+import { type User } from "../../services/users.ts";
+import SelectionField from "../SelectionField.tsx";
 
 type UpdateCardProps = {
     userId: string;

@@ -4,7 +4,7 @@ import Input from "../../../components/Input.tsx";
 import SelectionField from "../../../components/SelectionField.tsx";
 import { type StudentRegisterPayload } from "../../../services/auth.ts";
 import useRegister from "../../../hooks/useRegister.ts";
-import NotificationCard from "../../../components/NotificationCard.tsx";
+import NotificationCard from "../../../components/cards/NotificationCard.tsx";
 
 function StudentRegister() {
     const [error, setError] = useState("");
@@ -80,7 +80,7 @@ function StudentRegister() {
                 </form>
             </div>
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
-            <div className="backButton"><BackButton path="/create-user" /></div>
+            <div className="backButton"><BackButton path="/manage-students" /></div>
             
         </div>
     );
