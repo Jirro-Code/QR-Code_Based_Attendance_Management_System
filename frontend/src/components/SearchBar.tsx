@@ -3,7 +3,7 @@ type SearchBarProps = {
     setSearchQuery: (query: string) => void;
 };
 
-function SearchBar({ handleSearch, setSearchQuery }: SearchBarProps) {    
+export const SearchBar = ({ handleSearch, setSearchQuery }: SearchBarProps) => {    
     return(
         <div className="search-bar">
             <input
@@ -18,5 +18,3 @@ function SearchBar({ handleSearch, setSearchQuery }: SearchBarProps) {
         </div>
     )
 }
-
-export default SearchBar;

@@ -1,8 +1,8 @@
-import useUpdate from "../../hooks/useUpdate.ts";
-import {useState} from "react";
-import Input from "../Input/Input.tsx";
+import { useUpdate } from "../../hooks/useUpdate.ts";
+import { useState } from "react";
+import { Input }  from "../Input/Input.tsx";
 import { type User } from "../../services/users.ts";
-import SelectionField from "../SelectionField.tsx";
+import { SelectionField } from "../SelectionField.tsx";
 
 type UpdateCardProps = {
     userId: string;
@@ -11,8 +11,8 @@ type UpdateCardProps = {
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
 };
 
-function UpdateCard({ userId, onUpdated, setShowNotification, onSetNotif }: UpdateCardProps) {
-    const { updateData } = useUpdate();
+export const UpdateCard = ({ userId, onUpdated, setShowNotification, onSetNotif }: UpdateCardProps) => {
+    const { useUpdateUser } = useUpdate();
     const [formData, setFormData] = useState<User>({} as User);
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
@@ -26,7 +26,7 @@ function UpdateCard({ userId, onUpdated, setShowNotification, onSetNotif }: Upda
     
     const handleUpdate = async (data: User) => {
         try {
-            await updateData({ ...data, id: userId }, setError);
+            await useUpdateUser({ ...data, id: userId }, setError);
             onUpdated();
             onSetNotif({
                 title: "Update Successful",
@@ -77,5 +77,3 @@ function UpdateCard({ userId, onUpdated, setShowNotification, onSetNotif }: Upda
         </div>
     );
 }
-
-export default UpdateCard;

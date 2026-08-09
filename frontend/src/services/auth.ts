@@ -24,21 +24,21 @@ export type AdminRegisterPayload = {
 
 export type RegisterPayload = StudentRegisterPayload | AdminRegisterPayload;
 
-export async function register(payload: RegisterPayload) {
+export const register = async (payload: RegisterPayload) => {
     return apiFetch("/auth/register", {
         method: "POST",
         body: JSON.stringify(payload)
     });
 }
 
-export async function login(payload: LoginPayload) {
+export const login = async (payload: LoginPayload) => {
     return apiFetch("/auth/login", {
         method: "POST",
         body: JSON.stringify(payload)
     });
 }
 
-export async function logout(path: string) {
+export const logout = async (path: string) => {
     try{
         await apiFetch("/auth/logout", {
             method: "POST"

@@ -5,8 +5,7 @@ type NotificationProps = {
 };
 
 
-
-function NotificationCard({ title, message, onClose }: NotificationProps) {
+export const NotificationCard = ({ title, message, onClose }: NotificationProps) => {
     return (
         <div className="notification-card">
             <h3>{title}</h3>
@@ -15,5 +14,3 @@ function NotificationCard({ title, message, onClose }: NotificationProps) {
         </div>
     );
 }
-
-export default NotificationCard;

@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { BackButton } from "../../../components/Button/Button.tsx";
-import Input from "../../../components/Input/Input.tsx";
-import SelectionField from "../../../components/SelectionField.tsx";
+import { Input } from "../../../components/Input/Input.tsx";
+import { SelectionField } from "../../../components/SelectionField.tsx";
 import { type StudentRegisterPayload } from "../../../services/auth.ts";
-import useRegister from "../../../hooks/useRegister.ts";
-import NotificationCard from "../../../components/cards/NotificationCard.tsx";
+import { useCreate } from "../../../hooks/useCreate.ts";
+import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 
-function StudentRegister() {
+export const RegisterStudent = () => {
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNotification, setShowNotification] = useState(false);
@@ -24,7 +24,7 @@ function StudentRegister() {
         studentStrand: "",
         studentSection: ""
     });
-    const {handleRegister} = useRegister("/student-login", studentData, setError, setShowNotification, setNotificationMessage);
+    const {useRegister} = useCreate();
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setConfirmPassword(e.target.name === "confirmPassword" ? e.target.value : confirmPassword);
@@ -38,7 +38,7 @@ function StudentRegister() {
             alert("Passwords do not match!");
             return;
         }
-        handleRegister();
+        await useRegister({path: "/student-login", form: studentData, setError, setShowNotification, setNotificationMessage});
     }
     
     const reloadPage = () => {
@@ -86,4 +86,3 @@ function StudentRegister() {
         </div>
     );
 }
-export default StudentRegister;

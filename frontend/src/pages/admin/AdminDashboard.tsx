@@ -1,11 +1,11 @@
-import useCurrentUser from "../../hooks/useCurrentUser";
+import { useCurrentUser } from "../../hooks/useCurrentUser";
 import {useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../services/auth";
 import { type UserData } from "../../services/users";
-import SelectionCard from "../../components/cards/SelectionCards.tsx";
+import { SelectionCard } from "../../components/Cards/SelectionCards.tsx";
 
-function AdminDashboard() {
+export const AdminDashboard = () => {
     const navigate = useNavigate();
     const [isSelecting, setIsSelecting] = useState<boolean>(false);
     const [adminData, setAdminData] = useState<UserData>({
@@ -27,12 +27,11 @@ function AdminDashboard() {
             <p>Welcome back, {adminData.username}!</p>
             <button onClick={() => navigate("/manage-students")}>Manage Students</button>
             <button onClick={() => setIsSelecting(true)}>Create Account</button>
-            <button onClick={() => navigate("/manage-events")}>Events</button>
+            <button onClick={() => navigate("/manage-events")}>Manage Events</button>
+            <button onClick={() => navigate("/create-event")}>New Event</button>
             <button onClick={() => logout("/admin-login")}>Logout</button>
         
             {isSelecting && <SelectionCard onClose={() => isSelectingHandler()} />}
         </div>
     );
 }
-
-export default AdminDashboard;

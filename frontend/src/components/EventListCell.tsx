@@ -1,12 +1,20 @@
 import { type Event } from "../services/events";
 
-function EventListCell({ event, onUpdate, onLoadUpdate, onDelete, onLoadDelete}: {  event: Event, onUpdate: () => void, onDelete: () => void, onLoadUpdate: () => void, onLoadDelete: () => void }) {
+type EventListCellProps = {
+    event: Event;
+    onUpdate: () => void;
+    onLoadUpdate: () => void;
+    onDelete: () => void;
+    onLoadDelete: () => void;
+};
+
+export const EventListCell = ({ event, onUpdate, onLoadUpdate, onDelete, onLoadDelete }: EventListCellProps) => {
     
-    function handleUpdate() {
+    const handleUpdate = () => {
         onUpdate();
         onLoadUpdate();
     }
-    function handleDelete() {
+    const handleDelete = () => {
         onDelete();
         onLoadDelete();
     }
@@ -19,5 +27,3 @@ function EventListCell({ event, onUpdate, onLoadUpdate, onDelete, onLoadDelete}:
         </div>
     );
 }
-
-export default EventListCell;

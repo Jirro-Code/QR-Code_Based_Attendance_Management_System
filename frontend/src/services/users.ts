@@ -7,13 +7,6 @@ export type UserData = {
     role: "admin" | "user";
 };
 
-export async function getUserById() {
-    return apiFetch("/users/me", {
-        method: "GET",
-        credentials: "include"
-    });
-}
-
 export interface User {
     id: string;
     username: string;
@@ -28,21 +21,28 @@ export interface User {
     updatedAt?: string;
 }
 
-export const GetAllUsers = () => {
+export const getUserById = async () => {
+    return apiFetch("/users/me", {
+        method: "GET",
+        credentials: "include"
+    });
+}
+
+export const getAllUsers = () => {
     return apiFetch("/users/role/user", {
         method: "GET",
         credentials: "include"
     });
 }
 
-export const SearchUsers = async (query: string) => {
+export const searchUsers = async (query: string) => {
     return await apiFetch(`/users/search?search=${encodeURIComponent(query)}`, {
         method: "GET",
         credentials: "include"
     });
 }
 
-export const UpdateUser = async (id: string, userData: Partial<User>) => {
+export const updateUser = async (id: string, userData: Partial<User>) => {
     return await apiFetch(`/users/update/${id}`, {
         method: "PUT",
         body: JSON.stringify(userData),
@@ -53,7 +53,7 @@ export const UpdateUser = async (id: string, userData: Partial<User>) => {
     });
 }
 
-export const DeleteUser = async (id: string) => {
+export const deleteUser = async (id: string) => {
     return await apiFetch(`/users/delete/${id}`, {
         method: "DELETE",
         credentials: "include"

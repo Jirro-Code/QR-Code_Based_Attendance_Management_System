@@ -11,7 +11,7 @@ type InputProps = {
     value: string | number;
 };
 
-function Input({ label, id, type, placeholder, onChange, name, isRequired, value }: InputProps) {
+export const Input = ({ label, id, type, placeholder, onChange, name, isRequired, value }: InputProps) => {
     return (
         <div className={styles.inputContainer}>
             <label className={styles.inputLabel} htmlFor={id}>{label}:</label><br/>
@@ -19,5 +19,3 @@ function Input({ label, id, type, placeholder, onChange, name, isRequired, value
         </div>
     );
 }
-
-export default Input;

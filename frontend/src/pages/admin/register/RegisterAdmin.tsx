@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { BackButton } from "../../../components/Button/Button.tsx";
-import NotificationCard from "../../../components/cards/NotificationCard.tsx";
-import Input from "../../../components/Input/Input.tsx";
-import useRegister from "../../../hooks/useRegister.ts";
+import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
+import { Input } from "../../../components/Input/Input.tsx";
+import { useCreate } from "../../../hooks/useCreate.ts";
 import { type AdminRegisterPayload } from "../../../services/auth.ts";
 
-function RegisterAdmin() {  
+export const RegisterAdmin = () => {  
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNotification, setShowNotification] = useState(false);
@@ -19,7 +19,7 @@ function RegisterAdmin() {
         email: "",
         password: ""
     });
-    const {handleRegister} = useRegister("/admin-login", adminData, setError, setShowNotification, setNotificationMessage);
+    const {useRegister} = useCreate();
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setConfirmPassword(e.target.name === "confirmPassword" ? e.target.value : confirmPassword);
@@ -32,7 +32,7 @@ function RegisterAdmin() {
             setError("Passwords do not match!");
             return;
         }
-        handleRegister();
+        await useRegister({path: "/admin-login", form: adminData, setError, setShowNotification, setNotificationMessage});
     }
     
     const reloadPage = () => {
@@ -68,4 +68,3 @@ function RegisterAdmin() {
         </div>
     );
 }
-export default RegisterAdmin;

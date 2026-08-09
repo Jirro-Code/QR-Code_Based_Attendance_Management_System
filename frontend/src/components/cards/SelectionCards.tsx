@@ -4,7 +4,7 @@ type SelectionCardProps = {
     onClose: () => void;
 };
 
-function SelectionCard({ onClose }: SelectionCardProps) {
+export const SelectionCard = ({ onClose }: SelectionCardProps) => {
     
     const navigate = useNavigate();
     
@@ -23,6 +23,3 @@ function SelectionCard({ onClose }: SelectionCardProps) {
         </div>
     )
 }
-
-
-export default SelectionCard;

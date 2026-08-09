@@ -1,18 +1,18 @@
-import {BackButton} from "../../components/Button/Button.tsx";
-import SearchBar from "../../components/SearchBar";
-import useViewUsers from "../../hooks/useView.ts";
+import { BackButton } from "../../components/Button/Button.tsx";
+import { SearchBar } from "../../components/SearchBar.tsx";
+import { useView } from "../../hooks/useView.ts";
 import { useEffect, useState } from "react";
-import { type Event } from "../../services/events";
-import EventListCell from "../../components/EventListCell.tsx";
+import { type Event } from "../../services/events.ts";
+import { EventListCell } from "../../components/EventListCell.tsx";
 
-function ManageEvents() {
+export const ManageEvents = () => {
     const [eventArray, setEventArray] = useState<Event[]>([]);
-    const { viewAllEvents } = useViewUsers();
-
+    const { useViewAllEvents } = useView();
+    
     useEffect(() => {
-        viewAllEvents(setEventArray);
+        useViewAllEvents(setEventArray);
     }, [setEventArray]);
-
+    
     return(
         <div className="manageEventsPage">
             <h1>Manage Events</h1>
@@ -22,7 +22,7 @@ function ManageEvents() {
             <p></p>
             {eventArray.length > 0 ? (
                 eventArray.map((event: Event) => (
-                    <EventListCell key={event.eventId} event={event} onUpdate={() => {}} onDelete={() => {}} onLoadUpdate={() => {}} onLoadDelete={() => {}} />
+                    <EventListCell key={event.eventName} event={event} onUpdate={() => {}} onDelete={() => {}} onLoadUpdate={() => {}} onLoadDelete={() => {}} />
                 ))
             ) : (
                 <p>No events found.</p>
@@ -30,6 +30,3 @@ function ManageEvents() {
         </div>
     )
 }
-
-
-export default ManageEvents;

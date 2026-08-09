@@ -1,4 +1,4 @@
-import useDelete from "../../hooks/useDelete.ts";
+import { useDelete } from "../../hooks/useDelete.ts";
 import { useState } from "react";
 
 type DeleteCardProps = {
@@ -8,14 +8,14 @@ type DeleteCardProps = {
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
 }
 
-function DeleteCard({ userId, onDeleted, setShowNotification, onSetNotif }: DeleteCardProps) {
+export const DeleteCard = ({ userId, onDeleted, setShowNotification, onSetNotif }: DeleteCardProps) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [error, setError] = useState<string>("");
-    const { deleteStudent } = useDelete();
+    const { useDeleteStudent } = useDelete();
     
     const handleDelete = async () => {
         try {
-            await deleteStudent(userId, setError);
+            await useDeleteStudent(userId, setError);
             onDeleted();
             onSetNotif({
                 title: "Delete Successful",
@@ -55,5 +55,3 @@ function DeleteCard({ userId, onDeleted, setShowNotification, onSetNotif }: Dele
         </div>
     );
 }
-
-export default DeleteCard;

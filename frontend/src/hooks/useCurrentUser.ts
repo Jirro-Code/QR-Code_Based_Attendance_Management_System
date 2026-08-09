@@ -3,11 +3,11 @@ import { useNavigate } from "react-router-dom";
 import {logout } from "../services/auth";
 import {getUserById, type UserData} from "../services/users";
 
-export function useCurrentUser( path: string, setUserData: React.Dispatch<React.SetStateAction<UserData>>) {
+export const useCurrentUser = (path: string, setUserData: React.Dispatch<React.SetStateAction<UserData>>) => {
     const navigate = useNavigate();
     
     useEffect(() => {
-        const getCurrentUser = async () => {
+        const useGetCurrentUser = async () => {
             try {
                 const response = await getUserById();
                 const data = await response.json();
@@ -28,8 +28,6 @@ export function useCurrentUser( path: string, setUserData: React.Dispatch<React.
             }
         };
         
-        getCurrentUser();
+        useGetCurrentUser();
     }, [navigate, setUserData]);
 }
-
-export default useCurrentUser;

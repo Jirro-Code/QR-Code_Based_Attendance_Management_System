@@ -1,13 +1,12 @@
 import { logout } from "../services/auth";
-import { GetAllEvents, type Event } from "../services/events";
-import { GetAllUsers, SearchUsers, type User } from "../services/users";
+import { getAllEvents, type Event } from "../services/events";
+import { getAllUsers, searchUsers, type User } from "../services/users";
 
-function useViewUsers() {
-    
-    async function viewAllUsers(setUserArray: React.Dispatch<React.SetStateAction<User[]>>) {
+export const useView = () => {
+    const useViewAllUsers = async (setUserArray: React.Dispatch<React.SetStateAction<User[]>>) => {
         const fetchUsers = async () => {
             try {
-                const response = await GetAllUsers();
+                const response = await getAllUsers();
                 const data = await response.json();
                 if(response.status === 401) {
                     await logout("/");
@@ -34,9 +33,9 @@ function useViewUsers() {
     }
     
     
-    async function searchUsers(query: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<User[]> {
+    const useSearchUsers = async (query: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<User[]> => {
         try {
-            const response = await SearchUsers(query);
+            const response = await searchUsers(query);
             const data = await response.json();
             if (response.status === 401) {
                 await logout("/");
@@ -61,10 +60,10 @@ function useViewUsers() {
         }
     }
     
-    async function viewAllEvents(setEventArray: React.Dispatch<React.SetStateAction<Event[]>>) {
+    const useViewAllEvents = async (setEventArray: React.Dispatch<React.SetStateAction<Event[]>>) => {
         const fetchEvents = async () => {
             try {
-                const response = await GetAllEvents();
+                const response = await getAllEvents();
                 const data = await response.json();
                 if(response.status === 401) {
                     await logout("/");
@@ -89,8 +88,5 @@ function useViewUsers() {
         
         fetchEvents();
     }
-
-    return { viewAllUsers, searchUsers, viewAllEvents };
+    return { useViewAllUsers, useSearchUsers, useViewAllEvents };
 }
-
-export default useViewUsers;

@@ -1,9 +1,10 @@
-import { DeleteUser } from "../services/users";
+import { deleteUser } from "../services/users";
 
-function useDelete() {
-    async function deleteStudent(id: string, setError: React.Dispatch<React.SetStateAction<string>>) {
+
+export const useDelete = () => {
+    const useDeleteStudent = async (id: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
-            const response = await DeleteUser(id);
+            const response = await deleteUser(id);
             const data = await response.json();
             if (response.status === 401) {
                 setError("Unauthorized. Please log in.");
@@ -27,7 +28,5 @@ function useDelete() {
             throw error;
         }
     }
-    return { deleteStudent };
+    return { useDeleteStudent };
 }
-
-export default useDelete;

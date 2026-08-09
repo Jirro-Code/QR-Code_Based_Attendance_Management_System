@@ -1,12 +1,20 @@
 import { type User } from "../services/users";
 
-function ListCell({ user, onUpdate, onLoadUpdate, onDelete, onLoadDelete}: {  user: User, onUpdate: () => void, onDelete: () => void, onLoadUpdate: () => void, onLoadDelete: () => void }) {
+type ListCellProps = {
+    user: User;
+    onUpdate: () => void;
+    onLoadUpdate: () => void;
+    onDelete: () => void;
+    onLoadDelete: () => void;
+};
+
+export const ListCell = ({ user, onUpdate, onLoadUpdate, onDelete, onLoadDelete }: ListCellProps) => {
     
-    function handleUpdate() {
+    const handleUpdate = () => {
         onUpdate();
         onLoadUpdate();
     }
-    function handleDelete() {
+    const handleDelete = () => {
         onDelete();
         onLoadDelete();
     }
@@ -19,5 +27,3 @@ function ListCell({ user, onUpdate, onLoadUpdate, onDelete, onLoadDelete}: {  us
         </div>
     );
 }
-
-export default ListCell;

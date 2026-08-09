@@ -8,7 +8,7 @@ type SelectionFieldProps = {
     isRequired?: boolean;
 };
 
-function SelectionField({ label, id, options, value, onChange, placeholder = "Select an option", isRequired }: SelectionFieldProps) {
+export const SelectionField = ({ label, id, options, value, onChange, placeholder = "Select an option", isRequired }: SelectionFieldProps) => {
     return (
         <div className="selectionField">
             <label htmlFor={id}>{label}:</label><br/>
@@ -21,5 +21,3 @@ function SelectionField({ label, id, options, value, onChange, placeholder = "Se
         </div>
     );
 }
-
-export default SelectionField;

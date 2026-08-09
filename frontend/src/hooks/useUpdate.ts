@@ -1,11 +1,11 @@
 import { logout } from "../services/auth";
-import { UpdateUser } from "../services/users";
+import { updateUser } from "../services/users";
 import { type User } from "../services/users";
 
-function useUpdate() {
-    async function updateData(data: User, setError: React.Dispatch<React.SetStateAction<string>>) {
+export const useUpdate = () => {
+    const useUpdateUser = async (data: User, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
-            const response = await UpdateUser(data.id, data);
+            const response = await updateUser(data.id, data);
             const responseData = await response.json();
             if (response.status === 401) {
                 await logout("/admin-login");
@@ -29,6 +29,5 @@ function useUpdate() {
             throw error;
         }
     }
-    return { updateData };
+    return { useUpdateUser };
 }
-export default useUpdate;   

@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { login, type LoginPayload } from "../services/auth.ts";
 
-function useLogin(path: string, setError: React.Dispatch<React.SetStateAction<string>>) {
+
+export const useLogin = (path: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
     const navigate = useNavigate();
     
-    const handleLogin = async (form: LoginPayload) => {
+    const useLoginUser = async (form: LoginPayload) => {
         try {
             const response = await login(form);
             const data = await response.json().catch(() => null);
@@ -31,7 +32,5 @@ function useLogin(path: string, setError: React.Dispatch<React.SetStateAction<st
         }
     };
     
-    return { handleLogin };
+    return { useLoginUser };
 }
-
-export default useLogin;

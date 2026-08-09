@@ -1,17 +1,16 @@
-import useViewUsers from "../../hooks/useView.ts";
-import type { User } from "../../services/users";
+import { useView } from "../../hooks/useView.ts";
+import { type User } from "../../services/users";
 import { useEffect, useState } from "react";
-import SearchBar from "../../components/SearchBar.tsx";
-import {BackButton} from "../../components/Button/Button.tsx";
-import ListCell from "../../components/ListCell.tsx";
-import UpdateCard from "../../components/cards/UpdateCard.tsx";
-import DeleteCard from "../../components/cards/DeleteCard.tsx";
-import NotificationCard from "../../components/cards/NotificationCard.tsx";
+import { SearchBar } from "../../components/SearchBar.tsx";
+import { BackButton } from "../../components/Button/Button.tsx";
+import { ListCell } from "../../components/ListCell.tsx";
+import { UpdateCard } from "../../components/Cards/UpdateCard.tsx";
+import { DeleteCard } from "../../components/Cards/DeleteCard.tsx";
+import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 
 
-function ManageUsers() {
-    
-    const { viewAllUsers, searchUsers } = useViewUsers();
+export const ManageUsers = () => {
+    const { useViewAllUsers, useSearchUsers } = useView();
     const [error, setError] = useState<string>("");
     const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -35,21 +34,21 @@ function ManageUsers() {
             setShowUpdateCard(false);
             setShowDeleteCard(false);
             setIsOnSearch(false);
-            viewAllUsers(setUserArray);
+            useViewAllUsers(setUserArray);
         }
     }
     
     useEffect(() => {
-        viewAllUsers(setUserArray);
+        useViewAllUsers(setUserArray);
     }, [setUserArray]);
     
     const handleSearch = async () => {
         if (searchQuery === "") {
-            viewAllUsers(setUserArray);
+            useViewAllUsers(setUserArray);
             setIsOnSearch(false);
             return;
         }
-        const searchedUsers = await searchUsers(searchQuery, setError);
+        const searchedUsers = await useSearchUsers(searchQuery, setError);
         setUserArray(searchedUsers);
         setIsOnSearch(true);
     };
@@ -78,4 +77,3 @@ function ManageUsers() {
         </div>
     );
 }
-export default ManageUsers;
