@@ -1,14 +1,14 @@
 import { useDelete } from "../../hooks/useDelete.ts";
 import { useState } from "react";
 
-type DeleteCardProps = {
+type DeleteCardUserProps = {
     userId: string;
     onDeleted: () => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
 }
 
-export const DeleteCard = ({ userId, onDeleted, setShowNotification, onSetNotif }: DeleteCardProps) => {
+export const DeleteUserCard = ({ userId, onDeleted, setShowNotification, onSetNotif }: DeleteCardUserProps) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [error, setError] = useState<string>("");
     const { useDeleteStudent } = useDelete();
@@ -47,7 +47,7 @@ export const DeleteCard = ({ userId, onDeleted, setShowNotification, onSetNotif 
             {showConfirmation && (
                 <div className="delete-confirmation card">
                     <p>Are you sure you want to delete this student?</p>
-                    <button onClick={handleDelete}>Yes, Delete</button>
+                    <button onClick={() => handleDelete()}>Yes, Delete</button>
                     <button onClick={() => setShowConfirmation(false)}>Cancel</button>
                 </div>
             )}

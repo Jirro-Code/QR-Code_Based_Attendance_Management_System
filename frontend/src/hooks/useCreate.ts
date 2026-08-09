@@ -1,5 +1,5 @@
 import { register, logout, type RegisterPayload } from "../services/auth.ts";
-import { createEvent, type Event } from "../services/events.ts";
+import { createEvent, type CreateEventData } from "../services/events.ts";
 
 
 export const useCreate = () => {
@@ -14,7 +14,7 @@ export const useCreate = () => {
     
     type useCreateEventProps = {
         path: string;
-        form: Event;
+        form: CreateEventData;
         setError: React.Dispatch<React.SetStateAction<string>>;
         setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
         setNotificationMessage: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
@@ -29,8 +29,8 @@ export const useCreate = () => {
                 setError(data?.message ?? "Invalid registration data.");
             }
             if (response.status === 401) {
+                alert("Unauthorized. Please log in.");
                 await logout(path);
-                setError(data?.message ?? "Unauthorized. Please log in.");
             }
             if (response.status === 403) {
                 setError(data?.message ?? "Access denied. You do not have permission to perform this action.");
@@ -39,6 +39,7 @@ export const useCreate = () => {
                 setError(data?.message ?? "User already exists.");
             }
             if (!response.ok) {
+                alert("Something went wrong. Please try again later.");
                 setError(data?.message ?? "An error occurred during registration.");
             }
             setShowNotification(true);
@@ -48,8 +49,8 @@ export const useCreate = () => {
             });
         }
         catch (e) {
+            alert("Something went wrong. Please try again later.");
             console.error("Error during registration:", e);
-            setError("An error occurred during registration. Please try again.");
         }
     };
     
@@ -61,8 +62,8 @@ export const useCreate = () => {
                 setError(data?.message ?? "Invalid event data.");
             }
             if (response.status === 401) {
+                alert("Unauthorized. Please log in.");
                 await logout(path);
-                setError(data?.message ?? "Unauthorized. Please log in.");
             }
             if (response.status === 403) {
                 setError(data?.message ?? "Access denied. You do not have permission to perform this action.");
@@ -80,8 +81,8 @@ export const useCreate = () => {
             });
         }
         catch (e) {
+            alert("Something went wrong. Please try again later.");
             console.error("Error during event creation:", e);
-            setError("An error occurred during event creation. Please try again.");
         }
     }
     

@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { SearchBar } from "../../components/SearchBar.tsx";
 import { BackButton } from "../../components/Button/Button.tsx";
 import { ListCell } from "../../components/ListCell.tsx";
-import { UpdateCard } from "../../components/Cards/UpdateCard.tsx";
-import { DeleteCard } from "../../components/Cards/DeleteCard.tsx";
+import { UpdateUserCard } from "../../components/Cards/UpdateUserCard.tsx";
+import { DeleteUserCard } from "../../components/Cards/DeleteUserCard.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 
 
@@ -24,35 +24,37 @@ export const ManageUsers = () => {
         message: ""
     });
     
-    const refreshUserList = () => {
-        if (isOnSearch) {
-            setShowUpdateCard(false);
-            setShowDeleteCard(false);
-            handleSearch();
-        }
-        else {
-            setShowUpdateCard(false);
-            setShowDeleteCard(false);
-            setIsOnSearch(false);
-            useViewAllUsers(setUserArray);
-        }
-    }
-    
     useEffect(() => {
         useViewAllUsers(setUserArray);
     }, [setUserArray]);
     
     const handleSearch = async () => {
-        if (searchQuery === "") {
-            useViewAllUsers(setUserArray);
+        if (searchQuery.trim() === "") {
+            await useViewAllUsers(setUserArray);
             setIsOnSearch(false);
             return;
         }
-        const searchedUsers = await useSearchUsers(searchQuery, setError);
-        setUserArray(searchedUsers);
+        
+        const searchedUsers = await useSearchUsers(searchQuery.trim(), setError);
+        
+        const filteredUsers = searchedUsers.filter((user: User) => user.role === "user");
+        setUserArray(filteredUsers);
         setIsOnSearch(true);
     };
     
+    const refreshUserList = async () => {
+        if (isOnSearch) {
+            setShowUpdateCard(false);
+            setShowDeleteCard(false);
+            await handleSearch();
+        }
+        else {
+            setShowUpdateCard(false);
+            setShowDeleteCard(false);
+            setIsOnSearch(false);
+            await useViewAllUsers(setUserArray);
+        }
+    }
     
     return (
         <div>
@@ -63,15 +65,14 @@ export const ManageUsers = () => {
             <p>{error}</p>
             {userArray.length > 0 ? (
                 userArray.map((user: { id: string; username: string; email: string; role: string }) => (
-                    <ListCell key={user.id} user={user} onUpdate={() => setSelectedUser(user)} onDelete={() => {setSelectedUser(user)}}
-                                                        onLoadUpdate={() => setShowUpdateCard(true)} onLoadDelete={() => setShowDeleteCard(true)} />
+                    <ListCell key={user.id} user={user} onUpdate={() => {setSelectedUser(user), setShowDeleteCard(false)}} onDelete={() => {setSelectedUser(user), setShowUpdateCard(false);}} onLoadUpdate={() => setShowUpdateCard(true)} onLoadDelete={() => setShowDeleteCard(true)} />
                 ))
             ) : (
                 <p>No users found.</p>
             )}
             
-            {showUpdateCard && selectedUser && <UpdateCard userId={selectedUser.id} onUpdated={refreshUserList} onSetNotif={setNotificationMessage} setShowNotification={setShowNotification} />}            
-            {showDeleteCard && selectedUser && <DeleteCard userId={selectedUser.id} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
+            {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id} onUpdated={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage}/>}            
+            {showDeleteCard && selectedUser && <DeleteUserCard userId={selectedUser.id} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
             
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </div>

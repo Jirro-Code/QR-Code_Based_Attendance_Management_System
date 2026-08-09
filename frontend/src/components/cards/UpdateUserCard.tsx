@@ -4,14 +4,14 @@ import { Input }  from "../Input/Input.tsx";
 import { type User } from "../../services/users.ts";
 import { SelectionField } from "../SelectionField.tsx";
 
-type UpdateCardProps = {
+type UpdateUserCardProps = {
     userId: string;
     onUpdated: () => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
 };
 
-export const UpdateCard = ({ userId, onUpdated, setShowNotification, onSetNotif }: UpdateCardProps) => {
+export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNotif }: UpdateUserCardProps) => {
     const { useUpdateUser } = useUpdate();
     const [formData, setFormData] = useState<User>({} as User);
     const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -68,10 +68,8 @@ export const UpdateCard = ({ userId, onUpdated, setShowNotification, onSetNotif 
                     ]}
                 />
                 <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
-                    
-                <button type="button" onClick={() => handleUpdate(formData)}>
-                    Update
-                </button>
+                
+                <button type="button" onClick={() => handleUpdate(formData)}>Update</button>
                 <p>{error}</p>
             </form>
         </div>

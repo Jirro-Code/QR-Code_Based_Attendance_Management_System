@@ -5,7 +5,7 @@ import { AdminDashboard } from "./pages/admin/AdminDashboard.tsx";
 import { RegisterStudent } from "./pages/admin/register/RegisterStudent.tsx";
 import { RegisterAdmin } from "./pages/admin/register/RegisterAdmin.tsx";
 import { ManageUsers } from "./pages/admin/ManageStudents.tsx";
-import { ManageEvents } from "./pages/admin/ManageEvents.tsx";
+import { ManageEvents } from "./pages/admin/ManageEvents/ManageEvents.tsx";
 import { CreateEvent } from "./pages/admin/CreateEvent.tsx";
 
 export const App = () => {

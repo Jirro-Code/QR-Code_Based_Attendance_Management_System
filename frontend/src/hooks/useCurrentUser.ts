@@ -13,18 +13,19 @@ export const useCurrentUser = (path: string, setUserData: React.Dispatch<React.S
                 const data = await response.json();
                 
                 if (response.status === 401) {
+                    alert("Unauthorized. Please log in.");
                     await logout(path);
                     throw new Error(data?.message ?? "Unauthorized. Please log in.");
                 }
                 if (!response.ok) {
+                    alert("Something went wrong. Please try again later.");
                     throw new Error(data?.message ?? "Failed to fetch current user");
                 }
                 setUserData(data.user);
             }
             catch (error) {
-                alert("Something went wrong. Please log in again.");
+                alert("Something went wrong. Please try again later.");
                 console.error("Error fetching current user:", error);
-                logout(path);
             }
         };
         

@@ -3,7 +3,7 @@ import { useCreate } from "../../hooks/useCreate.ts"
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx"
 import { BackButton } from "../../components/Button/Button.tsx"
 import { Input } from "../../components/Input/Input.tsx"
-import { type Event } from "../../services/events.ts"
+import { type CreateEventData } from "../../services/events.ts"
 
 export const CreateEvent = () => {
     const [error, setError] = useState<string>("");
@@ -12,14 +12,14 @@ export const CreateEvent = () => {
         title: "",
         message: ""
     });
-    const [eventName, setEventName] = useState<Event>({
+    const [eventName, setEventName] = useState<CreateEventData>({
         eventName: "",
         eventDescription: "",
         eventDate: "",
         eventLocation: "",
     })
     const {useCreateEvent} = useCreate();
-
+    
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEventName((current) => ({...current, [e.target.name]: e.target.value}))
     }
@@ -28,7 +28,7 @@ export const CreateEvent = () => {
         e.preventDefault();
         await useCreateEvent({form: eventName, path: "/admin-dashboard", setError, setShowNotification, setNotificationMessage});
     }
-
+    
     const reloadPage = () => {
         setEventName({
             eventName: "",

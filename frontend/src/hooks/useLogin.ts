@@ -21,14 +21,15 @@ export const useLogin = (path: string, setError: React.Dispatch<React.SetStateAc
             }
             
             if (!response.ok) {
+                alert("Something went wrong. Please try again later.");
                 setError(data?.message ?? "An error occurred during login.");
                 return;
             }
             navigate(path);
         }
         catch (e) {
+            alert("Something went wrong. Please try again later.");
             console.error("Error during login:", e);
-            setError("An error occurred during login. Please try again.");
         }
     };
     
