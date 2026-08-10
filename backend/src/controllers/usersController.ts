@@ -3,11 +3,11 @@ import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import { users, userRoleSchema } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
 import { hashPassword } from "../utils/password.ts";
-import { eq, asc, and, or, ilike} from "drizzle-orm";
+import { eq, and, or, ilike, desc} from "drizzle-orm";
 import z from "zod";
 
 
-export const getUserById = async (req: AuthenticatedRequest, res: Response) => {
+export const getSelf = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.user!.id);
         const user = await db.query.users.findFirst({
@@ -33,13 +33,14 @@ export const getUserById = async (req: AuthenticatedRequest, res: Response) => {
     }
 }
 
+
 export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const role = userRoleSchema.parse(req.params.role);
         
         const userList = await db.query.users.findMany({
             where: eq(users.role, role),
-            orderBy: asc(users.updatedAt)
+            orderBy: desc(users.updatedAt)
         });
         
         if(userList.length === 0){
@@ -75,7 +76,8 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
                         ilike(users.studentId, `%${term}%`),
                         ilike(users.studentLRN, `%${term}%`)
                     ) : undefined
-                )
+                ),
+                orderBy: desc(users.updatedAt)
             }
         );
         

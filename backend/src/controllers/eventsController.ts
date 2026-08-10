@@ -2,10 +2,8 @@ import type {Response} from "express";
 import type {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import {events, users} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
-import { eq, desc, and, or, like } from "drizzle-orm";
+import { eq, desc, and, or, ilike } from "drizzle-orm";
 import { z } from "zod";
-
-
 
 export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
     try{                
@@ -26,7 +24,7 @@ export const createEvent = async (req: AuthenticatedRequest, res: Response) => {
 export const getAllEvents = async ( _req: AuthenticatedRequest, res: Response) => {
     try{
         const eventsList = await db.select({ 
-                                            eventId: events.id,
+                                            id: events.id,
                                             eventName: events.eventName, 
                                             eventDescription: events.eventDescription, 
                                             eventDate: events.eventDate, 
@@ -52,7 +50,9 @@ export const getAllEvents = async ( _req: AuthenticatedRequest, res: Response) =
 export const getEventById = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.string().parse(req.params.id);
-        const event = await db.select({ eventName: events.eventName,
+        const event = await db.select({ 
+                                        id: events.id,
+                                        eventName: events.eventName,
                                         eventDescription: events.eventDescription,
                                         eventDate: events.eventDate,
                                         eventLocation: events.eventLocation,
@@ -86,8 +86,8 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
         })();
         
         const whereClause = term ? or(
-            like(events.eventName, `%${term}%`),
-            like(events.eventLocation, `%${term}%`),
+            ilike(events.eventName, `%${term}%`),
+            ilike(events.eventLocation, `%${term}%`),
             maybeDate ? eq(events.eventDate, maybeDate) : undefined
         ) : undefined;
         
@@ -95,6 +95,7 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
                                             eventDescription: events.eventDescription,
                                             eventDate: events.eventDate,
                                             eventLocation: events.eventLocation,
+                                            id: events.id,
                                             creator: users.username }).
                                             from(events).
                                             leftJoin(users, eq(events.createdBy, users.id)).
@@ -126,7 +127,7 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
         }
         
         console.log("Event updated:", eventId);
-        res.status(200).json({message: "Event updated successfully", updates: updatedEvent});
+        res.status(200).json({message: "Event updated successfully", event: updatedEvent});
     }
     catch(e){
         if(e instanceof z.ZodError){
