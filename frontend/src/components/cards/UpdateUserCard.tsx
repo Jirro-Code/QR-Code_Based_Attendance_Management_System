@@ -6,12 +6,13 @@ import { SelectionField } from "../SelectionField.tsx";
 
 type UpdateUserCardProps = {
     userId: string;
-    onUpdated: () => void;
+    onUpdated: (updatedUser: User) => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
+    onClose: () => void;
 };
 
-export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNotif }: UpdateUserCardProps) => {
+export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateUserCardProps) => {
     const { useUpdateUser } = useUpdate();
     const [formData, setFormData] = useState<User>({} as User);
     const [confirmPassword, setConfirmPassword] = useState<string>("");
@@ -26,8 +27,10 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
     
     const handleUpdate = async (data: User) => {
         try {
-            await useUpdateUser({ ...data, id: userId }, setError);
-            onUpdated();
+            const updatedUser = await useUpdateUser({ ...data, id: userId }, setError);
+            onUpdated(updatedUser);
+            setFormData({} as User);
+            setConfirmPassword("");
             onSetNotif({
                 title: "Update Successful",
                 message: "Data updated successfully!"
@@ -46,6 +49,7 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
     
     return (
         <div className="update-card">
+            <button className="close-button" onClick={onClose}>×</button>
             <h2>Update Card</h2>
             <p>This is the update card component.</p>
             <form className="update-form">

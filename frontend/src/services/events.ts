@@ -6,7 +6,7 @@ export interface Event {
     eventDate: string;
     eventLocation: string;
     creator: string;
-    eventId: string;
+    id: string;
 }
 export interface CreateEventData {
     eventName: string;

@@ -3,7 +3,7 @@ import { type User } from "../../services/users";
 import { useEffect, useState } from "react";
 import { SearchBar } from "../../components/SearchBar.tsx";
 import { BackButton } from "../../components/Button/Button.tsx";
-import { ListCell } from "../../components/ListCell.tsx";
+import { UserListCell } from "../../components/UserListCell.tsx";
 import { UpdateUserCard } from "../../components/Cards/UpdateUserCard.tsx";
 import { DeleteUserCard } from "../../components/Cards/DeleteUserCard.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
@@ -13,10 +13,10 @@ import { ViewStudentCard } from "../../components/Cards/ViewStudentCard.tsx";
 export const ManageUsers = () => {
     const { useViewAllUsers, useSearchUsers } = useView();
     const [error, setError] = useState<string>("");
-    const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
     const [selectedUser, setSelectedUser] = useState<Partial<User> | null>(null);
     const [userArray, setUserArray] = useState<Partial<User>[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
+    const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
     const [showUpdateCard, setShowUpdateCard] = useState<boolean>(false);
     const [showDeleteCard, setShowDeleteCard] = useState<boolean>(false);
     const [showNotification, setShowNotification] = useState<boolean>(false);
@@ -33,7 +33,7 @@ export const ManageUsers = () => {
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
             setSearchQuery("");
-            refreshUserList();
+            await useViewAllUsers(setUserArray);
             return;
         }
         
@@ -50,15 +50,14 @@ export const ManageUsers = () => {
             setShowViewCard(false);
             setError("");
             await handleSearch();
+            return;
         }
-        else {
-            setShowUpdateCard(false);
-            setShowDeleteCard(false);
-            setShowViewCard(false);
-            setError("");
-            setIsOnSearch(false);
-            await useViewAllUsers(setUserArray);
-        }
+        setShowUpdateCard(false);
+        setShowDeleteCard(false);
+        setShowViewCard(false);
+        setError("");
+        setIsOnSearch(false);
+        await useViewAllUsers(setUserArray);
     }
     
     const loadViewCard = (user: Partial<User>) => {
@@ -69,12 +68,40 @@ export const ManageUsers = () => {
         setShowNotification(false);
     };
     
+    const loadDeleteCard = (user: Partial<User>) => {
+        setSelectedUser(user);
+        setShowDeleteCard(true);
+        setShowUpdateCard(false);
+        setShowViewCard(false);
+        setShowNotification(false);
+    };
+    
     const loadUpdateCard = (user: Partial<User>) => {
         setSelectedUser(user);
         setShowUpdateCard(true);
         setShowDeleteCard(false);
-        setShowViewCard(false);
         setShowNotification(false);
+    }
+    
+    const updateNotification = async (updatedUser: Partial<User>) => {
+        if (isOnSearch) {
+            setSelectedUser(updatedUser);
+            setUserArray((prevUsers) => prevUsers.map((user) => user.id === updatedUser.id ? updatedUser : user));
+            setShowUpdateCard(false);
+            setShowViewCard(true);
+            setShowDeleteCard(false);
+            setShowNotification(true);  
+            await handleSearch();
+            return;
+        }
+        setSelectedUser(updatedUser);
+        setUserArray((prevUsers) => prevUsers.map((user) => user.id === updatedUser.id ? updatedUser : user));
+        setShowUpdateCard(false);
+        setShowDeleteCard(false);
+        setShowViewCard(true);
+        setShowNotification(true);  
+        setIsOnSearch(false);
+        await useViewAllUsers(setUserArray);           
     }
     
     return (
@@ -84,17 +111,19 @@ export const ManageUsers = () => {
             <BackButton path="/admin-dashboard" />
             <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
             <p>{error}</p>
+            
             {userArray.length > 0 ? (
                 userArray.map((user: Partial<User>) => (
-                    <ListCell key={user.id} user={user} onUpdate={() => loadUpdateCard(user)} onDelete={() => {setSelectedUser(user), setShowUpdateCard(false), setShowViewCard(false), setShowNotification(false);}} onLoadUpdate={() => setShowUpdateCard(true)} onLoadDelete={() => setShowDeleteCard(true)} onLoadView={() => {loadViewCard(user)}} />
+                    <UserListCell key={user.id} user={user} onDelete={() => loadDeleteCard(user)} onLoadView={() => {loadViewCard(user)}} />
                 ))
-            ) : (
+            ) : 
+            (
                 <p>No users found.</p>
             )}
             
-            {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id!} onUpdated={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage}/>}            
-            {showDeleteCard && selectedUser && <DeleteUserCard userId={selectedUser.id!} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
-            {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onClose={refreshUserList} />}
+            {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id!} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
+            {showDeleteCard && selectedUser && <DeleteUserCard userId={selectedUser.id!} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)} />}
+            {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </div>
     );

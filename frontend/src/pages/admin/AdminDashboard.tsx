@@ -3,7 +3,7 @@ import {useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../services/auth";
 import { type User } from "../../services/users";
-import { SelectionCard } from "../../components/Cards/SelectionCards.tsx";
+import { SelectionCard } from "../../components/Cards/SelectionCard.tsx";
 
 export const AdminDashboard = () => {
     const navigate = useNavigate();

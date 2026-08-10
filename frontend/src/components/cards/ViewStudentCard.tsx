@@ -1,11 +1,12 @@
-import { type User } from "../../services/users";
+import { type User } from "../../services/users.ts";
 
 type ViewStudentCardProps = {
     student: Partial<User>;
     onClose: () => void;
+    onUpdate: () => void;
 };
 
-export const ViewStudentCard = ({ student, onClose }: ViewStudentCardProps) => {
+export const ViewStudentCard = ({ student, onClose, onUpdate }: ViewStudentCardProps) => {
     
     return (
         <div className="view-student-card">
@@ -17,6 +18,7 @@ export const ViewStudentCard = ({ student, onClose }: ViewStudentCardProps) => {
             <p><b>Student Section:</b> {student.studentSection}</p>
             <p><b>Created At:</b> {student.createdAt}</p>
             <p><b>Updated At:</b> {student.updatedAt}</p>
+            <button onClick={onUpdate}>Update</button>
             <button onClick={onClose}>Close</button>
         </div>
     );

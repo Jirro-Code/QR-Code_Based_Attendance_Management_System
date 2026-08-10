@@ -4,12 +4,14 @@ import { Input }  from "../Input/Input.tsx";
 import { type Event } from "../../services/events.ts";
 
 type UpdateEventCardProps = {
-    eventId: string;
-    onUpdated: () => void;
+    id: string;
+    onUpdated: (updatedEvent: Event) => void;
+    setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
+    onClose: () => void;
 };
 
-export const UpdateEventCard = ({ eventId, onUpdated, onSetNotif }: UpdateEventCardProps) => {
+export const UpdateEventCard = ({ id, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateEventCardProps) => {
     const { useUpdateEvent } = useUpdate();
     const [formData, setFormData] = useState<Event>({} as Event);
     const [error, setError] = useState<string>("");
@@ -20,12 +22,15 @@ export const UpdateEventCard = ({ eventId, onUpdated, onSetNotif }: UpdateEventC
     
     const handleUpdate = async (data: Event) => {
         try {
-            await useUpdateEvent({ ...data, eventId: eventId }, setError);
-            onUpdated();
+            const updatedEvent = await useUpdateEvent({ ...data, id: id }, setError);
+            onUpdated(updatedEvent);
+            setFormData({} as Event);
+            await useUpdateEvent({ ...data, id: id }, setError);
             onSetNotif({
                 title: "Update Successful",
                 message: "Data updated successfully!"
             });
+            setShowNotification(true);
         } 
         catch (error) {
             console.error("Error updating data:", error);
@@ -39,6 +44,7 @@ export const UpdateEventCard = ({ eventId, onUpdated, onSetNotif }: UpdateEventC
     
     return (
         <div className="update-card">
+            <button className="close-button" onClick={onClose}>×</button>
             <h2>Update Card</h2>
             <p>This is the update card component.</p>
             <form className="update-form">

@@ -6,9 +6,10 @@ type DeleteCardUserProps = {
     onDeleted: () => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
+    onClose: () => void;
 }
 
-export const DeleteUserCard = ({ userId, onDeleted, setShowNotification, onSetNotif }: DeleteCardUserProps) => {
+export const DeleteUserCard = ({ userId, onDeleted, setShowNotification, onSetNotif, onClose }: DeleteCardUserProps) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [error, setError] = useState<string>("");
     const { useDeleteStudent } = useDelete();
@@ -37,6 +38,7 @@ export const DeleteUserCard = ({ userId, onDeleted, setShowNotification, onSetNo
     
     return (
         <div className="delete-card">
+            <button className="close-button" onClick={onClose}>×</button>
             <h2>Delete Card</h2>
             <p>This is the delete card component.</p>
             <p>{error}</p>

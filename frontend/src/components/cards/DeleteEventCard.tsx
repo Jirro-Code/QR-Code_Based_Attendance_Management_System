@@ -2,20 +2,20 @@ import { useDelete } from "../../hooks/useDelete.ts";
 import { useState } from "react";
 
 type DeleteCardEventProps = {
-    eventId: string;
+    id: string;
     onDeleted: () => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
 }
 
-export const DeleteEventCard = ({ eventId, onDeleted, setShowNotification, onSetNotif }: DeleteCardEventProps) => {
+export const DeleteEventCard = ({ id, onDeleted, setShowNotification, onSetNotif }: DeleteCardEventProps) => {
     const [showConfirmation, setShowConfirmation] = useState(false);
     const [error, setError] = useState<string>("");
     const { useDeleteEvent } = useDelete();
     
     const handleDelete = async () => {
         try {
-            await useDeleteEvent(eventId, setError);
+            await useDeleteEvent(id, setError);
             onDeleted();
             onSetNotif({
                 title: "Delete Successful",

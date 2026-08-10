@@ -25,7 +25,7 @@ export const useUpdate = () => {
                 setError(responseData.message || "Failed to update data.");
                 throw new Error(responseData.message || "Failed to update data.");
             }
-            return responseData;
+            return responseData.user;
         } catch (error) {
             alert("Something went wrong. Please try again later.");
             console.error("Error updating data:", error);
@@ -35,7 +35,7 @@ export const useUpdate = () => {
     
     const useUpdateEvent = async (data: Event, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
-            const response = await updateEvent(data.eventId, data);
+            const response = await updateEvent(data.id, data);
             const responseData = await response.json();
             if (response.status === 401) {
                 alert("Unauthorized. Redirecting to login.");
@@ -55,7 +55,7 @@ export const useUpdate = () => {
                 setError(responseData.message || "Failed to update data.");
                 throw new Error(responseData.message || "Failed to update data.");
             }
-            return responseData;
+            return responseData.event;
         } catch (error) {
             alert("Something went wrong. Please try again later.");
             console.error("Error updating data:", error);
