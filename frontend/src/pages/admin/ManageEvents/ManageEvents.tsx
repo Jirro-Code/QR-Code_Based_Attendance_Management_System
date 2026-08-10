@@ -47,6 +47,7 @@ export const ManageEvents = () => {
             if (searchQuery.trim() === "") {
                 await useViewAllEvents(setEventArray);
                 setIsOnSearch(false);
+                setSearchQuery("");
                 return;
             }
             
@@ -60,12 +61,12 @@ export const ManageEvents = () => {
             <h1>Manage Events</h1>
             <p>This is the Manage Events page.</p>
             <BackButton path="/admin-dashboard" />
-            <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} />
+            <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
             <p>{error}</p>
             <div className={styles.eventCardContainer}>
                 {eventArray.length > 0 ? (
                     eventArray.map((event: Event) => (
-                        <EventCard key={event.eventName} event={event} onUpdate={() => {setSelectedEvent(event), setShowDeleteCard(false)}} onDelete={() => {setSelectedEvent(event), setShowUpdateCard(false);}} onLoadUpdate={() => {setShowUpdateCard(true)}} onLoadDelete={() => {setShowDeleteCard(true)}} />
+                        <EventCard key={event.eventName} event={event} onUpdate={() => {setSelectedEvent(event), setShowDeleteCard(false), setShowNotification(false)}} onDelete={() => {setSelectedEvent(event), setShowUpdateCard(false), setShowNotification(false);}} onLoadUpdate={() => {setShowUpdateCard(true)}} onLoadDelete={() => {setShowDeleteCard(true)}} />
                     ))
                 ) : (
                     <p>No events found.</p>

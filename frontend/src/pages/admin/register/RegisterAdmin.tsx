@@ -32,7 +32,7 @@ export const RegisterAdmin = () => {
             setError("Passwords do not match!");
             return;
         }
-        await useRegister({path: "/admin-login", form: adminData, setError, setShowNotification, setNotificationMessage});
+        await useRegister({form: adminData, setError, setShowNotification, setNotificationMessage});
     }
     
     const reloadPage = () => {

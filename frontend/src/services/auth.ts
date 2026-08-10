@@ -24,10 +24,10 @@ export type AdminRegisterPayload = {
 
 export type RegisterPayload = StudentRegisterPayload | AdminRegisterPayload;
 
-export const register = async (payload: RegisterPayload) => {
+export const register = async (data: RegisterPayload) => {
     return apiFetch("/auth/register", {
         method: "POST",
-        body: JSON.stringify(payload)
+        body: JSON.stringify(data)
     });
 }
 

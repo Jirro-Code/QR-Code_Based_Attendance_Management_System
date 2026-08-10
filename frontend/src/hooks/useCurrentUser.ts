@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {logout } from "../services/auth";
-import {getUserById, type UserData} from "../services/users";
+import {getSelf, type User } from "../services/users";
 
-export const useCurrentUser = (path: string, setUserData: React.Dispatch<React.SetStateAction<UserData>>) => {
+export const useCurrentUser = (path: string, setUserData: React.Dispatch<React.SetStateAction<Partial<User>>>) => {
     const navigate = useNavigate();
     
     useEffect(() => {
         const useGetCurrentUser = async () => {
             try {
-                const response = await getUserById();
+                const response = await getSelf();
                 const data = await response.json();
                 
                 if (response.status === 401) {

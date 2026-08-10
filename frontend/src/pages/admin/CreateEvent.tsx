@@ -23,10 +23,10 @@ export const CreateEvent = () => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEventName((current) => ({...current, [e.target.name]: e.target.value}))
     }
-
+    
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        await useCreateEvent({form: eventName, path: "/admin-dashboard", setError, setShowNotification, setNotificationMessage});
+        await useCreateEvent({form: eventName, setError, setShowNotification, setNotificationMessage});
     }
     
     const reloadPage = () => {

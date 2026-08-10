@@ -1,35 +1,28 @@
 import {apiFetch} from "./http";
 
-export type UserData = {
-    id: string;
-    username: string;
-    email: string;
-    role: "admin" | "user";
-};
-
 export interface User {
+    role: "admin" | "user";
     id: string;
     username: string;
     email: string;
-    role: string;
-    password?: string;
-    studentId?: string;
-    studentLRN?: string;
-    studentStrand?: string;
-    studentSection?: string;
-    createdAt?: string;
-    updatedAt?: string;
+    password: string;
+    studentId: string;
+    studentLRN: string;
+    studentStrand: string;
+    studentSection: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
-export const getUserById = async () => {
+export const getSelf = async () => {
     return apiFetch("/users/me", {
         method: "GET",
         credentials: "include"
     });
 }
 
-export const getAllUsers = () => {
-    return apiFetch("/users/role/user", {
+export const getUsersByRole = (role: string) => {
+    return apiFetch(`/users/role/${role}`, {
         method: "GET",
         credentials: "include"
     });

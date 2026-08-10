@@ -5,7 +5,6 @@ import { createEvent, type CreateEventData } from "../services/events.ts";
 export const useCreate = () => {
     
     type useRegisterProps = {
-        path: string;
         form: RegisterPayload;
         setError: React.Dispatch<React.SetStateAction<string>>;
         setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
@@ -13,14 +12,13 @@ export const useCreate = () => {
     }
     
     type useCreateEventProps = {
-        path: string;
         form: CreateEventData;
         setError: React.Dispatch<React.SetStateAction<string>>;
         setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
         setNotificationMessage: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
     };
     
-    const useRegister = async ({path, form, setError, setShowNotification, setNotificationMessage}: useRegisterProps) => {
+    const useRegister = async ({ form, setError, setShowNotification, setNotificationMessage}: useRegisterProps) => {
         try {
             const response = await register(form);
             const data = await response.json();
@@ -30,7 +28,7 @@ export const useCreate = () => {
             }
             if (response.status === 401) {
                 alert("Unauthorized. Please log in.");
-                await logout(path);
+                await logout("/admin-login");
             }
             if (response.status === 403) {
                 setError(data?.message ?? "Access denied. You do not have permission to perform this action.");
@@ -54,7 +52,7 @@ export const useCreate = () => {
         }
     };
     
-    const useCreateEvent = async ({form, path, setError, setShowNotification, setNotificationMessage}: useCreateEventProps) => {
+    const useCreateEvent = async ({form, setError, setShowNotification, setNotificationMessage}: useCreateEventProps) => {
         try {
             const response = await createEvent(form);
             const data = await response.json();
@@ -63,7 +61,7 @@ export const useCreate = () => {
             }
             if (response.status === 401) {
                 alert("Unauthorized. Please log in.");
-                await logout(path);
+                await logout("/admin-login");
             }
             if (response.status === 403) {
                 setError(data?.message ?? "Access denied. You do not have permission to perform this action.");

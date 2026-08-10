@@ -2,13 +2,13 @@ import { useCurrentUser } from "../../hooks/useCurrentUser";
 import {useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../services/auth";
-import { type UserData } from "../../services/users";
+import { type User } from "../../services/users";
 import { SelectionCard } from "../../components/Cards/SelectionCards.tsx";
 
 export const AdminDashboard = () => {
     const navigate = useNavigate();
     const [isSelecting, setIsSelecting] = useState<boolean>(false);
-    const [adminData, setAdminData] = useState<UserData>({
+    const [adminData, setAdminData] = useState<Partial<User>>({
         id: "",
         username: "",
         email: "",

@@ -1,12 +1,12 @@
 import { logout } from "../services/auth.ts";
 import { getAllEvents, searchEvents, type Event } from "../services/events.ts";
-import { getAllUsers, searchUsers, type User } from "../services/users.ts";
+import { getUsersByRole, searchUsers, type User } from "../services/users.ts";
 
 export const useView = () => {
-    const useViewAllUsers = async (setUserArray: React.Dispatch<React.SetStateAction<User[]>>) => {
+    const useViewAllUsers = async (setUserArray: React.Dispatch<React.SetStateAction<Partial<User>[]>>) => {
         const fetchUsers = async () => {
             try {
-                const response = await getAllUsers();
+                const response = await getUsersByRole("user");
                 const data = await response.json();
                 if(response.status === 401) {
                     alert("Unauthorized. Please log in.");
@@ -104,6 +104,7 @@ export const useView = () => {
         fetchEvents();
     }
     
+    
     const useSearchEvents = async (query: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event[]> => {
         try {
             const response = await searchEvents(query);
@@ -134,5 +135,6 @@ export const useView = () => {
             throw new Error("An error occurred while searching for events. Please try again.");
         }
     }
+    
     return { useViewAllUsers, useSearchUsers, useViewAllEvents, useSearchEvents };
 }

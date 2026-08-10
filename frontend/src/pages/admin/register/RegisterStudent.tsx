@@ -38,7 +38,7 @@ export const RegisterStudent = () => {
             alert("Passwords do not match!");
             return;
         }
-        await useRegister({path: "/student-login", form: studentData, setError, setShowNotification, setNotificationMessage});
+        await useRegister({ form: studentData, setError, setShowNotification, setNotificationMessage});
     }
     
     const reloadPage = () => {
