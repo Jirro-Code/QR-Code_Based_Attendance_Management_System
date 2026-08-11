@@ -4,9 +4,11 @@ import { useNavigate } from "react-router-dom";
 import { logout } from "../../services/auth";
 import { type User } from "../../services/users";
 import { SelectionCard } from "../../components/Cards/SelectionCard.tsx";
+import { Scanner } from "../../components/Scanner.tsx";
 
 export const AdminDashboard = () => {
     const navigate = useNavigate();
+    const [isScanning, setIsScanning] = useState<boolean>(false);
     const [isSelecting, setIsSelecting] = useState<boolean>(false);
     const [adminData, setAdminData] = useState<Partial<User>>({
         id: "",
@@ -30,8 +32,9 @@ export const AdminDashboard = () => {
             <button onClick={() => navigate("/manage-events")}>Manage Events</button>
             <button onClick={() => navigate("/create-event")}>New Event</button>
             <button onClick={() => logout("/admin-login")}>Logout</button>
-        
+            <button onClick={() => setIsScanning(true)}>Scanner</button>
             {isSelecting && <SelectionCard onClose={() => isSelectingHandler()} />}
+            {isScanning && <Scanner onCancel={() => setIsScanning(false)} />}
         </div>
     );
 }

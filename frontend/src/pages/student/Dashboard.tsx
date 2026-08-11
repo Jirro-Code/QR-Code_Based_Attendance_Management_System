@@ -9,15 +9,17 @@ export const StudentDashboard = () => {
     const [studentData, setStudentData] = useState<Partial<User>>({
         id: "",
         username: "",
+        studentStrand: "",
+        studentSection: "",
         email: "",
         role: "user",
     });
-    
+    const qrURl = `${studentData.id}|icpsantamaria|${studentData.username}|icpsantamaria|${studentData.studentStrand}|icpsantamaria|${studentData.studentSection}`;
     useCurrentUser("/student-login", setStudentData);
     
     useEffect(() => {
-        if (studentData.id) {
-            QRCode.toDataURL(studentData.id, (err, url) => {
+        if (studentData.id && studentData.username) {
+            QRCode.toDataURL(qrURl, (err, url) => {
                 if (err) {
                     console.error("Error generating QR code:", err);
                     return;
@@ -25,7 +27,7 @@ export const StudentDashboard = () => {
                 setQrCode(url);
             });
         }
-    }, [studentData.id]);
+    }, [studentData.id, studentData.username]);
     
     return (
         <div>

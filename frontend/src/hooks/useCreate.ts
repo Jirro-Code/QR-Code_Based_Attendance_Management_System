@@ -1,5 +1,6 @@
 import { register, logout, type RegisterPayload } from "../services/auth.ts";
 import { createEvent, type CreateEventData } from "../services/events.ts";
+import { markStudentPresent } from "../services/attendance.ts";
 
 
 export const useCreate = () => {
@@ -84,5 +85,40 @@ export const useCreate = () => {
         }
     }
     
-    return { useRegister, useCreateEvent };
+    const useMarkAttendance = async (uuid: string, eventId: string, isLate: boolean, setError: (message: string) => void) => {
+        try {
+            const response = await markStudentPresent(uuid, eventId, isLate);
+            if (response.status === 400) {
+                setError(response?.message ?? "Invalid attendance data.");
+                return null;
+            }
+            if (response.status === 401) {
+                alert("Unauthorized. Please log in.");
+                await logout("/admin-login");
+            }
+            if (response.status === 403) {
+                setError(response?.message ?? "Access denied. You do not have permission to perform this action.");
+                return null;
+            }
+            if (response.status === 404) {
+                setError(response?.message ?? "Event not found or student not found.");;
+                return null;
+            }
+            if (response.status === 409) {
+                return null;
+            }
+            if (!response.ok) {
+                setError(response?.message ?? "An error occurred while marking attendance.");
+                return response;
+            }
+            return response;
+        } 
+        catch (e) {
+            alert("Something went wrong. Please try again later.");
+            console.error("Error during attendance marking:", e);
+            return null;
+        }
+    }
+    
+    return { useRegister, useCreateEvent, useMarkAttendance };
 }
