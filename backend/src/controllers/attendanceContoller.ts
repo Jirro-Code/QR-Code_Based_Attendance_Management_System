@@ -32,7 +32,7 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
         });
         
         if (attendanceExist) {
-            return res.status(400).json({message: "Attendance already marked for this user and event"});
+            return res.status(409).json({message: "Attendance already marked for this user and event"});
         }
         
         const newAttendance = {

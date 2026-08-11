@@ -10,7 +10,7 @@ const router = Router();
 const createEventSchema = z.object({
     eventName: z.string().min(1, "Event name is required"),
     eventDescription: z.string().optional(),
-    eventDate: z.coerce.date("Invalid event date").refine((date) => date >= new Date(), "Invalid date: must be today or in the future"),
+    eventDate: z.iso.date("Invalid event date").refine((date) => { const localDate = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Manila' }).format(new Date()); return new Date(date) >= new Date(localDate) }, "Invalid date: must be today or in the future"),
     eventLocation: z.string().optional()
 });
 
@@ -18,7 +18,7 @@ const createEventSchema = z.object({
 const updateEventSchema = z.object({
     eventName: z.string().min(1, "Event name is required").optional(),
     eventDescription: z.string().optional(),
-    eventDate: z.coerce.date("Invalid event date").refine((date) => date >= new Date(), "Invalid date: must be today or in the future").optional(),
+    eventDate: z.iso.date("Invalid event date").refine((date) => { const localDate = new Intl.DateTimeFormat('en-US', { timeZone: 'Asia/Manila' }).format(new Date()); return new Date(date) >= new Date(localDate) }, "Invalid date: must be today or in the future").optional(),
     eventLocation: z.string().optional()
 });
 

@@ -103,7 +103,7 @@ export const insertEventSchema = createInsertSchema(events).omit({
 });
 export const selectEventSchema = createSelectSchema(events);
 export const insertAttendanceSchema = createInsertSchema(attendance).omit({
-    id: true,attendedAt: true
+    id: true, attendedAt: true
 });
 export const selectAttendanceSchema = createSelectSchema(attendance);
 
