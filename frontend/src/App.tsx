@@ -1,7 +1,9 @@
 import { Route, Routes } from "react-router-dom";
 import { SelectionPage } from "./pages/logs/LoginPage/LoginPage.tsx";
 import { AdminLoginPage } from "./pages/logs/AdminLogin/AdminLoginPage.tsx";
+import { StudentLoginPage } from "./pages/logs/StudentLoginPage.tsx";
 import { AdminDashboard } from "./pages/admin/AdminDashboard.tsx";
+import { StudentDashboard } from "./pages/student/Dashboard.tsx";
 import { RegisterStudent } from "./pages/admin/register/RegisterStudent.tsx";
 import { RegisterAdmin } from "./pages/admin/register/RegisterAdmin.tsx";
 import { ManageUsers } from "./pages/admin/ManageStudents.tsx";
@@ -14,7 +16,9 @@ export const App = () => {
             <Routes>
                 <Route path="/" element={<SelectionPage />} />
                 <Route path="/admin-login" element={<AdminLoginPage />} />
+                <Route path="/student-login" element={<StudentLoginPage />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                <Route path="/student-dashboard" element={<StudentDashboard />} />
                 <Route path="/create-student" element={<RegisterStudent />} />
                 <Route path="/create-admin" element={<RegisterAdmin />} />
                 <Route path="/manage-students" element={<ManageUsers />} />
