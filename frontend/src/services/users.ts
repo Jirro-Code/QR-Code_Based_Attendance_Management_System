@@ -15,28 +15,30 @@ export interface User {
 }
 
 export const getSelf = async () => {
-    return apiFetch("/users/me", {
+    const response = await apiFetch("/users/me", {
         method: "GET",
         credentials: "include"
     });
+    return response.json();
 }
 
 export const getUsersByRole = (role: string) => {
     return apiFetch(`/users/role/${role}`, {
         method: "GET",
         credentials: "include"
-    });
+    }).then((response) => response.json());
 }
 
 export const searchUsers = async (query: string) => {
-    return await apiFetch(`/users/search?search=${encodeURIComponent(query)}`, {
+    const response = await apiFetch(`/users/search?search=${encodeURIComponent(query)}`, {
         method: "GET",
         credentials: "include"
     });
+    return response.json();
 }
 
 export const updateUser = async (id: string, userData: Partial<User>) => {
-    return await apiFetch(`/users/update/${id}`, {
+    const response = await apiFetch(`/users/update/${id}`, {
         method: "PUT",
         body: JSON.stringify(userData),
         headers: {
@@ -44,11 +46,13 @@ export const updateUser = async (id: string, userData: Partial<User>) => {
         },
         credentials: "include"
     });
+    return response.json();
 }
 
 export const deleteUser = async (id: string) => {
-    return await apiFetch(`/users/delete/${id}`, {
+    const response = await apiFetch(`/users/delete/${id}`, {
         method: "DELETE",
         credentials: "include"
     });
+    return response.json().catch(() => null);
 }

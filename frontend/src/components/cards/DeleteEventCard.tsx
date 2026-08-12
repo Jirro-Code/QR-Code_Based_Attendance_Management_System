@@ -40,9 +40,7 @@ export const DeleteEventCard = ({ id, onDeleted, setShowNotification, onSetNotif
             <h2>Delete Card</h2>
             <p>This is the delete card component.</p>
             <p>{error}</p>
-            <button onClick={() => setShowConfirmation(true)}>
-                Delete Event
-            </button>
+            <button onClick={() => setShowConfirmation(true)}>Delete Event</button>
             
             {showConfirmation && (
                 <div className="delete-confirmation card">

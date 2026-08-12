@@ -1,138 +1,133 @@
 import { logout } from "../services/auth.ts";
 import { getAllEvents, searchEvents, type Event } from "../services/events.ts";
 import { getUsersByRole, searchUsers, type User } from "../services/users.ts";
+import { ApiError } from "../services/error.ts";
 
 export const useView = () => {
-    const useViewAllUsers = async (setUserArray: React.Dispatch<React.SetStateAction<Partial<User>[]>>) => {
+    const useViewAllUsers = async (setUserArray: React.Dispatch<React.SetStateAction<Partial<User>[]>>, setError: React.Dispatch<React.SetStateAction<string>>) => {
         const fetchUsers = async () => {
             try {
-                const response = await getUsersByRole("user");
-                const data = await response.json();
-                if(response.status === 401) {
-                    alert("Unauthorized. Please log in.");
-                    await logout("/");
-                    throw new Error(data?.message ?? "Unauthorized. Please log in.");
-                }
-                if(response.status === 403) {
-                    alert("Access denied. You do not have permission to perform this action.");
-                    throw new Error(data?.message ?? "Access denied. You do not have permission to perform this action.");
-                }
-                if(response.status === 404) {
-                    alert("No users found.");
-                    setUserArray([]);
-                    throw new Error(data?.message ?? "No users found.");
-                }
-                if (!response.ok) {
-                    alert("Something went wrong. Please try again later.");
-                    throw new Error(data?.message ?? "Failed to fetch users");
-                }
+                const data = await getUsersByRole("user");
                 setUserArray(data.users);
             } 
-            catch (error) {
+            catch (e) {
+                if (e instanceof ApiError) {
+                    if (e.status === 401) {
+                        alert("Unauthorized. Please log in.");
+                        await logout("/");
+                    }
+                    if (e.status === 403) {
+                        setError(e.message || "Access denied. You do not have permission to perform this action.");
+                    }
+                    if (e.status === 404) {
+                        setError(e.message || "No users found.");
+                    }
+                    if(e.status >= 500) {
+                        alert("Server error. Please try again later.");
+                        setError("Server error. Please try again later.");
+                    }
+                    throw e;
+                }
                 alert("Something went wrong. Please try again later.");
-                throw new Error("An error occurred while fetching users. Please try again.");
+                setError("An error occurred while fetching users. Please try again.");
+                console.error("Error fetching users:", e);
+                throw e;
             }
         };
         
         fetchUsers();
     }
     
-    
     const useSearchUsers = async (query: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<User[]> => {
         try {
-            const response = await searchUsers(query);
-            const data = await response.json();
-            if (response.status === 401) {
-                alert("Unauthorized. Please log in.");
-                await logout("/");
-                throw new Error(data?.message ?? "Unauthorized. Please log in.");
-            }
-            if (response.status === 404) {
-                setError("No users found matching the search query.");
-                throw new Error(data?.message ?? "No users found matching the search query.");
-            }
-            if (response.status === 403) {
-                setError("Access denied. You do not have permission to perform this action.");
-                throw new Error(data?.message ?? "Access denied. You do not have permission to perform this action.");
-            }
-            if (!response.ok) {
-                alert("Something went wrong. Please try again later.");
-                setError(data?.message ?? "Failed to search users");
-                throw new Error(data?.message ?? "Failed to search users");
-            }
+            const data = await searchUsers(query);
             return data.users as User[];
         } 
-        catch (error) {
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "No users found matching the search query.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
             alert("Something went wrong. Please try again later.");
-            console.error("Error searching for users:", error);
-            throw new Error("An error occurred while searching for users. Please try again.");
+            setError("An error occurred while searching for users. Please try again.");
+            console.error("Error searching for users:", e);
+            throw e;
         }
     }
     
-    
-    const useViewAllEvents = async (setEventArray: React.Dispatch<React.SetStateAction<Event[]>>) => {
+    const useViewAllEvents = async (setEventArray: React.Dispatch<React.SetStateAction<Event[]>>, setError: React.Dispatch<React.SetStateAction<string>>) => {
         const fetchEvents = async () => {
             try {
-                const response = await getAllEvents();
-                const data = await response.json();
-                if(response.status === 401) {
-                    alert("Unauthorized. Please log in.");
-                    await logout("/");
-                    throw new Error(data?.message ?? "Unauthorized. Please log in.");
-                }
-                if(response.status === 403) {
-                    alert("Access denied. You do not have permission to perform this action.");
-                    throw new Error(data?.message ?? "Access denied. You do not have permission to perform this action.");
-                }
-                if(response.status === 404) {
-                    setEventArray([]);
-                    throw new Error(data?.message ?? "No events found.");
-                }
-                if (!response.ok) {
-                    alert("Something went wrong. Please try again later.");
-                    throw new Error(data?.message ?? "Failed to fetch events");
-                }
+                const data = await getAllEvents();
                 setEventArray(data.events);
             } 
-            catch (error) {
+            catch (e) {
+                if (e instanceof ApiError) {
+                    if (e.status === 401) {
+                        alert("Unauthorized. Please log in.");
+                        await logout("/");
+                    }
+                    if (e.status === 403) {
+                        setError("Access denied. You do not have permission to perform this action.");
+                    }
+                    if (e.status === 404) {
+                        setError("No events found.");
+                    }
+                    if(e.status >= 500) {
+                        alert("Server error. Please try again later.");
+                        setError("Server error. Please try again later.");
+                    }
+                    throw e;
+                }
                 alert("Something went wrong. Please try again later.");
-                console.error("Error fetching events:", error);
-                throw new Error("An error occurred while fetching events. Please try again.");
+                setError("An error occurred while fetching events. Please try again.");
+                console.error("Error fetching events:", e);
+                throw e;
             }
         };
-        
         fetchEvents();
     }
     
-    
     const useSearchEvents = async (query: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event[]> => {
         try {
-            const response = await searchEvents(query);
-            const data = await response.json();
-            if (response.status === 401) {
-                alert("Unauthorized. Please log in.");
-                await logout("/");
-                throw new Error(data?.message ?? "Unauthorized. Please log in.");
-            }
-            if (response.status === 404) {
-                setError("No events found matching the search query.");
-                throw new Error(data?.message ?? "No events found matching the search query.");
-            }
-            if (response.status === 403) {
-                setError("Access denied. You do not have permission to perform this action.");
-                throw new Error(data?.message ?? "Access denied. You do not have permission to perform this action.");
-            }
-            if (!response.ok) {
-                alert("Something went wrong. Please try again later.");
-                setError(data?.message ?? "Failed to search events");
-                throw new Error(data?.message ?? "Failed to search events");
-            }
+            const data = await searchEvents(query);
             return data.events as Event[];
         } 
-        catch (error) {
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "No events found matching the search query.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
             alert("Something went wrong. Please try again later.");
-            console.error("Error searching for events:", error);
-            throw new Error("An error occurred while searching for events. Please try again.");
+            setError("An error occurred while searching for events. Please try again.");
+            console.error("Error searching for events:", e);
+            throw e;
         }
     }
     

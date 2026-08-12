@@ -10,61 +10,48 @@ type ScannerProps = {
 };
 
 export const Scanner = ({ onCancel }: ScannerProps) => {
+    const { useMarkAttendance } = useCreate();
+    const { useViewAllEvents } = useView();
+    const [error, setError] = useState<string>("");
     const [events, setEvents] = useState<Event[]>([]);
-    const [cameras, setCameras] = useState<CameraDevice[]>([]);
-    const [selectedCamera, setSelectedCamera] = useState<string | null>(null);
+    const [eventId, setEventId] = useState<string | null>(null);
     const [isLate, setIsLate] = useState<boolean>(false);
+    const [cameras, setCameras] = useState<CameraDevice[]>([]);
     const [showIsDetected, setShowIsDetected] = useState<boolean>(false);
-
+    const [restartScanner, setRestartScanner] = useState<boolean>(false);
     const [scannedStudent, setScannedStudent] = useState<{
         uuid: string;
         username: string;
         studentStrand: string;
         studentSection: string;
     } | null>(null);
-
-    const [eventId, setEventId] = useState<string | null>(null);
-
-    const [error, setError] = useState<string | null>(null);
-
-    const { useMarkAttendance } = useCreate();
-    const { useViewAllEvents } = useView();
-
-    /*
-     * GET EVENTS
-     */
+    
     useEffect(() => {
-        useViewAllEvents(setEvents);
+        useViewAllEvents(setEvents, setError);
     }, []);
     
-    /*
-     * ONLY TODAY AND FUTURE EVENTS
-     */
+    
     const availableEvents = events.filter((event) => {
         const localDateToday = Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
         return event.eventDate === localDateToday;
     });
     
-    /*
-     * MARK PRESENT
-     */
     const handleMarkPresent = async () => {
         if (!scannedStudent || !eventId) return;
         
-        const result = await useMarkAttendance(
-            scannedStudent.uuid,
-            eventId,
-            isLate,
-            setError
-        );
-        console.log("Attendance marking result:", result);
-        console.log("result.ok:", result.ok);
-        console.log("result.status:", result.status);
+        const result = await useMarkAttendance( { uuid: scannedStudent.uuid, eventId, isLate, setError } );
+        if (result?.result === "Attendance already marked.") {
+            setShowIsDetected(false);
+            setIsLate(false);
+            setScannedStudent(null);
+            setRestartScanner((prev) => !prev);
+            return;
+        }
         if (result) {
             setShowIsDetected(false);
             setIsLate(false);
             setScannedStudent(null);
-            setError(null)
+            setRestartScanner((prev) => !prev);
         }
     };
     
@@ -101,15 +88,15 @@ export const Scanner = ({ onCancel }: ScannerProps) => {
      * START SCANNER
      */
     useEffect(() => {
-        if (!selectedCamera || !eventId) return;
+        if (cameras.length === 0 || !eventId) return;
         
         const scanner = new Html5Qrcode("qr-reader");
         let isScanning = false;
         
         const startScanning = async () => {
             try {
-                setError(null);
-                await scanner.start(selectedCamera, {fps: 10,qrbox: { width: 250, height: 250, }, aspectRatio: 1.0 },
+                setError("");
+                await scanner.start(cameras[0].id, {fps: 10,qrbox: { width: 250, height: 250, }, aspectRatio: 1.0 },
                     async (decodedText) => {
                         if (!isScanning) return;
                         
@@ -166,7 +153,7 @@ export const Scanner = ({ onCancel }: ScannerProps) => {
                 isScanning = false;
             }
         };
-    }, [selectedCamera, eventId]);
+    }, [cameras, eventId, restartScanner]);
     
     if (!eventId) {
         return (
@@ -176,7 +163,7 @@ export const Scanner = ({ onCancel }: ScannerProps) => {
                 {availableEvents.length === 0 && (<p>No events available for today or the future.</p>)}
                 
                 {availableEvents?.map((event) => (
-                    <button key={event.id} onClick={() => {setEventId(event.id), setError(null); }}>{event.eventName} - {event.eventDate}</button>
+                    <button key={event.id} onClick={() => {setEventId(event.id), setError(""); }}>{event.eventName} - {event.eventDate}</button>
                 ))}
                 <button onClick={onCancel}>Cancel</button>
             </div>
@@ -188,20 +175,6 @@ export const Scanner = ({ onCancel }: ScannerProps) => {
      *
      * Camera is selected only after event selection.
      */
-    if (!selectedCamera) {
-        return (
-            <div>
-                <h2>Select Camera</h2>
-                {error && <p>{error}</p>}
-                {cameras.length === 0 && !error && (<p>Loading cameras...</p>)}
-                {cameras.map((camera) => (
-                    <button key={camera.id} onClick={() => { setSelectedCamera(camera.id), setError(null); }}>{camera.label || "Camera"}</button>
-                ))}
-                <button onClick={() => { setEventId(null), setSelectedCamera(null), setCameras([]), setError(null); }}>Back to Events</button>
-                <button onClick={onCancel}>Cancel</button>
-            </div>
-        );
-    }
 
     /*
      * STUDENT DETECTED
@@ -239,39 +212,13 @@ export const Scanner = ({ onCancel }: ScannerProps) => {
             </div>
         );
     }
-
-    /*
-     * SCANNER
-     */
+    
     return (
         <div>
             <div id="qr-reader" style={{ width: "500px", height: "500px" }}/>
-
             {error && <p>{error}</p>}
-
-            <button onClick={() => {
-                    const currentIndex =cameras.findIndex((camera) => camera.id === selectedCamera);
-                    
-                    const nextIndex = (currentIndex + 1) % cameras.length;
-
-                    setSelectedCamera(cameras[nextIndex].id);
-
-                    setError(null);
-                }}
-                disabled={cameras.length <= 1}
-            >
-                Flip Camera
-            </button>
-            <button onClick={() => {
-                    setError(null);
-                    setSelectedCamera(null);
-                    setScannedStudent(null);
-                }}>
-                Reset Camera
-            </button>
-            <button onClick={onCancel}>
-                Cancel
-            </button>
+            <button onClick={() => {cameras.unshift(cameras.pop()!); setError("");}} disabled={cameras.length <= 1}> Flip Camera </button>
+            <button onClick={onCancel}> Cancel </button>
         </div>
     );
 };

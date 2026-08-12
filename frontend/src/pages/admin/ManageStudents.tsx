@@ -27,13 +27,13 @@ export const ManageUsers = () => {
     });
     
     useEffect(() => {
-        useViewAllUsers(setUserArray);
-    }, [setUserArray]);
+        useViewAllUsers(setUserArray, setError);
+    }, [setUserArray, setError]);
     
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
             setSearchQuery("");
-            await useViewAllUsers(setUserArray);
+            await useViewAllUsers(setUserArray, setError);
             return;
         }
         
@@ -57,7 +57,7 @@ export const ManageUsers = () => {
         setShowViewCard(false);
         setError("");
         setIsOnSearch(false);
-        await useViewAllUsers(setUserArray);
+        await useViewAllUsers(setUserArray, setError);
     }
     
     const loadViewCard = (user: Partial<User>) => {
@@ -101,7 +101,7 @@ export const ManageUsers = () => {
         setShowViewCard(true);
         setShowNotification(true);  
         setIsOnSearch(false);
-        await useViewAllUsers(setUserArray);           
+        await useViewAllUsers(setUserArray, setError);           
     }
     
     return (

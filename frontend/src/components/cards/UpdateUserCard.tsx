@@ -51,6 +51,7 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
         <div className="update-card">
             <button className="close-button" onClick={onClose}>×</button>
             <h2>Update Card</h2>
+            <p>{error}</p>
             <p>This is the update card component.</p>
             <form className="update-form">
                 <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} />
@@ -74,7 +75,6 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
                 <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
                 
                 <button type="button" onClick={() => handleUpdate(formData)}>Update</button>
-                <p>{error}</p>
             </form>
         </div>
     );

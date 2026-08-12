@@ -27,13 +27,13 @@ export const ManageEvents = () => {
     });
     
     useEffect(() => {
-        useViewAllEvents(setEventArray);
-    }, [setEventArray]);
+        useViewAllEvents(setEventArray, setError);
+    }, [setEventArray, setError]);
     
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
             setSearchQuery("");
-            await useViewAllEvents(setEventArray);
+            await useViewAllEvents(setEventArray, setError);
             return;
         }
         
@@ -56,7 +56,7 @@ export const ManageEvents = () => {
         setShowViewCard(false);
         setError("");
         setIsOnSearch(false);
-        await useViewAllEvents(setEventArray);
+        await useViewAllEvents(setEventArray, setError);
     };
     
     const loadViewCard = (event: Event) => {
@@ -99,7 +99,7 @@ export const ManageEvents = () => {
         setShowDeleteCard(false);
         setShowViewCard(true);
         setShowNotification(true);  
-        await useViewAllEvents(setEventArray);           
+        await useViewAllEvents(setEventArray, setError);           
     }
     
     return(

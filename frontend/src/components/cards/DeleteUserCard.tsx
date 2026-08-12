@@ -42,9 +42,7 @@ export const DeleteUserCard = ({ userId, onDeleted, setShowNotification, onSetNo
             <h2>Delete Card</h2>
             <p>This is the delete card component.</p>
             <p>{error}</p>
-            <button onClick={() => setShowConfirmation(true)}>
-                Delete Student
-            </button>
+            <button onClick={() => setShowConfirmation(true)}>Delete Student</button>
             
             {showConfirmation && (
                 <div className="delete-confirmation card">

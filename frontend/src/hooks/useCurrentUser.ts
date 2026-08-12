@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {logout } from "../services/auth";
 import {getSelf, type User } from "../services/users";
+import { ApiError } from "../services/error";
 
 export const useCurrentUser = (path: string, setUserData: React.Dispatch<React.SetStateAction<Partial<User>>>) => {
     const navigate = useNavigate();
@@ -9,23 +10,23 @@ export const useCurrentUser = (path: string, setUserData: React.Dispatch<React.S
     useEffect(() => {
         const useGetCurrentUser = async () => {
             try {
-                const response = await getSelf();
-                const data = await response.json();
-                
-                if (response.status === 401) {
-                    alert("Unauthorized. Please log in.");
-                    await logout(path);
-                    throw new Error(data?.message ?? "Unauthorized. Please log in.");
-                }
-                if (!response.ok) {
-                    alert("Something went wrong. Please try again later.");
-                    throw new Error(data?.message ?? "Failed to fetch current user");
-                }
+                const data = await getSelf();
                 setUserData(data.user);
             }
-            catch (error) {
+            catch (e) {
+                if (e instanceof ApiError) {
+                    if (e.status === 401) {
+                        alert("Unauthorized. Please log in.");
+                        await logout(path);
+                    }
+                    if (e.status >= 500) {
+                        alert("Server error. Please try again later.");
+                    }
+                    throw e;
+                }
                 alert("Something went wrong. Please try again later.");
-                console.error("Error fetching current user:", error);
+                console.error("Error fetching current user:", e);
+                throw e;
             }
         };
         

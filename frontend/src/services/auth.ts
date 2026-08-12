@@ -25,17 +25,19 @@ export type AdminRegisterPayload = {
 export type RegisterPayload = StudentRegisterPayload | AdminRegisterPayload;
 
 export const register = async (data: RegisterPayload) => {
-    return apiFetch("/auth/register", {
+    const response = await apiFetch("/auth/register", {
         method: "POST",
         body: JSON.stringify(data)
     });
+    return response.json();
 }
 
 export const login = async (payload: LoginPayload) => {
-    return apiFetch("/auth/login", {
+    const response = await apiFetch("/auth/login", {
         method: "POST",
         body: JSON.stringify(payload)
     });
+    return response.json().catch(() => null);
 }
 
 export const logout = async (path: string) => {
