@@ -19,6 +19,13 @@ export const useCreate = () => {
         setNotificationMessage: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
     };
     
+    type useMarkAttendanceProps = {
+        uuid: string,
+        eventId: string,
+        isLate: boolean,
+        setError: (message: string) => void
+    };   
+
     const useRegister = async ({ form, setError, setShowNotification, setNotificationMessage}: useRegisterProps) => {
         try {
             const data = await register(form);
@@ -93,7 +100,7 @@ export const useCreate = () => {
         }
     }
     
-    const useMarkAttendance = async ({uuid, eventId, isLate, setError}: {uuid: string; eventId: string; isLate: boolean; setError: (message: string) => void}) => {
+    const useMarkAttendance = async ({uuid, eventId, isLate, setError}: useMarkAttendanceProps) => {
         try {
             const response = await markStudentPresent(uuid, eventId, isLate);
             return response;
@@ -116,7 +123,7 @@ export const useCreate = () => {
                 if (e.status === 409) {
                     alert("Attendance already marked.");
                     setError(e.message || "Attendance already marked.");
-                    return {result: "Attendance already marked."};
+                    return { result: "already_marked" };
                 }
                 if (e.status >= 500) {
                     alert("Server error. Please try again later.");

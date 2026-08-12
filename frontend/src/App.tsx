@@ -9,6 +9,7 @@ import { RegisterAdmin } from "./pages/admin/register/RegisterAdmin.tsx";
 import { ManageUsers } from "./pages/admin/ManageStudents.tsx";
 import { ManageEvents } from "./pages/admin/ManageEvents/ManageEvents.tsx";
 import { CreateEvent } from "./pages/admin/CreateEvent.tsx";
+import { ScannerPage } from "./pages/admin/ScannerPage.tsx";
 
 export const App = () => {
     return (
@@ -24,6 +25,7 @@ export const App = () => {
                 <Route path="/manage-students" element={<ManageUsers />} />
                 <Route path="/manage-events" element={<ManageEvents />} />
                 <Route path="/create-event" element={<CreateEvent />} />
+                <Route path="/scanner" element={<ScannerPage />} />
             </Routes>
         </div>
     );
