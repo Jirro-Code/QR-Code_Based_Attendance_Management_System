@@ -1,13 +1,13 @@
 import { Route, Routes } from "react-router-dom";
-import { SelectionPage } from "./pages/logs/LoginPage/LoginPage.tsx";
-import { AdminLoginPage } from "./pages/logs/AdminLogin/AdminLoginPage.tsx";
+import { SelectionPage } from "./pages/logs/SelectionPage.tsx";
+import { AdminLoginPage } from "./pages/logs/AdminLoginPage.tsx";
 import { StudentLoginPage } from "./pages/logs/StudentLoginPage.tsx";
 import { AdminDashboard } from "./pages/admin/AdminDashboard.tsx";
 import { StudentDashboard } from "./pages/student/Dashboard.tsx";
 import { RegisterStudent } from "./pages/admin/register/RegisterStudent.tsx";
 import { RegisterAdmin } from "./pages/admin/register/RegisterAdmin.tsx";
 import { ManageUsers } from "./pages/admin/ManageStudents.tsx";
-import { ManageEvents } from "./pages/admin/ManageEvents/ManageEvents.tsx";
+import { ManageEvents } from "./pages/admin/ManageEvents.tsx";
 import { CreateEvent } from "./pages/admin/CreateEvent.tsx";
 import { ScannerPage } from "./pages/admin/ScannerPage.tsx";
 

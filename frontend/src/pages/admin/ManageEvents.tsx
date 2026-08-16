@@ -1,16 +1,17 @@
-import { BackButton } from "../../../components/Button/Button.tsx";
-import { SearchBar } from "../../../components/SearchBar.tsx";
-import { useView } from "../../../hooks/useView.ts";
+import { Header } from "../../components/Header.tsx";
+import { SearchBar } from "../../components/SearchBar.tsx";
+import { useView } from "../../hooks/useView.ts";
+import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
 import { useEffect, useState } from "react";
-import { type Event } from "../../../services/events.ts";
-import { EventCard } from "../../../components/Cards/EventCard/EventCard.tsx";
-import { UpdateEventCard } from "../../../components/Cards/UpdateEventCard.tsx";
-import { DeleteEventCard } from "../../../components/Cards/DeleteEventCard.tsx";
-import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
-import { ViewEventCard } from "../../../components/Cards/ViewEventCard.tsx";
-import styles from "./ManageEvents.module.css";
+import { type Event } from "../../services/events.ts";
+import { EventCard } from "../../components/Cards/EventCard.tsx";
+import { UpdateEventCard } from "../../components/Cards/UpdateEventCard.tsx";
+import { DeleteEventCard } from "../../components/Cards/DeleteEventCard.tsx";
+import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
+import { ViewEventCard } from "../../components/Cards/ViewEventCard.tsx";
 
 export const ManageEvents = () => {
+    useScrollToTop("/manage-events");
     const { useViewAllEvents, useSearchEvents } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -103,26 +104,27 @@ export const ManageEvents = () => {
     }
     
     return(
-        <div className={styles.manageEventsPage}>
-            <h1>Manage Events</h1>
-            <p>This is the Manage Events page.</p>
-            <BackButton path="/admin-dashboard" />
-            <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
-            <p>{error}</p>
-            <div className={styles.eventCardContainer}>
-                {eventArray.length > 0 ? (
-                    eventArray.map((event: Event) => (
-                        <EventCard key={event.eventName} event={event} onDelete={() => loadDeleteCard(event)} onLoadView={() => loadViewCard(event)} />
-                    ))
-                ) : (
-                    <p>No events found.</p>
-                )}
+        <>
+            <Header title="Manage Events" />
+            <div className="min-h-screen bg-slate-100">
+                <div className="max-w-5xl mx-auto p-6">
+                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+                    <p className="text-red-600 text-sm">{error}</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        {eventArray.length > 0 ? (
+                            eventArray.map((event: Event) => (
+                                <EventCard key={event.eventName} event={event} onDelete={() => loadDeleteCard(event)} onLoadView={() => loadViewCard(event)} />
+                            ))
+                        ) : (
+                            <p>No events found.</p>
+                        )}
+                    </div>
+                    {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
+                    {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
+                    {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
+                    {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
+                </div>
             </div>
-            {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
-            {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
-            {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
-            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
-            
-        </div>
+        </>
     )
 }

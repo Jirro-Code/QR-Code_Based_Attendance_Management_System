@@ -1,5 +1,3 @@
-import styles from "./Input.module.css";
-
 type InputProps = {
     label: string;
     id: string;
@@ -13,9 +11,20 @@ type InputProps = {
 
 export const Input = ({ label, id, type, placeholder, onChange, name, isRequired, value }: InputProps) => {
     return (
-        <div className={styles.inputContainer}>
-            <label className={styles.inputLabel} htmlFor={id}>{label}:</label><br/>
-            <input className={styles.inputField} id={id} type={type} placeholder={placeholder} onChange={onChange} name={name} required={isRequired ?? true} value={value} /><br/>
+        <div className="flex flex-col mb-4">
+            <label className="block text-sm font-medium text-gray-700" htmlFor={id}>
+                {label}:
+            </label>
+            <input
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                id={id}
+                type={type}
+                placeholder={placeholder}
+                onChange={onChange}
+                name={name}
+                required={isRequired ?? true}
+                value={value}
+            />
         </div>
     );
 }

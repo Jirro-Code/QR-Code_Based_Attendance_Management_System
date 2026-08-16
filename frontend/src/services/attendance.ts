@@ -12,3 +12,4 @@ export const markStudentPresent = async (uuid: string, eventId: string, isLate: 
     });
     return response.json();
 };
+

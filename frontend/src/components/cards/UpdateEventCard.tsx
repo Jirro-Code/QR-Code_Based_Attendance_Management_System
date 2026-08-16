@@ -43,18 +43,20 @@ export const UpdateEventCard = ({ id, onUpdated, setShowNotification, onSetNotif
     
     
     return (
-        <div className="update-card">
-            <button className="close-button" onClick={onClose}>×</button>
-            <h2>Update Card</h2>
-            <p>This is the update card component.</p>
-            <form className="update-form">
-                <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={formData.eventName} onChange={handleFormChange} />
-                <Input label="Event Description" type="text" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={formData.eventDescription} onChange={handleFormChange} isRequired={false} />
-                <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate} onChange={handleFormChange} />
-                <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={formData.eventLocation} onChange={handleFormChange} />                
-                <button type="button" onClick={() => handleUpdate(formData)}>Update</button>
-                <p>{error}</p>
-            </form>
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full max-h-[90vh] overflow-y-auto">
+                <button className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold" onClick={onClose}>×</button>
+                <h2 className="text-lg font-semibold text-gray-800">Update Card</h2>
+                <p className="text-gray-600">This is the update card component.</p>
+                <form className="flex flex-col gap-1">
+                    <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={formData.eventName} onChange={handleFormChange} />
+                    <Input label="Event Description" type="text" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={formData.eventDescription} onChange={handleFormChange} isRequired={false} />
+                    <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate} onChange={handleFormChange} />
+                    <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={formData.eventLocation} onChange={handleFormChange} />                
+                    <button type="button" onClick={() => handleUpdate(formData)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">Update</button>
+                    <p className="text-red-600 text-sm">{error}</p>
+                </form>
+            </div>
         </div>
     );
 }

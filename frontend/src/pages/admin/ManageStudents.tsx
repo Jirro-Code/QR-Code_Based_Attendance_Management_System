@@ -1,16 +1,17 @@
 import { useView } from "../../hooks/useView.ts";
+import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
 import { type User } from "../../services/users";
 import { useEffect, useState } from "react";
 import { SearchBar } from "../../components/SearchBar.tsx";
-import { BackButton } from "../../components/Button/Button.tsx";
 import { UserListCell } from "../../components/UserListCell.tsx";
 import { UpdateUserCard } from "../../components/Cards/UpdateUserCard.tsx";
 import { DeleteUserCard } from "../../components/Cards/DeleteUserCard.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { ViewStudentCard } from "../../components/Cards/ViewStudentCard.tsx";
-
+import { Header } from "../../components/Header.tsx";
 
 export const ManageUsers = () => {
+    useScrollToTop("/manage-students");
     const { useViewAllUsers, useSearchUsers } = useView();
     const [error, setError] = useState<string>("");
     const [selectedUser, setSelectedUser] = useState<Partial<User> | null>(null);
@@ -105,26 +106,43 @@ export const ManageUsers = () => {
     }
     
     return (
-        <div>
-            <h1>Manage Users</h1>
-            <p>This is the Manage Users page.</p>
-            <BackButton path="/admin-dashboard" />
-            <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
-            <p>{error}</p>
-            
-            {userArray.length > 0 ? (
-                userArray.map((user: Partial<User>) => (
-                    <UserListCell key={user.id} user={user} onDelete={() => loadDeleteCard(user)} onLoadView={() => {loadViewCard(user)}} />
-                ))
-            ) : 
-            (
-                <p>No users found.</p>
-            )}
-            
-            {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id!} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
-            {showDeleteCard && selectedUser && <DeleteUserCard userId={selectedUser.id!} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)} />}
-            {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
-            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
-        </div>
+        <>
+            <Header title="Manage Students" />
+            <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+                <div className="px-5 py-4">
+                    <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+                </div>
+                <p>{error}</p>
+                <div className="grid grid-cols-6 border-b border-gray-200 bg-gray-50 px-5 py-4 text-sm font-semibold text-gray-600">
+                    <div>#</div>
+                    <div>Name</div>
+                    <div>Strand</div>
+                    <div>Section</div>
+                    <div>Student ID</div>
+                    <div>Actions</div>
+                </div>
+                
+                {userArray.length > 0 ? (
+                    userArray.map((user: Partial<User>, index) => (
+                        <UserListCell
+                            key={user.id}
+                            user={user}
+                            number={index + 1}
+                            onDelete={() => loadDeleteCard(user)}
+                            onLoadView={() => loadViewCard(user)}
+                        />
+                    ))
+                ) : (
+                    <p className="p-5 text-gray-500">
+                        No users found.
+                    </p>
+                )}
+                
+                {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id!} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
+                {showDeleteCard && selectedUser && <DeleteUserCard userId={selectedUser.id!} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)} />}
+                {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
+                {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
+            </div>
+        </>
     );
 }

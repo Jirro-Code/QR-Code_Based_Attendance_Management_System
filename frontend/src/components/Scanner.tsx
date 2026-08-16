@@ -59,7 +59,7 @@ export const Scanner = ({ onClose, eventId }: ScannerProps) => {
             try {
                 setError("");
                 
-                await scanner.start(cameras[0].id,{fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0},
+                await scanner.start(cameras[0].id,{fps: 10, qrbox: { width: 210, height: 210 }, aspectRatio: 1.0},
                     async (decodedText) => {
                         if (!isScanning || cancelled) return;
                         
@@ -128,7 +128,7 @@ export const Scanner = ({ onClose, eventId }: ScannerProps) => {
     
     return (
         <>  
-            <div id="qr-reader" style={{ width: "500px", height: "500px" }}/>
+            <div id="qr-reader" style={{ width: "350px", height: "350px" }}/>
             {error && <p>{error}</p>}
             <button onClick={() => {cameras.unshift(cameras.pop()!); setError("");}} disabled={cameras.length <= 1}> Flip Camera </button>
             <button onClick={onClose}> Cancel </button>
