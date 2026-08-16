@@ -8,7 +8,8 @@ import { useScrollToTop } from "../../../hooks/useScrollToTop.ts";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 
 export const RegisterStudent = () => {
-    useScrollToTop("/register-student");
+    const { useScrollToTopPage } = useScrollToTop();
+    useScrollToTopPage("/register-student");
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNotification, setShowNotification] = useState(false);

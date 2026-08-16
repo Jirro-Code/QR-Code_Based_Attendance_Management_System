@@ -9,7 +9,8 @@ import { Navbar } from "../../components/Navbar.tsx";
 import { UserPlus, ScanSquare, CalendarPlus2, Calendars, Users, SquareArrowOutUpRight } from 'lucide-react';
 
 export const AdminDashboard = () => {
-    useScrollToTop("/admin-dashboard");
+    const { useScrollToTopPage } = useScrollToTop();
+    useScrollToTopPage("/admin-dashboard");
     const navigate = useNavigate();
     const [isSelecting, setIsSelecting] = useState<boolean>(false);
     const [adminData, setAdminData] = useState<Partial<User>>({

@@ -7,7 +7,8 @@ import { useScrollToTop } from "../../../hooks/useScrollToTop.ts";
 import { type AdminRegisterPayload } from "../../../services/auth.ts";
 
 export const RegisterAdmin = () => {  
-    useScrollToTop("/register-admin");
+    const { useScrollToTopPage } = useScrollToTop();
+    useScrollToTopPage("/register-admin");
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNotification, setShowNotification] = useState(false);

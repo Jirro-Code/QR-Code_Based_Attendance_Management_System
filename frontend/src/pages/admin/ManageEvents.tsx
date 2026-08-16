@@ -11,7 +11,8 @@ import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { ViewEventCard } from "../../components/Cards/ViewEventCard.tsx";
 
 export const ManageEvents = () => {
-    useScrollToTop("/manage-events");
+    const { useScrollToTopPage } = useScrollToTop();
+    useScrollToTopPage("/manage-events");
     const { useViewAllEvents, useSearchEvents } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);

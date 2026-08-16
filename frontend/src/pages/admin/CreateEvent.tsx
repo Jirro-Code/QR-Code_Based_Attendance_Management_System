@@ -7,7 +7,8 @@ import { Input } from "../../components/Input/Input.tsx"
 import { type CreateEventData } from "../../services/events.ts"
 
 export const CreateEvent = () => {
-    useScrollToTop("/create-event");
+    const { useScrollToTopPage } = useScrollToTop();
+    useScrollToTopPage("/create-event");
     const [error, setError] = useState<string>("");
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({

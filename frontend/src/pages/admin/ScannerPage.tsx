@@ -7,7 +7,8 @@ import { Header } from "../../components/Header.tsx";
 import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
 
 export const ScannerPage = () => {
-    useScrollToTop("/scanner");
+    const { useScrollToTopPage } = useScrollToTop();
+    useScrollToTopPage("/scanner");
     const navigate = useNavigate();
     const { useViewAllEvents } = useView();
     const [error, setError] = useState<string>("");
