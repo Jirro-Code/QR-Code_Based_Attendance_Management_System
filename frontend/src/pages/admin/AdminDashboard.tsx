@@ -1,5 +1,4 @@
 import { useCurrentUser } from "../../hooks/useCurrentUser.ts";
-import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
 import {useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../services/auth.ts";
@@ -9,8 +8,7 @@ import { Navbar } from "../../components/Navbar.tsx";
 import { UserPlus, ScanSquare, CalendarPlus2, Calendars, Users, SquareArrowOutUpRight } from 'lucide-react';
 
 export const AdminDashboard = () => {
-    const { useScrollToTopPage } = useScrollToTop();
-    useScrollToTopPage("/admin-dashboard");
+    window.scrollTo({ top: 0, left: 0 });
     const navigate = useNavigate();
     const [isSelecting, setIsSelecting] = useState<boolean>(false);
     const [adminData, setAdminData] = useState<Partial<User>>({

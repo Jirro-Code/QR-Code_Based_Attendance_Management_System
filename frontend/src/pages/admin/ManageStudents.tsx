@@ -1,5 +1,4 @@
 import { useView } from "../../hooks/useView.ts";
-import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
 import { type User } from "../../services/users";
 import { useEffect, useState } from "react";
 import { SearchBar } from "../../components/SearchBar.tsx";
@@ -11,8 +10,7 @@ import { ViewStudentCard } from "../../components/Cards/ViewStudentCard.tsx";
 import { Header } from "../../components/Header.tsx";
 
 export const ManageUsers = () => {
-    const { useScrollToTopPage } = useScrollToTop();
-    useScrollToTopPage("/manage-students");
+    window.scrollTo({ top: 0, left: 0 });
     const { useViewAllUsers, useSearchUsers } = useView();
     const [error, setError] = useState<string>("");
     const [selectedUser, setSelectedUser] = useState<Partial<User> | null>(null);

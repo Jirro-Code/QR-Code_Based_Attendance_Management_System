@@ -4,11 +4,9 @@ import { useView } from "../../hooks/useView.ts";
 import { type Event } from "../../services/events.ts";
 import { Scanner } from "../../components/Scanner.tsx";
 import { Header } from "../../components/Header.tsx";
-import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
 
 export const ScannerPage = () => {
-    const { useScrollToTopPage } = useScrollToTop();
-    useScrollToTopPage("/scanner");
+    window.scrollTo({ top: 0, left: 0 });
     const navigate = useNavigate();
     const { useViewAllEvents } = useView();
     const [error, setError] = useState<string>("");

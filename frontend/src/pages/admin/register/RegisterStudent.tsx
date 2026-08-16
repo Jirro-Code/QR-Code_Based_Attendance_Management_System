@@ -4,12 +4,11 @@ import { Input } from "../../../components/Input/Input.tsx";
 import { SelectionField } from "../../../components/SelectionField.tsx";
 import { type StudentRegisterPayload } from "../../../services/auth.ts";
 import { useCreate } from "../../../hooks/useCreate.ts";
-import { useScrollToTop } from "../../../hooks/useScrollToTop.ts";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 
 export const RegisterStudent = () => {
-    const { useScrollToTopPage } = useScrollToTop();
-    useScrollToTopPage("/register-student");
+    window.scrollTo({ top: 0, left: 0 });
+
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNotification, setShowNotification] = useState(false);
@@ -36,13 +35,20 @@ export const RegisterStudent = () => {
     
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        try {
+            if (studentData.password !== confirmPassword) {
+                setError("Passwords do not match!");
+                window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                return;
+            }
+            await useRegister({ form: studentData, setError, setShowNotification, setNotificationMessage});
+        } catch (error) {
+            window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+            console.error("Error registering student:", error);
+            setError(error instanceof Error ? error.message : "An unexpected error occurred.");
         
-        if (studentData.password !== confirmPassword) {
-            alert("Passwords do not match!");
-            return;
         }
-        await useRegister({ form: studentData, setError, setShowNotification, setNotificationMessage});
-    }
+    };
     
     const reloadPage = () => {
         setStudentData({
@@ -55,6 +61,7 @@ export const RegisterStudent = () => {
             studentStrand: "",
             studentSection: ""
         });
+        setError("");
         setConfirmPassword("");
         setShowNotification(false);
     }
@@ -65,12 +72,9 @@ export const RegisterStudent = () => {
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-md mx-auto pt-10 p-6">
                     
-                    <h1 className="text-2xl font-bold text-gray-800">Register Student</h1>
-                    <p className="text-gray-600 mb-4">Welcome to the student registration page!</p>
-                    
                     <div className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-3">
                         
-                        <h2 className="text-lg font-semibold text-gray-700">Register a New Student</h2>
+                        <h2 className="text-lg font-semibold text-gray-700">Register an Icon</h2>
                         <p className="text-red-600 text-sm">{error}</p>
                         
                         <form className="flex flex-col gap-1" onSubmit={handleSubmit}>
@@ -79,13 +83,13 @@ export const RegisterStudent = () => {
                             <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={studentData.password} />
                             <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} />
                             <Input label="Student LRN" id="studentLRN" type="number" placeholder="Student LRN" onChange={handleChange} name="studentLRN" value={studentData.studentLRN} />
-                            <Input label="Student ID" id="studentID" type="text" placeholder="Student ID" onChange={handleChange} name="studentId" value={studentData.studentId} />
+                            <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleChange} name="studentId" value={studentData.studentId} />
                             <SelectionField label="Student Strand" id="studentStrand" value={studentData.studentStrand} onChange={handleChange} isRequired={true}
                                 placeholder="Select strand"
                                 options={["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]}
                             />
                             <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleChange} name="studentSection" value={studentData.studentSection} />
-                            <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">Register Student</button>
+                            <button type="submit" className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">Register Student</button>
                         </form>
                     </div>
                     

@@ -1,7 +1,6 @@
 import { Header } from "../../components/Header.tsx";
 import { SearchBar } from "../../components/SearchBar.tsx";
 import { useView } from "../../hooks/useView.ts";
-import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
 import { useEffect, useState } from "react";
 import { type Event } from "../../services/events.ts";
 import { EventCard } from "../../components/Cards/EventCard.tsx";
@@ -11,8 +10,7 @@ import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { ViewEventCard } from "../../components/Cards/ViewEventCard.tsx";
 
 export const ManageEvents = () => {
-    const { useScrollToTopPage } = useScrollToTop();
-    useScrollToTopPage("/manage-events");
+    window.scrollTo({ top: 0, left: 0 });
     const { useViewAllEvents, useSearchEvents } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);

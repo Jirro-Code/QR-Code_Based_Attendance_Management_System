@@ -21,6 +21,8 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
     const [error, setError] = useState<string>("");
     const updateCardRef = useRef<HTMLDivElement>(null);
     
+    const hasContent = Object.values(formData).some((value) => String(value ?? "").trim() !== "") || confirmPassword.trim() !== "";
+    
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
         if (e.target.name === "confirmPassword") {
@@ -30,13 +32,32 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
     
     const handleUpdate = async (data: User) => {
         try {
-            if (data.password !== confirmPassword) {
-                
+            if(confirmPassword && data.password === undefined) {
                 useScrollToTopOverflow(updateCardRef);
-                setError("Passwords do not match!");
+                setError("Ensure that the password is filled out.");
                 return;
             }
-            const updatedUser = await useUpdateUser({ ...data, id: userId }, setError);
+            
+            if (data.password !== undefined){
+                if(data.password && data.password.length < 6) {
+                    useScrollToTopOverflow(updateCardRef);
+                    setError("Password must be at least 6 characters long.");
+                    return;
+                }
+                if (data.password !== confirmPassword) {
+                    useScrollToTopOverflow(updateCardRef);
+                    setError("Passwords do not match!");
+                    return;
+                }
+            }
+            
+            setError("");
+            const filteredData = Object.fromEntries(
+            Object.entries(data).filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "")
+            ) as User;
+            
+            const updatedUser = await useUpdateUser({ ...filteredData, id: userId }, setError);
+            
             onUpdated(updatedUser);
             setFormData({} as User);
             setConfirmPassword("");
@@ -47,6 +68,7 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
             setShowNotification(true);
         } 
         catch (error) {
+            useScrollToTopOverflow(updateCardRef);
             console.error("Error updating data:", error);
             onSetNotif({ title: "Update Failed",message: "Failed to update data." });
         }
@@ -82,7 +104,9 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
                     />
                     <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
                     
-                    <button type="button" onClick={() => handleUpdate(formData)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">Update</button>
+                    <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2" : "bg-gray-500 text-white font-bold py-2 px-4 rounded mt-2"} disabled={!hasContent}>
+                        Update
+                    </button>
                 </form>
             </div>
         </div>

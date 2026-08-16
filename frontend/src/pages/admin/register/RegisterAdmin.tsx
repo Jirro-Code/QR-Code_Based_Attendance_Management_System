@@ -3,12 +3,10 @@ import { Header } from "../../../components/Header.tsx";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 import { Input } from "../../../components/Input/Input.tsx";
 import { useCreate } from "../../../hooks/useCreate.ts";
-import { useScrollToTop } from "../../../hooks/useScrollToTop.ts";
 import { type AdminRegisterPayload } from "../../../services/auth.ts";
 
 export const RegisterAdmin = () => {  
-    const { useScrollToTopPage } = useScrollToTop();
-    useScrollToTopPage("/register-admin");
+    window.scrollTo({ top: 0, left: 0 });
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNotification, setShowNotification] = useState(false);
@@ -31,12 +29,19 @@ export const RegisterAdmin = () => {
     
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (adminData.password !== confirmPassword) {
-            setError("Passwords do not match!");
-            return;
+        try {
+            if (adminData.password !== confirmPassword) {
+                window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                setError("Passwords do not match!");
+                return;
+            }
+            await useRegister({form: adminData, setError, setShowNotification, setNotificationMessage});
+        } catch (error) {
+            window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+            console.error("Error registering admin:", error);
+            setError(error instanceof Error ? error.message : "An unexpected error occurred.");
         }
-        await useRegister({form: adminData, setError, setShowNotification, setNotificationMessage});
-    }
+    };
     
     const reloadPage = () => {
         setAdminData({
@@ -45,6 +50,7 @@ export const RegisterAdmin = () => {
             email: "",
             password: ""
         });
+        setError("");
         setConfirmPassword("");
         setShowNotification(false);
     }
@@ -65,7 +71,7 @@ export const RegisterAdmin = () => {
                             <Input label="Email" id="adminEmail" type="email" placeholder="Email" onChange={handleChange} name="email" value={adminData.email} />
                             <Input label="Password" id="adminPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={adminData.password} />
                             <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} />
-                            <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">Register Admin</button>
+                            <button type="submit" className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">Register Admin</button>
                         </form>
                     </div>
                     
