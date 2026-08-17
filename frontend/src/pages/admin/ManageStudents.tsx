@@ -107,18 +107,18 @@ export const ManageUsers = () => {
     return (
         <>
             <Header title="Manage Students" />
-            <div className="overflow-hidden rounded-xl bg-white shadow-sm">
+            <div className="inset-0 min-h-screen bg-slate-100">
                 <div className="px-5 py-4">
                     <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
                 </div>
                 <p>{error}</p>
-                <div className="grid grid-cols-6 border-b border-gray-200 bg-gray-50 px-5 py-4 text-sm font-semibold text-gray-600">
+                <div className="grid grid-cols-6 border-b border-gray-300 bg-gray-400 px-5 py-3 text-sm font-semibold text-white">
                     <div>#</div>
                     <div>Name</div>
                     <div>Strand</div>
                     <div>Section</div>
                     <div>Student ID</div>
-                    <div>Actions</div>
+                    <div className="ml-8">Actions</div>
                 </div>
                 
                 {userArray.length > 0 ? (
@@ -137,7 +137,7 @@ export const ManageUsers = () => {
                     </p>
                 )}
                 
-                {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id!} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
+                {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id!} userName={selectedUser.username!} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
                 {showDeleteCard && selectedUser && <DeleteUserCard userId={selectedUser.id!} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)} />}
                 {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                 {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}

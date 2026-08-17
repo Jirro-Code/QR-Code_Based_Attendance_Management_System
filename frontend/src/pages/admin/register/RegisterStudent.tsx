@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Header } from "../../../components/Header.tsx";
 import { Input } from "../../../components/Input/Input.tsx";
-import { SelectionField } from "../../../components/SelectionField.tsx";
+import { SelectionField } from "../../../components/Input/SelectionField.tsx";
 import { type StudentRegisterPayload } from "../../../services/auth.ts";
 import { useCreate } from "../../../hooks/useCreate.ts";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";

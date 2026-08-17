@@ -42,14 +42,14 @@ export const DeleteUserCard = ({ userId, onDeleted, setShowNotification, onSetNo
                 <button className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold" onClick={onClose}>×</button>
                 <h2 className="text-lg font-semibold text-gray-800">Delete Card</h2>
                 <p className="text-gray-600">This is the delete card component.</p>
-                <p className="text-red-600 text-sm">{error}</p>
-                <button onClick={() => setShowConfirmation(true)} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded self-start">Delete Student</button>
+                <p className="text-red-800 text-sm">{error}</p>
+                <button onClick={() => setShowConfirmation(true)} className="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded self-start">Delete Student</button>
                 
                 {showConfirmation && (
                     <div className="mt-2 p-4 bg-red-50 border border-red-200 rounded-md flex flex-col gap-3">
                         <p className="text-gray-700">Are you sure you want to delete this student?</p>
                         <div className="flex gap-2">
-                            <button onClick={() => handleDelete()} className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">Yes, Delete</button>
+                            <button onClick={() => handleDelete()} className="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded">Yes, Delete</button>
                             <button onClick={() => setShowConfirmation(false)} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button>
                         </div>
                     </div>

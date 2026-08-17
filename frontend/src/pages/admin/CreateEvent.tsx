@@ -56,7 +56,7 @@ export const CreateEvent = () => {
                             <Input label="Event Description" type="text" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={eventData.eventDescription} onChange={handleChange} isRequired={false} />
                             <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={eventData.eventDate} onChange={handleChange} />
                             <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={eventData.eventLocation} onChange={handleChange} />
-                            <button type="submit" className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">Create Event</button>
+                            <button type="submit" className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">Create Event</button>
                         </form>
                         
                         {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={reloadPage} />}

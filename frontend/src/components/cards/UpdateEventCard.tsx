@@ -53,8 +53,8 @@ export const UpdateEventCard = ({ id, onUpdated, setShowNotification, onSetNotif
                     <Input label="Event Description" type="text" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={formData.eventDescription} onChange={handleFormChange} isRequired={false} />
                     <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate} onChange={handleFormChange} />
                     <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={formData.eventLocation} onChange={handleFormChange} />                
-                    <button type="button" onClick={() => handleUpdate(formData)} className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded mt-2">Update</button>
-                    <p className="text-red-600 text-sm">{error}</p>
+                    <button type="button" onClick={() => handleUpdate(formData)} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">Update</button>
+                    <p className="text-red-800 text-sm">{error}</p>
                 </form>
             </div>
         </div>

@@ -3,24 +3,24 @@ import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
 import { useRef, useState } from "react";
 import { Input }  from "../Input/Input.tsx";
 import { type User } from "../../services/users.ts";
-import { SelectionField } from "../SelectionField.tsx";
+import { SelectionField } from "../Input/SelectionField.tsx";
 
 type UpdateUserCardProps = {
     userId: string;
+    userName: string;
     onUpdated: (updatedUser: User) => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
     onClose: () => void;
 };
 
-export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateUserCardProps) => {
+export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateUserCardProps) => {
     const { useUpdateUser } = useUpdate();
     const { useScrollToTopOverflow } = useScrollToTop();
     const [formData, setFormData] = useState<User>({} as User);
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
     const updateCardRef = useRef<HTMLDivElement>(null);
-    
     const hasContent = Object.values(formData).some((value) => String(value ?? "").trim() !== "") || confirmPassword.trim() !== "";
     
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -76,20 +76,21 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
     
     
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div ref={updateCardRef} id="update-user-card" className="bg-white rounded-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
+            <div className="bg-blue-800 p-6 rounded-tl-lg shadow-md flex flex-col justify-center max-w-md w-full h-20 relative">
                 <button className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold" onClick={onClose}>×</button>
-                <h2 className="text-lg font-semibold text-gray-800">Update Card</h2>
+                <h1 className="text-white text-lg font-bold">Update Student: <br/>{userName}</h1>
+            </div>
+            <div ref={updateCardRef} id="update-user-card" className="bg-white rounded-bl-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full max-h-[80vh] overflow-y-auto">
                 <p className="text-red-600 text-sm">{error}</p>
-                <p className="text-gray-600">This is the update card component.</p>
                 
                 <form className="flex flex-col gap-1">
-                    <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} />
-                    <Input label="Email" id="studentEmail" type="email" placeholder="Email" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} />
+                    <Input label="Student Name" id="studentName" type="text" placeholder="John Doe" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} />
+                    <Input label="Email" id="studentEmail" type="email" placeholder="example09@gmail.com" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} />
                     <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} />
                     <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} />
-                    <Input label="Student LRN" id="studentLRN" type="number" placeholder="Student LRN" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} />
-                    <Input label="Student ID" id="studentID" type="text" placeholder="Student ID" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} />
+                    <Input label="Student LRN" id="studentLRN" type="number" placeholder="XXXXXXXXXXXX" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} />
+                    <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} />
                     <SelectionField label="Student Strand" id="studentStrand" value={formData.studentStrand ?? ""} onChange={handleFormChange} isRequired={false} 
                         placeholder="Select strand"
                         options={[
@@ -103,10 +104,14 @@ export const UpdateUserCard = ({ userId, onUpdated, setShowNotification, onSetNo
                         ]}
                     />
                     <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
-                    
-                    <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2" : "bg-gray-500 text-white font-bold py-2 px-4 rounded mt-2"} disabled={!hasContent}>
-                        Update
-                    </button>
+                    <div className="flex justify-between items-center">
+                        <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded mt-2">
+                            Cancel
+                        </button>
+                        <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent}>
+                            Save Changes
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
