@@ -129,7 +129,7 @@ export const getEventAttendance = async (req: AuthenticatedRequest, res: Respons
 export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.uuid().parse(req.params.eventId);
-        const groupStrand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.groupStrand);
+        const groupStrand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.strand);
         
         const eventExist = await db.query.events.findFirst({
             where: eq(events.id, eventId)
@@ -140,10 +140,10 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
         }
         
         const groupAttendance = await 
-        db.select({attendance: attendance}).
-        from(attendance).
-        innerJoin(users, eq(attendance.userId, users.id)).
-        where(and(eq(attendance.eventId, eventId), eq(users.studentStrand, groupStrand)));
+            db.select({attendance: attendance}).
+            from(attendance).
+            innerJoin(users, eq(attendance.userId, users.id)).
+            where(and(eq(attendance.eventId, eventId), eq(users.studentStrand, groupStrand)));
         
         if (groupAttendance.length === 0) {
             return res.status(404).json({message: "Attendance not found for this group"});
@@ -159,6 +159,34 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
         res.status(500).json({message: "Error fetching attendance by group", error: e});
     }
 }
+
+
+export const getEventByStrand = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const strand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.strand);
+        
+        const eventsByStrand = await db
+            .selectDistinct({id: events.id, eventName: events.eventName, eventDate: events.eventDate})
+            .from(events)
+            .innerJoin(attendance, eq(attendance.eventId, events.id))
+            .innerJoin(users, eq(users.id, attendance.userId))
+            .where(eq(users.studentStrand, strand));
+        
+        if (eventsByStrand.length === 0) {
+            return res.status(404).json({message: "No events found for this strand"});
+        }
+        
+        res.status(200).json({message: "Events fetched successfully", events: eventsByStrand});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid group parameters:", e.issues);
+            return res.status(400).json({message: "Invalid group parameters", errors: e.issues});
+        }
+        res.status(500).json({message: "Error fetching events by group", error: e});
+    }
+}
+
 
 export const updateAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
