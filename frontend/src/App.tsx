@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
-import { SelectionPage } from "./pages/logs/SelectionPage.tsx";
-import { AdminLoginPage } from "./pages/logs/AdminLoginPage.tsx";
-import { StudentLoginPage } from "./pages/logs/StudentLoginPage.tsx";
+import { LoginPage } from "./pages/LoginPage.tsx";
+import { AdminLoginPage } from "./pages/admin/AdminLogin.tsx";
+import { StudentLoginPage } from "./pages/student/StudentLogin.tsx";
 import { AdminDashboard } from "./pages/admin/AdminDashboard.tsx";
 import { StudentDashboard } from "./pages/student/Dashboard.tsx";
 import { RegisterStudent } from "./pages/admin/register/RegisterStudent.tsx";
@@ -15,7 +15,7 @@ export const App = () => {
     return (
         <div className="App">
             <Routes>
-                <Route path="/" element={<SelectionPage />} />
+                <Route path="/" element={<LoginPage />} />
                 <Route path="/admin-login" element={<AdminLoginPage />} />
                 <Route path="/student-login" element={<StudentLoginPage />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />

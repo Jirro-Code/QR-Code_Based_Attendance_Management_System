@@ -27,6 +27,7 @@ export const CreateEvent = () => {
     
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        setError("");
         await useCreateEvent({form: eventData, setError, setShowNotification, setNotificationMessage});
     }
     
@@ -37,6 +38,7 @@ export const CreateEvent = () => {
             eventDate: "",
             eventLocation: "",
         });
+        setError("");
         setShowNotification(false);
     }
     

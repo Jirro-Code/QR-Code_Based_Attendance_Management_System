@@ -5,7 +5,7 @@ import { logout } from "../../services/auth.ts";
 import { type User } from "../../services/users.ts";
 import { SelectionCard } from "../../components/Cards/SelectionCard.tsx";
 import { Navbar } from "../../components/Navbar.tsx";
-import { UserPlus, ScanSquare, CalendarPlus2, Calendars, Users, SquareArrowOutUpRight } from 'lucide-react';
+import { UserPlus, ScanSquare, CalendarPlus2, Calendars, Users, SquareArrowOutUpRight, Files } from 'lucide-react';
 
 export const AdminDashboard = () => {
     window.scrollTo({ top: 0, left: 0 });
@@ -53,7 +53,7 @@ export const AdminDashboard = () => {
                             View, update, and manage student accounts.
                         </p>
                         
-                        <div className="mt-5 text-sm font-semibold text-blue-700 transition group-hover:text-blue-900 flex items-center gap-1">
+                        <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
                             <SquareArrowOutUpRight /> Open
                         </div>
                     </button>
@@ -75,7 +75,7 @@ export const AdminDashboard = () => {
                             Create a new student or administrator account.
                         </p>
                         
-                        <div className="mt-5 text-sm font-semibold text-blue-700 transition group-hover:text-blue-900 flex items-center gap-1">
+                        <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
                             <SquareArrowOutUpRight /> Open
                         </div>
                     </button>
@@ -97,7 +97,7 @@ export const AdminDashboard = () => {
                             View and manage school events.
                         </p>
                         
-                        <div className="mt-5 text-sm font-semibold text-blue-700 transition group-hover:text-blue-900 flex items-center gap-1">
+                        <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
                             <SquareArrowOutUpRight /> Open
                         </div>
                     </button>
@@ -119,7 +119,7 @@ export const AdminDashboard = () => {
                             Create a new school event.
                         </p>
                         
-                        <div className="mt-5 text-sm font-semibold text-blue-700 transition group-hover:text-blue-900 flex items-center gap-1">
+                        <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
                             <SquareArrowOutUpRight /> Open
                         </div>
                     </button>
@@ -141,11 +141,32 @@ export const AdminDashboard = () => {
                             Scan student QR codes for attendance.
                         </p>
                         
-                        <div className="mt-5 text-sm font-semibold text-blue-700 transition group-hover:text-blue-900 flex items-center gap-1">
+                        <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
                             <SquareArrowOutUpRight /> Open
                         </div>
                     </button>
                     
+                    
+                    <button
+                        onClick={() => navigate("/scanner")}
+                        className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
+                    >
+                        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
+                            <Files size={20} />
+                        </div>
+                        
+                        <h2 className="text-lg font-bold text-slate-900">
+                            Attendance
+                        </h2>
+                        
+                        <p className="mt-2 text-sm leading-6 text-slate-500">
+                            Manage attendance records of each event.
+                        </p>
+                        
+                        <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
+                            <SquareArrowOutUpRight /> Open
+                        </div>
+                    </button>
                 </div>
                 
                 
