@@ -9,12 +9,19 @@ import { DeleteEventCard } from "../../components/Cards/DeleteEventCard.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { AttendanceCard } from "../../components/Cards/AttendanceCard.tsx";
 import { Ellipsis } from "lucide-react";
+import { SideFilterOptions } from "../../components/SideFilter.tsx";
+
+const MONTHS = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
 
 export const ManageAttendances = () => {
     window.scrollTo({ top: 0, left: 0 });
     const { useViewAllEvents, useSearchEvents } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+    const [showSideFilter, setShowSideFilter] = useState<boolean>(false);
     const [eventArray, setEventArray] = useState<Event[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
@@ -30,6 +37,41 @@ export const ManageAttendances = () => {
     useEffect(() => {
         useViewAllEvents(setEventArray, setError);
     }, [setEventArray, setError]);
+    
+    const handleApplyFilters = async (sortAlphabetical: "A-Z" | "Z-A" | null, month: string | null, year: string | null) => {
+        await useViewAllEvents((allEvents: Event[]) => {
+            let result = [...allEvents];
+            
+            if (month && year) {
+                const monthIndex = MONTHS.indexOf(month);
+                const cutoffDate = new Date(Number(year), monthIndex + 1, 0);
+                cutoffDate.setHours(23, 59, 59, 999);
+                if (monthIndex === -1) {
+                    result = [];
+                }
+                result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
+            }
+            if (month && !year) {
+                const monthIndex = MONTHS.indexOf(month);
+                result = result.filter((event) => new Date(event.eventDate).getMonth() === monthIndex);
+            }
+            if (!month && year) {
+                const cutoffDate = new Date(Number(year), 11, 31);
+                cutoffDate.setHours(23, 59, 59, 999);
+                result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
+            }
+            
+            if (sortAlphabetical) {
+                result.sort((a, b) => {
+                    return sortAlphabetical === "A-Z"
+                        ? a.eventName.localeCompare(b.eventName)
+                        : b.eventName.localeCompare(a.eventName);
+                });
+            }
+            
+            setEventArray(result);
+        }, setError);
+    };
     
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
@@ -119,7 +161,9 @@ export const ManageAttendances = () => {
                     
                     {!isOnSearch && 
                         <div className="mt-3 mb-3 flex items-center justify-end">
-                            <button ><Ellipsis className="w-5 h-5" /></button>
+                            <button onClick={() => setShowSideFilter(true)}>
+                                <Ellipsis className="w-5 h-5" />
+                            </button>
                         </div>
                     }
                     
@@ -137,6 +181,7 @@ export const ManageAttendances = () => {
                     {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} onClose={() => setShowViewCard(false)} />}
                     {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
+                    {showSideFilter && <SideFilterOptions onClose={() => setShowSideFilter(false)} onApplyFilters={handleApplyFilters} />}
                 </div>
             </div>
         </>

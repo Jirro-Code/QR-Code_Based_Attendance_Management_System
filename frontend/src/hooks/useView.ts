@@ -98,7 +98,7 @@ export const useView = () => {
         }
     }
     
-    const useViewAllEvents = async (setEventArray: React.Dispatch<React.SetStateAction<Event[]>>, setError: React.Dispatch<React.SetStateAction<string>>) => {
+    const useViewAllEvents = async (setEventArray: (events: Event[]) => void, setError: React.Dispatch<React.SetStateAction<string>>) => {
         const fetchEvents = async () => {
             try {
                 const data = await getAllEvents();
@@ -128,7 +128,7 @@ export const useView = () => {
                 throw e;
             }
         };
-        fetchEvents();
+        return fetchEvents();
     }
     
     const useSearchEvents = async (query: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event[]> => {
