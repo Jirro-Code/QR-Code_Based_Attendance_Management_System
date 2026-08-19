@@ -6,7 +6,8 @@ type SideFilterOptionsProps = {
     onApplyFilters: (
         sortAlphabetical: "A-Z" | "Z-A" | null,
         month: string | null,
-        year: string | null
+        year: string | null,
+        strand: string | null
     ) => void;
 };
 
@@ -14,9 +15,10 @@ export const SideFilterOptions = ({ onClose, onApplyFilters }: SideFilterOptions
     const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
+    const [selectedStrand, setSelectedStrand] = useState<string | null>(null);
     
     const handleApply = () => {
-        onApplyFilters(selectedOrder, selectedMonth, selectedYear);
+        onApplyFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand);
         onClose();
     };
     
@@ -49,12 +51,11 @@ export const SideFilterOptions = ({ onClose, onApplyFilters }: SideFilterOptions
                 
                 <div className="flex flex-col gap-1">
                     <h1 className="text-lg font-semibold">Strand:</h1>
-                    <SelectionField id="strand" label="Select Strand" options={["STEM", "ABM", "HUMSS", "GAS", "TVL"]} />
+                    <SelectionField id="strand" label="Select Strand" onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "ICT", "HRCTO"]} />
                 </div>
                 
                 <div className="flex flex-col gap-1">
                     <h1 className="text-lg font-semibold">Date:</h1>
-                    <label htmlFor="month" className="text-sm text-gray-600"> Select month and year:</label>
                     <SelectionField id="month" label="Select Month" onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
                     <SelectionField id="year" label="Select Year" onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
                 </div>

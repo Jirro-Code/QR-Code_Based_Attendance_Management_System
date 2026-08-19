@@ -13,7 +13,7 @@ export const SearchBar = ({ handleSearch, setSearchQuery, searchQuery, isOnSearc
     const [isTyping, setIsTyping] = useState<boolean>(false);
     
     return(
-        <form className="flex items-center gap-1 relative" onSubmit={(e) => {e.preventDefault(); handleSearch();}}>
+        <form className="flex items-center gap-1 relative" onSubmit={(e) => {e.preventDefault(); handleSearch(); setIsTyping(false);}}>
             <input
                 onFocus={() => setIsTyping(true)}
                 onBlur={() => setIsTyping(false)}

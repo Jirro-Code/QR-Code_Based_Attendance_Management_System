@@ -9,7 +9,7 @@ type ListCellProps = {
     number: number;
 };
 
-export const AttendanceListCell = ({ attendance, number}: ListCellProps) => {
+export const AttendanceListCell = ({ attendance, number }: ListCellProps) => {
     const [user, setUser] = useState<Partial<User>>();
     const { useViewUser } = useView();
     

@@ -2,7 +2,7 @@ import { logout } from "../services/auth.ts";
 import { getAllEvents, searchEvents, type Event } from "../services/events.ts";
 import { getUserById, getUsersByRole, searchUsers, type User } from "../services/users.ts";
 import { ApiError } from "../services/error.ts";
-import { getAttendanceByEventId } from "../services/attendance.ts";
+import { getAttendanceByEventId, getAttendanceByStrand, getEventAttendanceByStrand } from "../services/attendance.ts";
 import { type Attendance } from "../services/attendance.ts";
 
 export const useView = () => {
@@ -191,6 +191,66 @@ export const useView = () => {
             throw e;
         }
     }
-
-    return { useViewUser, useViewAllUsers, useSearchUsers, useViewAllEvents, useSearchEvents, useViewAttendanceByEventId };
+    
+    const useViewAttendanceByStrand = async (eventId: string, strand: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Attendance[]> => {
+        try{
+            const data = await getAttendanceByStrand(eventId, strand);
+            return data.attendance as Attendance[];
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "No attendance records found for the specified group.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("An error occurred while fetching attendance records. Please try again.");
+            console.error("Error fetching attendance records:", e);
+            throw e;
+        }
+    }
+    
+    const useViewEventAttendanceByStrand = async (strand: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event[]> => {
+        try {
+            const data = await getEventAttendanceByStrand(strand);
+            return data.events as Event[];
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/");
+                }
+                if (e.status === 403) {
+                    setError("Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status === 404) {
+                    return [];
+                }
+                if(e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("An error occurred while fetching events. Please try again.");
+            console.error("Error fetching events:", e);
+            throw e;
+        }
+    }
+    
+    return { useViewUser, useViewAllUsers, useSearchUsers, useViewAllEvents, useSearchEvents, useViewAttendanceByEventId, useViewEventAttendanceByStrand, useViewAttendanceByStrand };
 }

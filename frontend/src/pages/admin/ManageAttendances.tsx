@@ -18,7 +18,7 @@ const MONTHS = [
 
 export const ManageAttendances = () => {
     window.scrollTo({ top: 0, left: 0 });
-    const { useViewAllEvents, useSearchEvents } = useView();
+    const { useViewAllEvents, useSearchEvents, useViewEventAttendanceByStrand } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [showSideFilter, setShowSideFilter] = useState<boolean>(false);
@@ -29,6 +29,7 @@ export const ManageAttendances = () => {
     const [showDeleteCard, setShowDeleteCard] = useState<boolean>(false);
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [showViewCard, setShowViewCard] = useState<boolean>(false);
+    const [strand, setStrand] = useState<string | null>(null);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
         title: "",
         message: ""
@@ -38,10 +39,15 @@ export const ManageAttendances = () => {
         useViewAllEvents(setEventArray, setError);
     }, [setEventArray, setError]);
     
-    const handleApplyFilters = async (sortAlphabetical: "A-Z" | "Z-A" | null, month: string | null, year: string | null) => {
-        await useViewAllEvents((allEvents: Event[]) => {
+    const handleApplyFilters = async (sortAlphabetical: "A-Z" | "Z-A" | null, month: string | null, year: string | null, strand: string | null) => {
+        await useViewAllEvents(async (allEvents: Event[]) => {
             let result = [...allEvents];
             
+            if (strand) {
+                const filteredEvents = await useViewEventAttendanceByStrand(strand, setError);
+                result = filteredEvents;
+                setStrand(strand);
+            }
             if (month && year) {
                 const monthIndex = MONTHS.indexOf(month);
                 const cutoffDate = new Date(Number(year), monthIndex + 1, 0);
@@ -174,11 +180,11 @@ export const ManageAttendances = () => {
                             ))
                         ) : (
                             <p>No events found.</p>
-                        )}
+                        )}``
                     </div>
                     
                     {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}      
-                    {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} onClose={() => setShowViewCard(false)} />}
+                    {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} strand={strand} onClose={() => setShowViewCard(false)} />}
                     {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
                     {showSideFilter && <SideFilterOptions onClose={() => setShowSideFilter(false)} onApplyFilters={handleApplyFilters} />}

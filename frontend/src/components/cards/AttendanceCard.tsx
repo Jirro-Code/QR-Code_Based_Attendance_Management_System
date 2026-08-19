@@ -7,19 +7,26 @@ import { X } from "lucide-react";
 
 type AttendanceCardProps = {
     event: Event;
+    strand: string | null;
     onClose: () => void;
 };
 
-export const AttendanceCard = ({ event, onClose }: AttendanceCardProps) => {
+export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) => {
     const [attendanceArray, setAttendanceArray] = useState<Attendance[]>([]);
-    const { useViewAttendanceByEventId } = useView();
+    const { useViewAttendanceByEventId, useViewAttendanceByStrand } = useView();
     const [error, setError] = useState<string>("");
-
+    
     useEffect(() => {
+        if (strand) {
+            useViewAttendanceByStrand(event.id, strand, setError).then((data) => {
+                setAttendanceArray(data);
+            });
+        } else {
             useViewAttendanceByEventId(event.id, setError).then((data) => {
                 setAttendanceArray(data);
             });
-    }, [event.id, setError]);
+        }
+    }, [event.id, strand, setError]);
     
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 p-3 z-10 backdrop-blur-[2px]">

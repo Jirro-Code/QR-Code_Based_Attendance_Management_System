@@ -29,3 +29,20 @@ export const getAttendanceByEventId = async (eventId: string) => {
     return response.json();
 }
 
+
+export const getEventAttendanceByStrand = async ( strand: string) => {
+    const response = await apiFetch(`/attendance/strand/${strand}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+};
+
+
+export const getAttendanceByStrand= async (eventId: string, strand: string) => {
+    const response = await apiFetch(`/attendance/groupStrand/${strand}/eventId/${eventId}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+}
