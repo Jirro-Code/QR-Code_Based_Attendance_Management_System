@@ -1,8 +1,9 @@
 import Router from "express";
-import { markAttendance, getAllAttendance, getEventAttendance, getAttendanceByStrand, getUserAttendance, updateAttendance, deleteUserAttendance} from "../controllers/attendanceContoller.ts";
+import { markAttendance, getAllAttendance, getEventAttendanceByStrand, getEventAttendance, getAttendanceByStrand, getUserAttendance, updateAttendance, deleteUserAttendance} from "../controllers/attendanceContoller.ts";
 import { authAdminToken, authToken} from "../middlewares/authToken.ts";
 import { insertAttendanceSchema } from "../db/schema.ts";
 import { validateBody, validateParams } from "../middlewares/validation.ts";
+import { userStrandSchema } from "../db/schema.ts";
 import z from "zod";
 
 
@@ -18,7 +19,11 @@ const updateSchema = z.object({
 
 const groupStrandSchema = z.object({
     eventId: z.uuid("Invalid UUID format"),
-    groupStrand: z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"], "Invalid strand")
+    groupStrand: userStrandSchema
+});
+
+const strandSchema = z.object({
+    strand: userStrandSchema
 });
 
 router.use(authToken);
@@ -29,6 +34,7 @@ router.post("/mark", validateBody(insertAttendanceSchema), markAttendance);
 router.get("/all", getAllAttendance);
 router.get("/userId/:id", validateParams(uuidSchema), getUserAttendance);
 router.get("/eventId/:id", validateParams(uuidSchema), getEventAttendance);
+router.get("/strand/:strand", validateParams(strandSchema), getEventAttendanceByStrand);
 router.get("/groupStrand/:groupStrand/eventId/:eventId", validateParams(groupStrandSchema), getAttendanceByStrand);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateSchema), updateAttendance)
 router.delete("/delete/:id", validateParams(uuidSchema), deleteUserAttendance);

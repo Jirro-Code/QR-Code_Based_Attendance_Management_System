@@ -129,7 +129,7 @@ export const getEventAttendance = async (req: AuthenticatedRequest, res: Respons
 export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.uuid().parse(req.params.eventId);
-        const groupStrand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.strand);
+        const groupStrand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.groupStrand);
         
         const eventExist = await db.query.events.findFirst({
             where: eq(events.id, eventId)
@@ -140,7 +140,7 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
         }
         
         const groupAttendance = await 
-            db.select({attendance: attendance}).
+            db.select({id: attendance.id, userId: attendance.userId, eventId: attendance.eventId, isLate: attendance.isLate}).
             from(attendance).
             innerJoin(users, eq(attendance.userId, users.id)).
             where(and(eq(attendance.eventId, eventId), eq(users.studentStrand, groupStrand)));
@@ -149,6 +149,7 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
             return res.status(404).json({message: "Attendance not found for this group"});
         }
         
+        console.log("Fetched attendance for group:", groupAttendance);
         res.status(200).json({message: "Attendance fetched successfully", attendance: groupAttendance});
     }
     catch(e){
@@ -161,7 +162,7 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
 }
 
 
-export const getEventByStrand = async (req: AuthenticatedRequest, res: Response) => {
+export const getEventAttendanceByStrand = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const strand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.strand);
         
