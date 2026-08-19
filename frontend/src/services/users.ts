@@ -22,11 +22,20 @@ export const getSelf = async () => {
     return response.json();
 }
 
-export const getUsersByRole = (role: string) => {
-    return apiFetch(`/users/role/${role}`, {
+export const getUserById = async (id: string) => {
+    const response = await apiFetch(`/users/userId/${id}`, {
         method: "GET",
         credentials: "include"
-    }).then((response) => response.json());
+    });
+    return response.json();
+}
+
+export const getUsersByRole = async (role: string) => {
+    const response = await apiFetch(`/users/role/${role}`, {
+        method: "GET",
+        credentials: "include"
+    });
+    return response.json();
 }
 
 export const searchUsers = async (query: string) => {

@@ -8,12 +8,7 @@ type ListCellProps = {
     onLoadView: () => void;
 };
 
-export const UserListCell = ({
-    user,
-    number,
-    onDelete,
-    onLoadView,
-}: ListCellProps) => {
+export const UserListCell = ({ user, number, onDelete, onLoadView }: ListCellProps) => {
     return (
         <div className={number%2 === 0 ? "bg-white grid grid-cols-6 items-center px-5 py-4 text-sm" : "bg-gray-200 grid grid-cols-6 items-center px-5 py-4 text-sm"}>
             {/* Number */}

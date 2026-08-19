@@ -52,7 +52,7 @@ export const AdminLoginPage = () => {
                             <Input label="Password" id="password" type="password" placeholder="Password" onChange={handleChange} name="password" value={form.password} />
                             {error && (<span className="absolute w-[110%] -bottom-5 left-0 flex items-center gap-1 text-red-600 text-[10px]"><CircleAlert size={12} /><u>{error}</u></span>)}
                         </div>
-                        <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-4 hover:bg-blue-800 transition-colors">Log In</button>
+                        <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-4 hover:bg-blue-900 transition-colors">Log In</button>
                     </form>
                 </div>
             </div>

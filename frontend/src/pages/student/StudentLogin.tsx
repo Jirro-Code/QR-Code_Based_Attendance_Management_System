@@ -44,7 +44,7 @@ export const StudentLoginPage = () => {
                     
                     <div className="mb-5">
                         <h2 className="text-3xl font-bold text-gray-800">Login</h2>
-                        <p className="text-gray-500 mt-2">Welcome back, Admin!</p>
+                        <p className="text-gray-500 mt-2">Welcome back, Icon!</p>
                     </div>
                     
                     <form onSubmit={handleSubmit} className="w-full">
@@ -56,7 +56,7 @@ export const StudentLoginPage = () => {
                             <Input label="Password" id="password" type="password" placeholder="Password" onChange={handleChange} name="password" value={form.password} />
                             {error && (<span className="absolute w-[110%] -bottom-5 left-0 flex items-center gap-1 text-red-600 text-[10px]"><CircleAlert size={12} /><u>{error}</u></span>)}
                         </div>
-                        <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-4 hover:bg-blue-800 transition-colors">Log In</button>
+                        <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-4 hover:bg-blue-900 transition-colors">Log In</button>
                     </form>
                 </div>
             </div>

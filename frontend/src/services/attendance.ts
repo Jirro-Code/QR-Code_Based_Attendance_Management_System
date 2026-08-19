@@ -1,5 +1,12 @@
 import { apiFetch } from  "./http";
 
+export interface Attendance {
+    eventId: string;
+    userId: string;
+    isLate: boolean;
+    attendedAt: string;
+}
+
 export const markStudentPresent = async (uuid: string, eventId: string, isLate: boolean) => {
     const response = await apiFetch(`/attendance/mark`, {
         method: "POST",
@@ -12,4 +19,12 @@ export const markStudentPresent = async (uuid: string, eventId: string, isLate: 
     });
     return response.json();
 };
+
+export const getAttendanceByEventId = async (eventId: string) => {
+    const response = await apiFetch(`/attendance/eventId/${eventId}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+}
 

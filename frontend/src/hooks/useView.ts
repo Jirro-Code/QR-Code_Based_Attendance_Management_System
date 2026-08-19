@@ -1,9 +1,39 @@
 import { logout } from "../services/auth.ts";
 import { getAllEvents, searchEvents, type Event } from "../services/events.ts";
-import { getUsersByRole, searchUsers, type User } from "../services/users.ts";
+import { getUserById, getUsersByRole, searchUsers, type User } from "../services/users.ts";
 import { ApiError } from "../services/error.ts";
+import { getAttendanceByEventId } from "../services/attendance.ts";
+import { type Attendance } from "../services/attendance.ts";
 
 export const useView = () => {
+    const useViewUser = async (id: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<User> => {
+        try {
+            const data = await getUserById(id);
+            return data.user as User;
+        } catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "User not found.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("An error occurred while fetching the user. Please try again.");
+            console.error("Error fetching user:", e);
+            throw e;
+        }
+    }
     const useViewAllUsers = async (setUserArray: React.Dispatch<React.SetStateAction<Partial<User>[]>>, setError: React.Dispatch<React.SetStateAction<string>>) => {
         const fetchUsers = async () => {
             try {
@@ -131,5 +161,35 @@ export const useView = () => {
         }
     }
     
-    return { useViewAllUsers, useSearchUsers, useViewAllEvents, useSearchEvents };
+    const useViewAttendanceByEventId = async (eventId: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Attendance[]> => {
+        try {
+            const data = await getAttendanceByEventId(eventId);
+            return data.attendance as Attendance[];
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "No attendance records found for the specified event.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("An error occurred while fetching attendance records. Please try again.");
+            console.error("Error fetching attendance records:", e);
+            throw e;
+        }
+    }
+
+    return { useViewUser, useViewAllUsers, useSearchUsers, useViewAllEvents, useSearchEvents, useViewAttendanceByEventId };
 }

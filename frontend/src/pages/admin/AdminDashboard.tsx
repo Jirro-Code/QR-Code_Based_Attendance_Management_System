@@ -148,7 +148,7 @@ export const AdminDashboard = () => {
                     
                     
                     <button
-                        onClick={() => navigate("/scanner")}
+                        onClick={() => navigate("/manage-attendances")}
                         className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
                     >
                         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
