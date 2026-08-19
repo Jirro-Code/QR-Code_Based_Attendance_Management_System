@@ -49,7 +49,7 @@ export const attendance = pgTable("attendance", {
     userId: uuid("user_id").references(() => users.id, {
         onDelete: "cascade"
     }).notNull(),
-    attendedAt: timestamp("attended_at").defaultNow().notNull(),
+    attendedAt: timestamp("attended_at", { withTimezone: true }).defaultNow().notNull(),
     isLate: boolean("is_late").notNull().default(false)
     },
     (table) => [

@@ -102,6 +102,11 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
                                             where(whereClause).
                                             orderBy(desc(events.eventDate));
         
+        if(eventsList.length === 0){
+            console.error("No events found matching the search query:", term);
+            return res.status(404).json({message: "No events found matching the search query"});
+        }
+        
         res.status(200).json({message: "Events retrieved successfully", events: eventsList});
     }
     catch(e){

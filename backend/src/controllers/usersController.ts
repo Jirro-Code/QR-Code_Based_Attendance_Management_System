@@ -33,6 +33,30 @@ export const getSelf = async (req: AuthenticatedRequest, res: Response) => {
     }
 }
 
+export const getUserById = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.string().parse(req.params.id);
+        const user = await db.query.users.findFirst({
+            where: eq(users.id, userId)
+        });
+        
+        if(!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        const {password, ...userWithoutPassword} = user;
+        
+        res.status(200).json({message: "User retrieved successfully", user: userWithoutPassword});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid user ID parameter:", e.issues);
+            return res.status(400).json({message: "Invalid user ID parameter", errors: e.issues});
+        }
+        console.error("Error fetching user:", e);
+        res.status(500).json({message: "Error fetching user"});
+    }
+}
 
 export const getAllUserByRole = async (req: AuthenticatedRequest, res: Response) => {
     try{
@@ -80,6 +104,11 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
                 orderBy: desc(users.updatedAt)
             }
         );
+        
+        if(usersList.length === 0){
+            console.error("No users found matching the search query:", term);
+            return res.status(404).json({message: "No users found matching the search query"});
+        }
         
         const matchedUsers = usersList.map(({password, ...userWithoutPassword}) => userWithoutPassword);
         
