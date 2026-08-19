@@ -10,7 +10,7 @@ type ListCellProps = {
 
 export const UserListCell = ({ user, number, onDelete, onLoadView }: ListCellProps) => {
     return (
-        <div className={number%2 === 0 ? "bg-white grid grid-cols-6 items-center px-5 py-4 text-sm" : "bg-gray-200 grid grid-cols-6 items-center px-5 py-4 text-sm"}>
+        <div className={number%2 === 0 ? "bg-white grid grid-cols-[0.3fr_repeat(5,1fr)] items-center px-5 py-4 text-sm" : "bg-gray-200 grid grid-cols-[0.3fr_repeat(5,1fr)] items-center px-5 py-4 text-sm"}>
             {/* Number */}
             <div className="text-gray-500">
                 {number}
@@ -38,13 +38,13 @@ export const UserListCell = ({ user, number, onDelete, onLoadView }: ListCellPro
             
             {/* Actions */}
             <div className="flex items-center">
-                <button onClick={onLoadView} className="rounded-md px-3 py-1 text-sm text-blue-800 hover:bg-blue-50 flex flex-col items-center">
-                    <Eye size={17} />
+                <button onClick={onLoadView} className="rounded-md px-2 py-1 text-sm text-blue-800 hover:bg-blue-50 flex flex-col items-center">
+                    <Eye size={15} />
                     View
                 </button>
                 
-                <button onClick={onDelete} className="rounded-md px-3 py-1 text-sm text-red-800 hover:bg-red-50 flex flex-col items-center">
-                    <Trash2 size={16} />
+                <button onClick={onDelete} className="rounded-md px-2 py-1 text-sm text-red-800 hover:bg-red-50 flex flex-col items-center">
+                    <Trash2 size={15} />
                     Delete
                 </button>
             </div>

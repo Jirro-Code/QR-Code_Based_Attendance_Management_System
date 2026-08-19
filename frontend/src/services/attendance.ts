@@ -1,6 +1,7 @@
 import { apiFetch } from  "./http";
 
 export interface Attendance {
+    id: string;
     eventId: string;
     userId: string;
     isLate: boolean;

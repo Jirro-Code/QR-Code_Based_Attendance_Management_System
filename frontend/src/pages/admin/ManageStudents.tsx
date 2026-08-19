@@ -33,7 +33,9 @@ export const ManageUsers = () => {
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
             setSearchQuery("");
+            setError("");
             await useViewAllUsers(setUserArray, setError);
+            setIsOnSearch(false);
             return;
         }
         
@@ -42,6 +44,16 @@ export const ManageUsers = () => {
         setUserArray(filteredUsers);
         setIsOnSearch(true);
     };
+    
+    const handleClearSearch = async () => {
+        setSearchQuery("");
+        setIsOnSearch(false);
+        setShowUpdateCard(false);
+        setShowDeleteCard(false);
+        setShowViewCard(false);
+        setError("");
+        await useViewAllUsers(setUserArray, setError);
+    }
     
     const refreshUserList = async () => {
         if (isOnSearch) {
@@ -109,10 +121,10 @@ export const ManageUsers = () => {
             <Header title="Manage Students" />
             <div className="inset-0 min-h-screen bg-slate-100">
                 <div className="px-5 py-4">
-                    <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+                    <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} />
                 </div>
                 <p>{error}</p>
-                <div className="grid grid-cols-6 border-b border-gray-300 bg-gray-400 px-5 py-3 text-sm font-semibold text-white">
+                <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-300 bg-gray-400 px-5 py-3 text-sm font-semibold text-white">
                     <div>#</div>
                     <div>Name</div>
                     <div>Strand</div>

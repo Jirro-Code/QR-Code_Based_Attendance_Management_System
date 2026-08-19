@@ -33,6 +33,7 @@ export const ManageEvents = () => {
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
             setSearchQuery("");
+            setError("");
             await useViewAllEvents(setEventArray, setError);
             return;
         }
@@ -41,6 +42,16 @@ export const ManageEvents = () => {
         setEventArray(searchedEvents);
         setIsOnSearch(true);
     };
+    
+    const handleClearSearch = async () => {
+        setSearchQuery("");
+        setIsOnSearch(false);
+        setShowUpdateCard(false);
+        setShowDeleteCard(false);
+        setShowViewCard(false);
+        setError("");
+        await useViewAllEvents(setEventArray, setError);
+    }
     
     const refreshEventList = async () => {
         if (isOnSearch) {
@@ -107,12 +118,12 @@ export const ManageEvents = () => {
             <Header title="Manage Events" />
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-5xl mx-auto p-6">
-                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} />
+                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} />
                     <p className="text-red-600 text-sm">{error}</p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         {eventArray.length > 0 ? (
                             eventArray.map((event: Event) => (
-                                <EventCard key={event.eventName} event={event} onDelete={() => loadDeleteCard(event)} onLoadView={() => loadViewCard(event)} />
+                                <EventCard key={event.id} event={event} onDelete={() => loadDeleteCard(event)} onLoadView={() => loadViewCard(event)} />
                             ))
                         ) : (
                             <p>No events found.</p>

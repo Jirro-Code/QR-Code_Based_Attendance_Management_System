@@ -80,7 +80,7 @@ export const useView = () => {
                     await logout("/");
                 }
                 if (e.status === 404) {
-                    setError(e.message || "No users found matching the search query.");
+                    return [];
                 }
                 if (e.status === 403) {
                     setError(e.message || "Access denied. You do not have permission to perform this action.");
@@ -134,6 +134,7 @@ export const useView = () => {
     const useSearchEvents = async (query: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event[]> => {
         try {
             const data = await searchEvents(query);
+            setError(""); 
             return data.events as Event[];
         } 
         catch (e) {
@@ -143,7 +144,7 @@ export const useView = () => {
                     await logout("/");
                 }
                 if (e.status === 404) {
-                    setError(e.message || "No events found matching the search query.");
+                    return [];
                 }
                 if (e.status === 403) {
                     setError(e.message || "Access denied. You do not have permission to perform this action.");

@@ -5,7 +5,7 @@ import { logout } from "../../services/auth.ts";
 import { type User } from "../../services/users.ts";
 import { SelectionCard } from "../../components/Cards/SelectionCard.tsx";
 import { Navbar } from "../../components/Navbar.tsx";
-import { UserPlus, ScanSquare, CalendarPlus2, Calendars, Users, SquareArrowOutUpRight, Files } from 'lucide-react';
+import { UserPlus, ScanSquare, CalendarPlus2, Calendars, Users, SquareArrowOutUpRight, Folders } from 'lucide-react';
 
 export const AdminDashboard = () => {
     window.scrollTo({ top: 0, left: 0 });
@@ -152,7 +152,7 @@ export const AdminDashboard = () => {
                         className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
                     >
                         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
-                            <Files size={20} />
+                            <Folders size={20} />
                         </div>
                         
                         <h2 className="text-lg font-bold text-slate-900">
