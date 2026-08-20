@@ -8,8 +8,8 @@ import { UpdateEventCard } from "../../components/Cards/UpdateEventCard.tsx";
 import { DeleteEventCard } from "../../components/Cards/DeleteEventCard.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { AttendanceCard } from "../../components/Cards/AttendanceCard.tsx";
+import { FilterOptions } from "../../components/AttendanceFilter.tsx";
 import { Ellipsis } from "lucide-react";
-import { SideFilterOptions } from "../../components/SideFilter.tsx";
 
 const MONTHS = [
     "January", "February", "March", "April", "May", "June",
@@ -21,7 +21,7 @@ export const ManageAttendances = () => {
     const { useViewAllEvents, useSearchEvents, useViewEventAttendanceByStrand } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-    const [showSideFilter, setShowSideFilter] = useState<boolean>(false);
+    const [showFilter, setShowFilter] = useState<boolean>(false);
     const [eventArray, setEventArray] = useState<Event[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
@@ -39,10 +39,15 @@ export const ManageAttendances = () => {
         useViewAllEvents(setEventArray, setError);
     }, [setEventArray, setError]);
     
-    const handleApplyFilters = async (sortAlphabetical: "A-Z" | "Z-A" | null, month: string | null, year: string | null, strand: string | null) => {
+    const handleApplyFilters = async (sortAlphabetical: "A-Z" | "Z-A" | null, month: string | null, year: string | null, strand: string | null, byTime: "latest" | "earliest" | null) => {
         await useViewAllEvents(async (allEvents: Event[]) => {
             let result = [...allEvents];
-            
+            setStrand(null);
+            setError("");
+            if (isOnSearch) {
+                const searchedEvents = await useSearchEvents(searchQuery.trim(), setError);
+                result = searchedEvents;
+            }
             if (strand) {
                 const filteredEvents = await useViewEventAttendanceByStrand(strand, setError);
                 result = filteredEvents;
@@ -66,7 +71,13 @@ export const ManageAttendances = () => {
                 cutoffDate.setHours(23, 59, 59, 999);
                 result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
             }
-            
+            if (byTime) {
+                result.sort((a, b) => {
+                    return byTime === "latest"
+                        ? new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+                        : new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime();
+                });
+            }
             if (sortAlphabetical) {
                 result.sort((a, b) => {
                     return sortAlphabetical === "A-Z"
@@ -162,12 +173,12 @@ export const ManageAttendances = () => {
             <Header title="Manage Attendances" />
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-5xl mx-auto p-6">
-                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} />
+                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)}/>
                     <p className="text-red-600 text-sm">{error}</p>
                     
                     {!isOnSearch && 
                         <div className="mt-3 mb-3 flex items-center justify-end">
-                            <button onClick={() => setShowSideFilter(true)}>
+                            <button onClick={() => setShowFilter(true)}>
                                 <Ellipsis className="w-5 h-5" />
                             </button>
                         </div>
@@ -187,7 +198,7 @@ export const ManageAttendances = () => {
                     {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} strand={strand} onClose={() => setShowViewCard(false)} />}
                     {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
-                    {showSideFilter && <SideFilterOptions onClose={() => setShowSideFilter(false)} onApplyFilters={handleApplyFilters} />}
+                    {showFilter && <FilterOptions onClose={() => setShowFilter(false)} onApplyFilters={handleApplyFilters} />}
                 </div>
             </div>
         </>

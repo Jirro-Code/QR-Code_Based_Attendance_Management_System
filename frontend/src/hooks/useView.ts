@@ -174,7 +174,7 @@ export const useView = () => {
                     await logout("/");
                 }
                 if (e.status === 404) {
-                    setError(e.message || "No attendance records found for the specified event.");
+                    return [];
                 }
                 if (e.status === 403) {
                     setError(e.message || "Access denied. You do not have permission to perform this action.");
@@ -204,7 +204,7 @@ export const useView = () => {
                     await logout("/");
                 }
                 if (e.status === 404) {
-                    setError(e.message || "No attendance records found for the specified group.");
+                    return [];
                 }
                 if (e.status === 403) {
                     setError(e.message || "Access denied. You do not have permission to perform this action.");

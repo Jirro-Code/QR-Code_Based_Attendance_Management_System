@@ -7,9 +7,10 @@ type SearchBarProps = {
     searchQuery: string;
     isOnSearch: boolean;
     handleClearSearch: () => void;
+    handleFilterClick?: () => void;
 };
 
-export const SearchBar = ({ handleSearch, setSearchQuery, searchQuery, isOnSearch, handleClearSearch }: SearchBarProps) => {   
+export const SearchBar = ({ handleSearch, setSearchQuery, searchQuery, isOnSearch, handleClearSearch, handleFilterClick }: SearchBarProps) => {   
     const [isTyping, setIsTyping] = useState<boolean>(false);
     
     return(
@@ -46,7 +47,8 @@ export const SearchBar = ({ handleSearch, setSearchQuery, searchQuery, isOnSearc
             )}
             
             {isOnSearch && !isTyping && (
-                <button
+                <button 
+                    onClick={handleFilterClick}
                     type="button"
                     onPointerDown={(e) => e.preventDefault()}
                     className="bg-gray-200 text-gray-800 px-7 py-2.5 rounded-r hover:bg-gray-300 focus:outline-none"

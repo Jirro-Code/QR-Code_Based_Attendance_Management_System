@@ -40,8 +40,6 @@ export const DeleteUserCard = ({ userId, onDeleted, setShowNotification, onSetNo
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full">
                 <button className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold" onClick={onClose}>×</button>
-                <h2 className="text-lg font-semibold text-gray-800">Delete Card</h2>
-                <p className="text-gray-600">This is the delete card component.</p>
                 <p className="text-red-800 text-sm">{error}</p>
                 <button onClick={() => setShowConfirmation(true)} className="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded self-start">Delete Student</button>
                 

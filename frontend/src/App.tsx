@@ -11,7 +11,7 @@ import { ManageEvents } from "./pages/admin/ManageEvents.tsx";
 import { CreateEvent } from "./pages/admin/CreateEvent.tsx";
 import { ScannerPage } from "./pages/admin/ScannerPage.tsx";
 import { ManageAttendances } from "./pages/admin/ManageAttendances.tsx";
-import { SideFilterOptions } from "./components/SideFilter.tsx";
+import { SideFilterOptions } from "./components/AttendanceFilter.tsx";
 
 export const App = () => {
     return (

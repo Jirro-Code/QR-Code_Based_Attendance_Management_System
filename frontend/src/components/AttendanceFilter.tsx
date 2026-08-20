@@ -1,27 +1,34 @@
 import { useState } from "react";
 import { SelectionField } from "./Input/SelectionField.tsx";
 
-type SideFilterOptionsProps = {
+type FilterOptionsProps = {
     onClose: () => void;
     onApplyFilters: (
         sortAlphabetical: "A-Z" | "Z-A" | null,
         month: string | null,
         year: string | null,
-        strand: string | null
+        strand: string | null,
+        byTime: "latest" | "earliest" | null
     ) => void;
 };
 
-export const SideFilterOptions = ({ onClose, onApplyFilters }: SideFilterOptionsProps) => {
+export const FilterOptions = ({ onClose, onApplyFilters }: FilterOptionsProps) => {
     const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
     const [selectedStrand, setSelectedStrand] = useState<string | null>(null);
+    const [selectedByTime, setSelectedByTime] = useState<"latest" | "earliest" | null>(null);
     
     const handleApply = () => {
-        onApplyFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand);
+        onApplyFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedByTime);
         onClose();
     };
     
+    const toggleButtonClass = (active: boolean) =>
+        `px-3 py-1.5 rounded-md text-[13px] transition-colors ${
+            active ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+        }`;
+        
     return (
         <div className="inset-0 min-h-screen fixed flex justify-center z-120">
             <div className="relative h-2/4 mt-auto w-full max-w-200 bg-white shadow-md p-4 rounded-t-2xl overflow-y-scroll">
@@ -38,14 +45,42 @@ export const SideFilterOptions = ({ onClose, onApplyFilters }: SideFilterOptions
                 <div className="flex flex-col gap-4 mb-5">
                     <h1 className="text-lg font-semibold"> Alphabetical:</h1>
                     
-                    <div>
-                        <input type="radio" id="asc" name="alphabetical" value="A-Z" checked={selectedOrder === "A-Z"} onChange={() => setSelectedOrder("A-Z")} className="mr-2"/>
-                        <label htmlFor="asc"> A-Z</label>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setSelectedOrder(selectedOrder === "A-Z" ? null : "A-Z")}
+                            className={toggleButtonClass(selectedOrder === "A-Z")}
+                        >
+                            A-Z
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setSelectedOrder(selectedOrder === "Z-A" ? null : "Z-A")}
+                            className={toggleButtonClass(selectedOrder === "Z-A")}
+                        >
+                            Z-A
+                        </button>
                     </div>
+                </div>
+                
+                <div className="flex flex-col gap-1 mb-2">
+                    <h1 className="text-lg font-semibold">Chronological:</h1>
                     
-                    <div>
-                        <input type="radio" id="desc" name="alphabetical" value="Z-A" checked={selectedOrder === "Z-A"} onChange={() => setSelectedOrder("Z-A")} className="mr-2"/>
-                        <label htmlFor="desc"> Z-A</label>
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            onClick={() => setSelectedByTime(selectedByTime === "latest" ? null : "latest")}
+                            className={toggleButtonClass(selectedByTime === "latest")}
+                        >
+                            Latest to earliest
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => setSelectedByTime(selectedByTime === "earliest" ? null : "earliest")}
+                            className={toggleButtonClass(selectedByTime === "earliest")}
+                        >
+                            Earliest to latest
+                        </button>
                     </div>
                 </div>
                 
