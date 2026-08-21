@@ -70,7 +70,7 @@ export const useUpdate = () => {
             throw e;
         }
     }
-
+    
     const useUpdateAttendance = async (attendanceId: string, isLate: boolean, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
             const responseData = await updateAttendance(attendanceId, isLate);

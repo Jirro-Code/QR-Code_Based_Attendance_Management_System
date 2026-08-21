@@ -66,3 +66,11 @@ export const updateAttendance = async (attendanceId: string, isLate: boolean) =>
     });
     return response.json();
 }
+
+export const deleteAttendance = async (attendanceId: string) => {
+    const response = await apiFetch(`/attendance/delete/${attendanceId}`, {
+        method: "DELETE",
+        credentials: "include",
+    });
+    return response.json();
+}

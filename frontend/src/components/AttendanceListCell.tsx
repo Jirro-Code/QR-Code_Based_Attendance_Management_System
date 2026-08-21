@@ -4,12 +4,13 @@ import { useView } from "../hooks/useView.ts";
 import { useEffect, useState } from "react";
 import { Trash2, SquarePen } from "lucide-react";
 import { UpdateAttendanceCard } from "./Cards/UpdateAttendanceCard.tsx";
+import { DeleteAttendanceCard } from "./Cards/DeleteAttendanceCard.tsx";
 
 type ListCellProps = {
     attendance: Partial<Attendance>;
     number: number;
     onUpdated: (updatedAttendance: Attendance) => void;
-    onDelete: (attendance: Partial<Attendance>) => void;
+    onDelete: (attendanceId: string) => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string }>>;
 };
@@ -17,6 +18,7 @@ type ListCellProps = {
 export const AttendanceListCell = ({ attendance, number, onUpdated, onDelete, setShowNotification, onSetNotif }: ListCellProps) => {
     const [user, setUser] = useState<Partial<User>>();
     const [showUpdateCard, setShowUpdateCard] = useState<boolean>(false);
+    const [showDeleteCard, setShowDeleteCard] = useState<boolean>(false);
     const { useViewUser } = useView();
     
     useEffect(() => {
@@ -43,7 +45,7 @@ export const AttendanceListCell = ({ attendance, number, onUpdated, onDelete, se
                 <button onClick={() => setShowUpdateCard(true)}>
                     <SquarePen className="w-4 h-4 text-blue-800" />
                 </button>
-                <button onClick={() => onDelete(attendance)}>
+                <button onClick={() => setShowDeleteCard(true)}>
                     <Trash2 className="w-4 h-4 text-red-800" />
                 </button>
             </div>
@@ -59,6 +61,20 @@ export const AttendanceListCell = ({ attendance, number, onUpdated, onDelete, se
                     setShowNotification={setShowNotification}
                     onSetNotif={onSetNotif}
                     onClose={() => setShowUpdateCard(false)}
+                />
+            )}
+            
+            {showDeleteCard && (
+                <DeleteAttendanceCard
+                    attendanceId={attendance.id!}
+                    username={user?.username ?? "this student"}
+                    onDeleted={(attendance) => {
+                        onDelete(attendance);
+                        setShowDeleteCard(false);
+                    }}
+                    onClose={() => setShowDeleteCard(false)}
+                    setShowNotification={setShowNotification}
+                    onSetNotif={onSetNotif}
                 />
             )}
         </div>

@@ -1,5 +1,6 @@
 import { deleteUser } from "../services/users";
 import { deleteEvent } from "../services/events";
+import { deleteAttendance } from "../services/attendance";
 import { ApiError } from "../services/error";
 import { logout } from "../services/auth";
 
@@ -62,5 +63,34 @@ export const useDelete = () => {
         }
     }
     
-    return { useDeleteStudent, useDeleteEvent };
+    const useDeleteAttendance = async (attendanceId: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
+        try {
+            await deleteAttendance(attendanceId);
+        } 
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "Attendance record not found.");
+                } 
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("Failed to delete data.");
+            console.error("Error deleting attendance:", e);
+            throw e;
+        }
+    }
+    
+    return { useDeleteStudent, useDeleteEvent, useDeleteAttendance };
 }

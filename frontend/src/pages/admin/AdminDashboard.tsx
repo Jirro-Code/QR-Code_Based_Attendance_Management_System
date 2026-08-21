@@ -40,19 +40,21 @@ export const AdminDashboard = () => {
                 <div className="h-10"></div>
                 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    <button onClick={() => navigate("/manage-students")}
+                    
+                    <button
+                        onClick={() => navigate("/manage-attendances")}
                         className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
                     >
                         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
-                            <Users size={20} />
+                            <Folders size={20} />
                         </div>
                         
                         <h2 className="text-lg font-bold text-slate-900">
-                            Manage Students
+                            Manage Attendances
                         </h2>
                         
                         <p className="mt-2 text-sm leading-6 text-slate-500">
-                            View, update, and manage student accounts.
+                            Manage attendance records of each event.
                         </p>
                         
                         <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
@@ -62,19 +64,19 @@ export const AdminDashboard = () => {
                     
                     
                     <button
-                        onClick={() => setIsSelecting(true)}
+                        onClick={() => navigate("/scanner")}
                         className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
                     >
                         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
-                            <UserPlus size={20} />
+                            <ScanSquare size={20} />
                         </div>
                         
                         <h2 className="text-lg font-bold text-slate-900">
-                            Create Account
+                            Scanner
                         </h2>
                         
                         <p className="mt-2 text-sm leading-6 text-slate-500">
-                            Create a new student or administrator account.
+                            Scan student QR codes for attendance.
                         </p>
                         
                         <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
@@ -127,20 +129,19 @@ export const AdminDashboard = () => {
                     </button>
                     
                     
-                    <button
-                        onClick={() => navigate("/scanner")}
+                    <button onClick={() => navigate("/manage-students")}
                         className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
                     >
                         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
-                            <ScanSquare size={20} />
+                            <Users size={20} />
                         </div>
                         
                         <h2 className="text-lg font-bold text-slate-900">
-                            Scanner
+                            Manage Students
                         </h2>
                         
                         <p className="mt-2 text-sm leading-6 text-slate-500">
-                            Scan student QR codes for attendance.
+                            View, update, and manage student accounts.
                         </p>
                         
                         <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
@@ -150,25 +151,29 @@ export const AdminDashboard = () => {
                     
                     
                     <button
-                        onClick={() => navigate("/manage-attendances")}
+                        onClick={() => setIsSelecting(true)}
                         className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl"
                     >
                         <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
-                            <Folders size={20} />
+                            <UserPlus size={20} />
                         </div>
                         
                         <h2 className="text-lg font-bold text-slate-900">
-                            Attendance
+                            Create Account
                         </h2>
                         
                         <p className="mt-2 text-sm leading-6 text-slate-500">
-                            Manage attendance records of each event.
+                            Create a new student or administrator account.
                         </p>
                         
                         <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
                             <SquareArrowOutUpRight /> Open
                         </div>
                     </button>
+                    
+                    
+                    
+                    
                 </div>
                 
                 

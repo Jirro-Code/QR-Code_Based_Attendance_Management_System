@@ -11,32 +11,12 @@ type ListCellProps = {
 export const UserListCell = ({ user, number, onDelete, onLoadView }: ListCellProps) => {
     return (
         <div className={number%2 === 0 ? "bg-white grid grid-cols-[0.3fr_repeat(5,1fr)] items-center px-5 py-4 text-sm" : "bg-gray-200 grid grid-cols-[0.3fr_repeat(5,1fr)] items-center px-5 py-4 text-sm"}>
-            {/* Number */}
-            <div className="text-gray-500">
-                {number}
-            </div>
+            <div className="text-gray-500">{number}</div>
+            <div className="font-medium text-gray-800">{user.username}</div>
+            <div className="text-gray-600">{user.studentStrand}</div>
+            <div className="text-gray-600">{user.studentSection}</div>
+            <div className="text-gray-600">{user.studentId}</div>
             
-            {/* Name */}
-            <div className="font-medium text-gray-800">
-                {user.username}
-            </div>
-            
-            {/* Strand */}
-            <div className="text-gray-600">
-                {user.studentStrand}
-            </div>
-            
-            {/* Section */}
-            <div className="text-gray-600">
-                {user.studentSection}
-            </div>
-            
-            {/* Student ID */}
-            <div className="text-gray-600">
-                {user.studentId}
-            </div>
-            
-            {/* Actions */}
             <div className="flex items-center">
                 <button onClick={onLoadView} className="rounded-md px-2 py-1 text-sm text-blue-800 hover:bg-blue-50 flex flex-col items-center">
                     <Eye size={15} />
