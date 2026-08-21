@@ -161,16 +161,17 @@ export const ManageStudents = () => {
             <div className="inset-0 min-h-screen bg-slate-100">
                 <div className="px-5 py-4">
                     <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)} />
+                    <p>{error}</p>
+                    
+                    {!isOnSearch &&
+                        <div className="mt-3 flex items-center justify-end">
+                            <button onClick={() => setShowFilter(true)}>
+                                <Ellipsis className="w-5 h-5" />
+                            </button>
+                        </div>
+                    }
                 </div>
-                <p>{error}</p>
                 
-                {!isOnSearch &&
-                    <div className="mt-3 mb-3 flex items-center justify-end">
-                        <button onClick={() => setShowFilter(true)}>
-                            <Ellipsis className="w-5 h-5" />
-                        </button>
-                    </div>
-                }
                 
                 <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-300 bg-gray-400 px-5 py-3 text-sm font-semibold text-white">
                     <div>#</div>

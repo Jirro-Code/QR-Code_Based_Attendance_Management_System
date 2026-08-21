@@ -1,5 +1,5 @@
 import { type User } from "../../../services/users.ts";
-import { CancelButton } from "../../Button/Button.tsx";
+import { CancelButton } from "../../Button.tsx";
 import { UserPen } from "lucide-react";
 import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 

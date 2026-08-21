@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLogin } from "../../hooks/useLogin";
 import { Input } from "../../components/Input/Input";
-import { BackButton } from "../../components/Button/Button";
+import { BackButton } from "../../components/Button";
 import { CircleAlert, User } from "lucide-react";
 
 export const StudentLoginPage = () => {

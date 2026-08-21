@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BackButton } from "../../components/Button/Button.tsx";
+import { BackButton } from "../../components/Button.tsx";
 import { Input } from "../../components/Input/Input.tsx";
 import { useLogin } from "../../hooks/useLogin";
 import { UserShield, CircleAlert} from "lucide-react";

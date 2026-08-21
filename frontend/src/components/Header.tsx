@@ -1,4 +1,4 @@
-import { BackButton } from "./Button/Button.tsx";
+import { BackButton } from "./Button.tsx";
 
 type HeaderProps = {
     title: string;

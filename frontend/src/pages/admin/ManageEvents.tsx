@@ -8,6 +8,13 @@ import { UpdateEventCard } from "../../components/Cards/UpdateCards/UpdateEventC
 import { DeleteEventCard } from "../../components/Cards/DeleteCards/DeleteEventCard.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { ViewEventCard } from "../../components/Cards/ViewCards/ViewEventCard.tsx";
+import { EventFilterOptions } from "../../components/Filters/EventFilter.tsx";
+import { Ellipsis } from "lucide-react";
+
+const MONTHS = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+];
 
 export const ManageEvents = () => {
     useEffect(() => {
@@ -23,28 +30,108 @@ export const ManageEvents = () => {
     const [showDeleteCard, setShowDeleteCard] = useState<boolean>(false);
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [showViewCard, setShowViewCard] = useState<boolean>(false);
+    const [showFilter, setShowFilter] = useState<boolean>(false);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
         title: "",
         message: ""
     });
-    
+
+    // persisted filter selections, same pattern as ManageAttendances/ManageStudents
+    const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
+    const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
+    const [selectedYear, setSelectedYear] = useState<string | null>(null);
+    const [selectedByTime, setSelectedByTime] = useState<"latest" | "earliest" | null>(null);
+
+    // Single source of truth for filtering + searching + sorting.
+    // All logic runs inside the useViewAllEvents callback (same structure
+    // as ManageAttendances / ManageStudents) so we're guaranteed the data
+    // is actually loaded before we filter it.
+    const applyAllFilters = async (
+        order: "A-Z" | "Z-A" | null,
+        month: string | null,
+        year: string | null,
+        byTime: "latest" | "earliest" | null,
+        query: string
+    ) => {
+        await useViewAllEvents(async (allEvents: Event[]) => {
+            setError("");
+
+            let result = [...allEvents];
+
+            if (query.trim() !== "") {
+                const searchedEvents = await useSearchEvents(query.trim(), setError);
+                const searchedIds = new Set(searchedEvents.map((event) => event.id));
+                result = result.filter((event) => searchedIds.has(event.id));
+            }
+
+            if (month && year) {
+                const monthIndex = MONTHS.indexOf(month);
+                if (monthIndex === -1) {
+                    result = [];
+                } else {
+                    const cutoffDate = new Date(Number(year), monthIndex + 1, 0);
+                    cutoffDate.setHours(23, 59, 59, 999);
+                    result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
+                }
+            } else if (month && !year) {
+                const monthIndex = MONTHS.indexOf(month);
+                result = result.filter((event) => new Date(event.eventDate).getMonth() === monthIndex);
+            } else if (!month && year) {
+                const cutoffDate = new Date(Number(year), 11, 31);
+                cutoffDate.setHours(23, 59, 59, 999);
+                result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
+            }
+
+            if (order) {
+                result.sort((a, b) =>
+                    order === "A-Z"
+                        ? a.eventName.localeCompare(b.eventName)
+                        : b.eventName.localeCompare(a.eventName)
+                );
+            }
+
+            if (byTime) {
+                result.sort((a, b) =>
+                    byTime === "latest"
+                        ? new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+                        : new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
+                );
+            }
+
+            setEventArray(result);
+        }, setError);
+    };
+
+    const handleApplyFilters = async (
+        sortAlphabetical: "A-Z" | "Z-A" | null,
+        month: string | null,
+        year: string | null,
+        byTime: "latest" | "earliest" | null
+    ) => {
+        setSelectedOrder(sortAlphabetical);
+        setSelectedMonth(month);
+        setSelectedYear(year);
+        setSelectedByTime(byTime);
+
+        await applyAllFilters(sortAlphabetical, month, year, byTime, isOnSearch ? searchQuery : "");
+    };
+
     useEffect(() => {
         useViewAllEvents(setEventArray, setError);
     }, [setEventArray, setError]);
-    
+
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
+            setIsOnSearch(false);
             setSearchQuery("");
-            setError("");
-            await useViewAllEvents(setEventArray, setError);
+            await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, "");
             return;
         }
-        
-        const searchedEvents = await useSearchEvents(searchQuery.trim(), setError);
-        setEventArray(searchedEvents);
+
         setIsOnSearch(true);
+        await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, searchQuery);
     };
-    
+
     const handleClearSearch = async () => {
         setSearchQuery("");
         setIsOnSearch(false);
@@ -52,26 +139,17 @@ export const ManageEvents = () => {
         setShowDeleteCard(false);
         setShowViewCard(false);
         setError("");
-        await useViewAllEvents(setEventArray, setError);
+        await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, "");
     }
-    
+
     const refreshEventList = async () => {
-        if (isOnSearch) {
-            setShowUpdateCard(false);
-            setShowDeleteCard(false);
-            setShowViewCard(false);
-            setError("");
-            await handleSearch();
-            return;
-        }
         setShowUpdateCard(false);
         setShowDeleteCard(false);
         setShowViewCard(false);
         setError("");
-        setIsOnSearch(false);
-        await useViewAllEvents(setEventArray, setError);
+        await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, isOnSearch ? searchQuery : "");
     };
-    
+
     const loadViewCard = (event: Event) => {
         setSelectedEvent(event);
         setShowViewCard(true);
@@ -79,7 +157,7 @@ export const ManageEvents = () => {
         setShowDeleteCard(false);
         setShowNotification(false);
     };
-    
+
     const loadDeleteCard = (event: Event) => {
         setSelectedEvent(event);
         setShowDeleteCard(true);
@@ -87,41 +165,40 @@ export const ManageEvents = () => {
         setShowViewCard(false);
         setShowNotification(false);
     }
-    
+
     const loadUpdateCard = (event: Event) => {
         setSelectedEvent(event);
         setShowUpdateCard(true);
         setShowDeleteCard(false);
         setShowNotification(false);
     };
-    
+
     const updateNotification = async (updatedEvent: Event) => {
-        if (isOnSearch) {
-            setSelectedEvent(updatedEvent);
-            setEventArray((prevEvents) => prevEvents.map((event) => event.id === updatedEvent.id ? updatedEvent : event));
-            setShowUpdateCard(false);
-            setShowDeleteCard(false);
-            setShowViewCard(true);
-            setShowNotification(true);  
-            await handleSearch();
-            return;
-        }
         setSelectedEvent(updatedEvent);
         setEventArray((prevEvents) => prevEvents.map((event) => event.id === updatedEvent.id ? updatedEvent : event));
         setShowUpdateCard(false);
         setShowDeleteCard(false);
         setShowViewCard(true);
-        setShowNotification(true);  
-        await useViewAllEvents(setEventArray, setError);           
+        setShowNotification(true);
+        await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, isOnSearch ? searchQuery : "");
     }
-    
+
     return(
         <>
             <Header title="Manage Events" />
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-5xl mx-auto p-6">
-                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} />
+                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
                     <p className="text-red-600 text-sm">{error}</p>
+
+                    {!isOnSearch &&
+                        <div className="mt-3 mb-3 flex items-center justify-end">
+                            <button onClick={() => setShowFilter(true)}>
+                                <Ellipsis className="w-5 h-5" />
+                            </button>
+                        </div>
+                    }
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         {eventArray.length > 0 ? (
                             eventArray.map((event: Event) => (
@@ -131,7 +208,21 @@ export const ManageEvents = () => {
                             <p>No events found.</p>
                         )}
                     </div>
-                    {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
+                    {showFilter && (
+                        <EventFilterOptions
+                            onClose={() => setShowFilter(false)}
+                            onApplyFilters={handleApplyFilters}
+                            selectedOrder={selectedOrder}
+                            setSelectedOrder={setSelectedOrder}
+                            selectedMonth={selectedMonth}
+                            setSelectedMonth={setSelectedMonth}
+                            selectedYear={selectedYear}
+                            setSelectedYear={setSelectedYear}
+                            selectedByTime={selectedByTime}
+                            setSelectedByTime={setSelectedByTime}
+                        />
+                    )}
+                    {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
                     {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)} eventName={selectedEvent.eventName} />}
                     {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
