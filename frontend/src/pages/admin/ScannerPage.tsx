@@ -6,7 +6,9 @@ import { Scanner } from "../../components/Scanner.tsx";
 import { Header } from "../../components/Header.tsx";
 
 export const ScannerPage = () => {
-    window.scrollTo({ top: 0, left: 0 });
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const navigate = useNavigate();
     const { useViewAllEvents } = useView();
     const [error, setError] = useState<string>("");

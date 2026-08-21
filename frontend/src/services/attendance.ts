@@ -8,6 +8,7 @@ export interface Attendance {
     attendedAt: string;
 }
 
+
 export const markStudentPresent = async (uuid: string, eventId: string, isLate: boolean) => {
     const response = await apiFetch(`/attendance/mark`, {
         method: "POST",
@@ -20,6 +21,16 @@ export const markStudentPresent = async (uuid: string, eventId: string, isLate: 
     });
     return response.json();
 };
+
+
+export const getAllEventAttendance = async () => {
+    const response = await apiFetch(`/attendance/allEvents`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+}
+
 
 export const getAttendanceByEventId = async (eventId: string) => {
     const response = await apiFetch(`/attendance/eventId/${eventId}`, {
@@ -43,6 +54,15 @@ export const getAttendanceByStrand= async (eventId: string, strand: string) => {
     const response = await apiFetch(`/attendance/groupStrand/${strand}/eventId/${eventId}`, {
         method: "GET",
         credentials: "include",
+    });
+    return response.json();
+}
+
+export const updateAttendance = async (attendanceId: string, isLate: boolean) => {
+    const response = await apiFetch(`/attendance/update/${attendanceId}`, {
+        method: "PUT",
+        credentials: "include",
+        body: JSON.stringify({ isLate }),
     });
     return response.json();
 }

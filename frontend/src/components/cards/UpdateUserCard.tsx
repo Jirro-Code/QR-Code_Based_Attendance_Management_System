@@ -1,5 +1,5 @@
 import { useUpdate } from "../../hooks/useUpdate.ts";
-import { useScrollToTop } from "../../hooks/useScrollToTop.ts";
+import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
 import { useRef, useState } from "react";
 import { Input }  from "../Input/Input.tsx";
 import { type User } from "../../services/users.ts";
@@ -16,7 +16,7 @@ type UpdateUserCardProps = {
 
 export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateUserCardProps) => {
     const { useUpdateUser } = useUpdate();
-    const { useScrollToTopOverflow } = useScrollToTop();
+    const { useScrollToTopOverflow } = useScrollFunctions();
     const [formData, setFormData] = useState<User>({} as User);
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
@@ -81,7 +81,7 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
                 <button className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold" onClick={onClose}>×</button>
                 <h1 className="text-white text-lg font-bold">Update Student: <br/>{userName}</h1>
             </div>
-            <div ref={updateCardRef} id="update-user-card" className="bg-white rounded-bl-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full max-h-[80vh] overflow-y-auto">
+            <div ref={updateCardRef} id="update-user-card" className="scrollable-card bg-white rounded-bl-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full max-h-[80vh] overflow-y-auto overscroll-contain">
                 <p className="text-red-600 text-sm">{error}</p>
                 
                 <form className="flex flex-col gap-1">

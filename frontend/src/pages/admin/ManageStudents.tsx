@@ -10,7 +10,9 @@ import { ViewStudentCard } from "../../components/Cards/ViewStudentCard.tsx";
 import { Header } from "../../components/Header.tsx";
 
 export const ManageUsers = () => {
-    window.scrollTo({ top: 0, left: 0 });
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const { useViewAllUsers, useSearchUsers } = useView();
     const [error, setError] = useState<string>("");
     const [selectedUser, setSelectedUser] = useState<Partial<User> | null>(null);

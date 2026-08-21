@@ -1,6 +1,7 @@
 import { type User } from "../../services/users.ts";
 import { CancelButton } from "../Button/Button.tsx";
 import { UserPen } from "lucide-react";
+import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
 
 type ViewStudentCardProps = {
     student: Partial<User>;
@@ -9,6 +10,8 @@ type ViewStudentCardProps = {
 };
 
 export const ViewStudentCard = ({ student, onClose, onUpdate }: ViewStudentCardProps) => {
+    const { useDisableScroll } = useScrollFunctions();
+    useDisableScroll();
     
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-30 p-4 backdrop-blur-[2px]">

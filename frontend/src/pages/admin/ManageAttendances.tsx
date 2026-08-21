@@ -7,7 +7,7 @@ import { EventAttendanceCard } from "../../components/Cards/EventAttendanceCard.
 import { UpdateEventCard } from "../../components/Cards/UpdateEventCard.tsx";
 import { DeleteEventCard } from "../../components/Cards/DeleteEventCard.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
-import { AttendanceCard } from "../../components/Cards/AttendanceCard.tsx";
+import { AttendanceCard } from "../../components/Cards/ViewAttendanceCard.tsx";
 import { FilterOptions } from "../../components/AttendanceFilter.tsx";
 import { Ellipsis } from "lucide-react";
 
@@ -17,8 +17,10 @@ const MONTHS = [
 ];
 
 export const ManageAttendances = () => {
-    window.scrollTo({ top: 0, left: 0 });
-    const { useViewAllEvents, useSearchEvents, useViewEventAttendanceByStrand } = useView();
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
+    const { useViewAllEventsWithAttendanceRecords, useSearchEvents, useViewEventAttendanceByStrand } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [showFilter, setShowFilter] = useState<boolean>(false);
@@ -36,54 +38,63 @@ export const ManageAttendances = () => {
     });
     
     useEffect(() => {
-        useViewAllEvents(setEventArray, setError);
+        useViewAllEventsWithAttendanceRecords(setEventArray, setError);
     }, [setEventArray, setError]);
     
-    const handleApplyFilters = async (sortAlphabetical: "A-Z" | "Z-A" | null, month: string | null, year: string | null, strand: string | null, byTime: "latest" | "earliest" | null) => {
-        await useViewAllEvents(async (allEvents: Event[]) => {
-            let result = [...allEvents];
-            setStrand(null);
+    const handleApplyFilters = async ( sortAlphabetical: "A-Z" | "Z-A" | null, month: string | null, year: string | null, strand: string | null, byTime: "latest" | "earliest" | null ) => {
+        await useViewAllEventsWithAttendanceRecords(async (allEvents: Event[]) => {
             setError("");
-            if (isOnSearch) {
-                const searchedEvents = await useSearchEvents(searchQuery.trim(), setError);
-                result = searchedEvents;
-            }
+            setStrand(null);
+            
+            let result = [...allEvents];
+            
+            // Strand filter (fresh fetch, replaces base)
             if (strand) {
-                const filteredEvents = await useViewEventAttendanceByStrand(strand, setError);
-                result = filteredEvents;
+                result = await useViewEventAttendanceByStrand(strand, setError);
                 setStrand(strand);
             }
+            
+            // Search filter (intersect with whatever result already has, e.g. strand)
+            if (isOnSearch) {
+                const searchedEvents = await useSearchEvents(searchQuery.trim(), setError);
+                const searchedIds = new Set(searchedEvents.map((event) => event.id));
+                result = result.filter((event) => searchedIds.has(event.id));
+            }
+            
+            // Date filters
             if (month && year) {
                 const monthIndex = MONTHS.indexOf(month);
-                const cutoffDate = new Date(Number(year), monthIndex + 1, 0);
-                cutoffDate.setHours(23, 59, 59, 999);
                 if (monthIndex === -1) {
                     result = [];
+                } else {
+                    const cutoffDate = new Date(Number(year), monthIndex + 1, 0);
+                    cutoffDate.setHours(23, 59, 59, 999);
+                    result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
                 }
-                result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
-            }
-            if (month && !year) {
+            } else if (month && !year) {
                 const monthIndex = MONTHS.indexOf(month);
                 result = result.filter((event) => new Date(event.eventDate).getMonth() === monthIndex);
-            }
-            if (!month && year) {
+            } else if (!month && year) {
                 const cutoffDate = new Date(Number(year), 11, 31);
                 cutoffDate.setHours(23, 59, 59, 999);
                 result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
             }
-            if (byTime) {
-                result.sort((a, b) => {
-                    return byTime === "latest"
-                        ? new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
-                        : new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime();
-                });
-            }
+            
+            // Sorting (applied last so it governs final display order)
             if (sortAlphabetical) {
-                result.sort((a, b) => {
-                    return sortAlphabetical === "A-Z"
+                result.sort((a, b) =>
+                    sortAlphabetical === "A-Z"
                         ? a.eventName.localeCompare(b.eventName)
-                        : b.eventName.localeCompare(a.eventName);
-                });
+                        : b.eventName.localeCompare(a.eventName)
+                );
+            }
+            
+            if (byTime) {
+                result.sort((a, b) =>
+                    byTime === "latest"
+                        ? new Date(b.eventDate).getTime() - new Date(a.eventDate).getTime()
+                        : new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
+                );
             }
             
             setEventArray(result);
@@ -94,42 +105,55 @@ export const ManageAttendances = () => {
         if (searchQuery.trim() === "") {
             setSearchQuery("");
             setError("");
-            await useViewAllEvents(setEventArray, setError);
+            await useViewAllEventsWithAttendanceRecords(setEventArray, setError);
             setIsOnSearch(false);
             return;
         }
         
+        setError("");
         const searchedEvents = await useSearchEvents(searchQuery.trim(), setError);
-        setEventArray(searchedEvents);
+        
+        await useViewAllEventsWithAttendanceRecords((allEvents: Event[]) => {
+            const eventsWithAttendanceMap = new Map(allEvents.map((event) => [event.id, event]));
+            
+            const filteredEvents = searchedEvents
+                .map((event) => eventsWithAttendanceMap.get(event.id))
+                .filter(
+                    (event): event is Event =>
+                        !!event && !!event.id && event.id.length > 0
+                );
+            
+            setEventArray(filteredEvents);
+        }, setError);
+        
         setIsOnSearch(true);
     };
     
     const handleClearSearch = async () => {
+        setError("");
         setSearchQuery("");
         setIsOnSearch(false);
         setShowUpdateCard(false);
         setShowDeleteCard(false);
         setShowViewCard(false);
-        setError("");
-        await useViewAllEvents(setEventArray, setError);
-        setIsOnSearch(false);
+        await useViewAllEventsWithAttendanceRecords(setEventArray, setError);
     }
     
     const refreshEventList = async () => {
         if (isOnSearch) {
+            setError("");
             setShowUpdateCard(false);
             setShowDeleteCard(false);
             setShowViewCard(false);
-            setError("");
             await handleSearch();
             return;
         }
+        setError("");
         setShowUpdateCard(false);
         setShowDeleteCard(false);
         setShowViewCard(false);
-        setError("");
         setIsOnSearch(false);
-        await useViewAllEvents(setEventArray, setError);
+        await useViewAllEventsWithAttendanceRecords(setEventArray, setError);
     };
     
     const loadViewCard = (event: Event) => {
@@ -165,7 +189,7 @@ export const ManageAttendances = () => {
         setShowDeleteCard(false);
         setShowViewCard(true);
         setShowNotification(true);  
-        await useViewAllEvents(setEventArray, setError);           
+        await useViewAllEventsWithAttendanceRecords(setEventArray, setError);           
     }
     
     return(
@@ -191,7 +215,7 @@ export const ManageAttendances = () => {
                             ))
                         ) : (
                             <p>No events found.</p>
-                        )}``
+                        )}
                     </div>
                     
                     {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}      

@@ -10,7 +10,9 @@ import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { ViewEventCard } from "../../components/Cards/ViewEventCard.tsx";
 
 export const ManageEvents = () => {
-    window.scrollTo({ top: 0, left: 0 });
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const { useViewAllEvents, useSearchEvents } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);

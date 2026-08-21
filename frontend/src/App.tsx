@@ -11,7 +11,6 @@ import { ManageEvents } from "./pages/admin/ManageEvents.tsx";
 import { CreateEvent } from "./pages/admin/CreateEvent.tsx";
 import { ScannerPage } from "./pages/admin/ScannerPage.tsx";
 import { ManageAttendances } from "./pages/admin/ManageAttendances.tsx";
-import { SideFilterOptions } from "./components/AttendanceFilter.tsx";
 
 export const App = () => {
     return (
@@ -29,7 +28,6 @@ export const App = () => {
                 <Route path="/create-event" element={<CreateEvent />} />
                 <Route path="/scanner" element={<ScannerPage />} />
                 <Route path="/manage-attendances" element={<ManageAttendances />} />
-                <Route path="/side-filter" element={<SideFilterOptions />} />
             </Routes>
         </div>
     );

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useCreate } from "../../hooks/useCreate.ts"
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx"
 import { Header } from "../../components/Header.tsx"
@@ -6,7 +6,9 @@ import { Input } from "../../components/Input/Input.tsx"
 import { type CreateEventData } from "../../services/events.ts"
 
 export const CreateEvent = () => {
-    window.scrollTo({ top: 0, left: 0 });
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const [error, setError] = useState<string>("");
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({

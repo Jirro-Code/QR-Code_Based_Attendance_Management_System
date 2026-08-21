@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SelectionField } from "./Input/SelectionField.tsx";
+import { useScrollFunctions } from "../hooks/useScrollFunctions.ts";
 
 type FilterOptionsProps = {
     onClose: () => void;
@@ -12,87 +13,136 @@ type FilterOptionsProps = {
     ) => void;
 };
 
+const COLLAPSED_VH = 48;
+const EXPANDED_VH = 92;
+const CLOSE_THRESHOLD_VH = 28;
+
 export const FilterOptions = ({ onClose, onApplyFilters }: FilterOptionsProps) => {
     const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
     const [selectedStrand, setSelectedStrand] = useState<string | null>(null);
     const [selectedByTime, setSelectedByTime] = useState<"latest" | "earliest" | null>(null);
+    const { useDisableScroll } = useScrollFunctions();
+    useDisableScroll();
+    const [heightVh, setHeightVh] = useState<number>(COLLAPSED_VH);
+    const [isDragging, setIsDragging] = useState<boolean>(false);
+    const [isVisible, setIsVisible] = useState<boolean>(false);
+    
+    const dragStartY = useRef<number>(0);
+    const dragStartHeight = useRef<number>(COLLAPSED_VH);
+    
+    useEffect(() => {
+        requestAnimationFrame(() => setIsVisible(true));
+    }, []);
+    
+    const handleClose = () => {
+        setIsVisible(false);
+        setTimeout(onClose, 200);
+    };
     
     const handleApply = () => {
         onApplyFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedByTime);
-        onClose();
+        handleClose();
+    };
+    
+    const handlePointerDown = (e: React.PointerEvent) => {
+        setIsDragging(true);
+        dragStartY.current = e.clientY;
+        dragStartHeight.current = heightVh;
+        (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    };
+    
+    const handlePointerMove = (e: React.PointerEvent) => {
+        if (!isDragging) return;
+        const deltaPx = dragStartY.current - e.clientY;
+        const deltaVh = (deltaPx / window.innerHeight) * 100;
+        const newHeight = Math.min(EXPANDED_VH, Math.max(15, dragStartHeight.current + deltaVh));
+        setHeightVh(newHeight);
+    };
+    
+    const handlePointerUp = () => {
+        if (!isDragging) return;
+        setIsDragging(false);
+        
+        if (heightVh < CLOSE_THRESHOLD_VH) {
+            handleClose();
+            return;
+        }
+        
+        const midpoint = (COLLAPSED_VH + EXPANDED_VH) / 2;
+        setHeightVh(heightVh >= midpoint ? EXPANDED_VH : COLLAPSED_VH);
     };
     
     const toggleButtonClass = (active: boolean) =>
-        `px-3 py-1.5 rounded-md text-[13px] transition-colors ${
-            active ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+        `px-3.5 py-2 rounded-xl text-[13px] font-semibold transition-colors duration-200 ${
+            active
+                ? "border border-blue-700 text-blue-700 shadow-sm"
+                : "bg-slate-100 text-slate-600 hover:bg-slate-200"
         }`;
-        
+    
     return (
-        <div className="inset-0 min-h-screen fixed flex justify-center z-120">
-            <div className="relative h-2/4 mt-auto w-full max-w-200 bg-white shadow-md p-4 rounded-t-2xl overflow-y-scroll">
+        <div
+            className={`fixed inset-0 z-120 flex justify-center transition-colors duration-200 ${
+                isVisible ? "bg-black/30" : "bg-black/0"
+            }`}
+            onClick={handleClose}
+        >
+            <div
+                onClick={(e) => e.stopPropagation()}
+                onPointerDown={handlePointerDown}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+                className="relative mt-auto w-full max-w-200 overflow-hidden rounded-t-2xl bg-white shadow-xl"
+                style={{
+                    height: `${heightVh}vh`,
+                    transform: isVisible ? "translateY(0)" : "translateY(100%)",
+                    transition: isDragging ? "none" : "height 0.25s ease, transform 0.25s ease",
+                    touchAction: "none",
+                }}
+            >
                 
-                <button onClick={onClose} className="absolute top-4 right-4"> X </button>
-                
-                <div className="flex justify-between items-center mb-4">
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700">Close</button>
-                    <button onClick={handleApply} className="text-blue-500 hover:text-blue-700">Apply</button>
+                <div className="flex items-center justify-between border-b border-slate-100 px-4 pb-4 mt-3">
+                    <button onClick={handleClose} className="text-sm font-semibold text-slate-500 hover:text-slate-700">
+                        Close
+                    </button>
+                    <h2 className="text-base font-bold text-slate-900">Filter Options</h2>
+                    <button onClick={handleApply} className="text-sm font-semibold text-blue-700 hover:text-blue-900">
+                        Apply
+                    </button>
                 </div>
                 
-                <h2 className="text-lg font-semibold mb-4">Filter Options</h2>
-                
-                <div className="flex flex-col gap-4 mb-5">
-                    <h1 className="text-lg font-semibold"> Alphabetical:</h1>
-                    
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setSelectedOrder(selectedOrder === "A-Z" ? null : "A-Z")}
-                            className={toggleButtonClass(selectedOrder === "A-Z")}
-                        >
-                            A-Z
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setSelectedOrder(selectedOrder === "Z-A" ? null : "Z-A")}
-                            className={toggleButtonClass(selectedOrder === "Z-A")}
-                        >
-                            Z-A
-                        </button>
+                <div className="px-6 py-5">
+                    <div className="mb-8 flex flex-col gap-3">
+                        <h3 className="text-sm font-bold text-slate-900">Sort by</h3>
+                        <div className="flex gap-2">
+                            <button type="button" onClick={() => setSelectedOrder(selectedOrder === "A-Z" ? null : "A-Z")} className={toggleButtonClass(selectedOrder === "A-Z")}>
+                                A-Z
+                            </button>
+                            <button type="button" onClick={() => setSelectedOrder(selectedOrder === "Z-A" ? null : "Z-A")} className={toggleButtonClass(selectedOrder === "Z-A")}>
+                                Z-A
+                            </button>
+                        </div>
+                        <div className="flex gap-2">
+                            <button type="button" onClick={() => setSelectedByTime(selectedByTime === "latest" ? null : "latest")} className={toggleButtonClass(selectedByTime === "latest")}>
+                                Latest to earliest
+                            </button>
+                            <button type="button" onClick={() => setSelectedByTime(selectedByTime === "earliest" ? null : "earliest")} className={toggleButtonClass(selectedByTime === "earliest")}>
+                                Earliest to latest
+                            </button>
+                        </div>
                     </div>
-                </div>
-                
-                <div className="flex flex-col gap-1 mb-2">
-                    <h1 className="text-lg font-semibold">Chronological:</h1>
                     
-                    <div className="flex gap-2">
-                        <button
-                            type="button"
-                            onClick={() => setSelectedByTime(selectedByTime === "latest" ? null : "latest")}
-                            className={toggleButtonClass(selectedByTime === "latest")}
-                        >
-                            Latest to earliest
-                        </button>
-                        <button
-                            type="button"
-                            onClick={() => setSelectedByTime(selectedByTime === "earliest" ? null : "earliest")}
-                            className={toggleButtonClass(selectedByTime === "earliest")}
-                        >
-                            Earliest to latest
-                        </button>
+                    <div className="mb-4 flex flex-col gap-3">
+                        <h3 className="text-sm font-bold text-slate-900">Strand</h3>
+                        <SelectionField id="strand" label="Select Strand" onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "ICT", "HRCTO"]} />
                     </div>
-                </div>
-                
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-lg font-semibold">Strand:</h1>
-                    <SelectionField id="strand" label="Select Strand" onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "ICT", "HRCTO"]} />
-                </div>
-                
-                <div className="flex flex-col gap-1">
-                    <h1 className="text-lg font-semibold">Date:</h1>
-                    <SelectionField id="month" label="Select Month" onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
-                    <SelectionField id="year" label="Select Year" onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
+                    
+                    <div className="flex flex-col">
+                        <h3 className="text-sm font-bold text-slate-900 mb-2">Date</h3>
+                        <SelectionField id="month" label="Select Month" onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
+                        <SelectionField id="year" label="Select Year" onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
+                    </div>
                 </div>
             </div>
         </div>

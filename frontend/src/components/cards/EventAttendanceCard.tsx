@@ -1,7 +1,15 @@
 import { type Event } from "../../services/events.ts";
-import { Trash2 } from "lucide-react"
 
-export const EventAttendanceCard = ({ event, onView, onDelete }: { event: Event; onView: (event: Event) => void; onDelete: (event: Event) => void }) => {
+export const EventAttendanceCard = ({ event, onView }: { event: Event; onView: (event: Event) => void;}) => {
+    
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
+    
     return(
         <div onClick={() => onView(event)} className="group relative w-full pt-3 cursor-pointer transition duration-200 hover:-translate-y-1">
             
@@ -18,10 +26,8 @@ export const EventAttendanceCard = ({ event, onView, onDelete }: { event: Event;
                     <h3 className="text-[16px] font-bold mt-1 text-white">{event.eventName}</h3>
                 </div>
                 
-                <div className="flex items-center justify-end gap-1 p-3">
-                    <button onClick={() => onDelete(event)} className="rounded-md p-2 text-red-500 transition-colors hover:bg-red-50">
-                        <Trash2 size={20} />
-                    </button>
+                <div className="flex items-center gap-1 p-3 mb-5">
+                    <p className="text-sm text-gray-600">{formatDate(event.eventDate)}</p>
                 </div>
             </div>
         </div>

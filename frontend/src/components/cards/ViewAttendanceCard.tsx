@@ -1,8 +1,10 @@
 import { type Event } from "../../services/events.ts";
 import { type Attendance } from "../../services/attendance.ts";
 import { AttendanceListCell } from "../AttendanceListCell.tsx";
+import { NotificationCard } from "./NotificationCard.tsx";
 import { useView } from "../../hooks/useView.ts";
-import { useEffect,  useState } from "react";
+import { useEffect, useState } from "react";
+import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
 import { X } from "lucide-react";
 
 type AttendanceCardProps = {
@@ -15,15 +17,25 @@ export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) 
     const [attendanceArray, setAttendanceArray] = useState<Attendance[]>([]);
     const { useViewAttendanceByEventId, useViewAttendanceByStrand } = useView();
     const [error, setError] = useState<string>("");
+    const [showNotification, setShowNotification] = useState<boolean>(false);
+    const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string }>({
+        title: "",
+        message: ""
+    });
+    const { useDisableScroll } = useScrollFunctions();
+    useDisableScroll();
+    
+    const sortByAttendedAt = (data: Attendance[]) =>
+        [...data].sort((a, b) => new Date(a.attendedAt).getTime() - new Date(b.attendedAt).getTime());
     
     useEffect(() => {
         if (strand) {
             useViewAttendanceByStrand(event.id, strand, setError).then((data) => {
-                setAttendanceArray(data);
+                setAttendanceArray(sortByAttendedAt(data));
             });
         } else {
             useViewAttendanceByEventId(event.id, setError).then((data) => {
-                setAttendanceArray(data);
+                setAttendanceArray(sortByAttendedAt(data));
             });
         }
     }, [event.id, strand, setError]);
@@ -41,7 +53,7 @@ export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) 
                     <h2 className="text-white text-lg font-bold">{event.eventName}</h2>
                     {error && <p className="text-red-600 text-sm ml-4">{error}</p>}
                 </div>
-                <div className="bg-gray-200 h-100 overflow-y-auto">
+                <div className="scrollable-card bg-gray-200 h-100 overflow-y-auto overscroll-contain">
                     <div className="grid grid-cols-[0.3fr_repeat(7,1fr)] border-b border-gray-300 bg-gray-400 px-5 py-3 text-sm font-semibold text-white">
                         <div>#</div>
                         <div>Name</div>
@@ -54,8 +66,20 @@ export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) 
                     </div>
                     <div className="grid grid-cols-1">
                         {attendanceArray.length > 0 ? (
-                            attendanceArray.map((attendance: Attendance) => (
-                                <AttendanceListCell key={attendance.id} attendance={attendance} number={attendanceArray.indexOf(attendance) + 1} />
+                            attendanceArray.map((attendance: Attendance, index: number) => (
+                                <AttendanceListCell
+                                    key={attendance.id}
+                                    attendance={attendance}
+                                    number={index + 1}
+                                    onUpdated={(updated) => {
+                                        setAttendanceArray((prev) =>
+                                            prev.map((a) => a.id === updated.id ? updated : a)
+                                        );
+                                    }}
+                                    onDelete={(att) => { /* delete logic mo dito */ }}
+                                    setShowNotification={setShowNotification}
+                                    onSetNotif={setNotificationMessage}
+                                />
                             ))
                         ) : (
                             <p>No attendance records found.</p>
@@ -63,7 +87,13 @@ export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) 
                     </div>
                 </div>
             </div>
+            {showNotification && (
+                <NotificationCard
+                    title={notificationMessage.title}
+                    message={notificationMessage.message}
+                    onClose={() => setShowNotification(false)}
+                />
+            )}
         </div>
     );
 }
-        

@@ -1,14 +1,16 @@
 import { useCurrentUser } from "../../hooks/useCurrentUser.ts";
-import {useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../services/auth.ts";
 import { type User } from "../../services/users.ts";
-import { SelectionCard } from "../../components/Cards/SelectionCard.tsx";
+import { SelectionCard } from "../../components/Cards/RegisterSelectionCard.tsx";
 import { Navbar } from "../../components/Navbar.tsx";
 import { UserPlus, ScanSquare, CalendarPlus2, Calendars, Users, SquareArrowOutUpRight, Folders } from 'lucide-react';
 
 export const AdminDashboard = () => {
-    window.scrollTo({ top: 0, left: 0 });
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const navigate = useNavigate();
     const [isSelecting, setIsSelecting] = useState<boolean>(false);
     const [adminData, setAdminData] = useState<Partial<User>>({
