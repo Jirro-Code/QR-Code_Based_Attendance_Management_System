@@ -1,9 +1,9 @@
-import { useUpdate } from "../../hooks/useUpdate.ts";
-import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
+import { useUpdate } from "../../../hooks/useUpdate.ts";
+import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 import { useRef, useState } from "react";
-import { Input }  from "../Input/Input.tsx";
-import { type User } from "../../services/users.ts";
-import { SelectionField } from "../Input/SelectionField.tsx";
+import { Input }  from "../../Input/Input.tsx";
+import { type User } from "../../../services/users.ts";
+import { SelectionField } from "../../Input/SelectionField.tsx";
 
 type UpdateUserCardProps = {
     userId: string;

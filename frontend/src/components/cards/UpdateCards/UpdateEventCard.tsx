@@ -1,7 +1,7 @@
-import { useUpdate } from "../../hooks/useUpdate.ts";
+import { useUpdate } from "../../../hooks/useUpdate.ts";
 import { useState } from "react";
-import { Input }  from "../Input/Input.tsx";
-import { type Event } from "../../services/events.ts";
+import { Input }  from "../../Input/Input.tsx";
+import { type Event } from "../../../services/events.ts";
 
 type UpdateEventCardProps = {
     id: string;

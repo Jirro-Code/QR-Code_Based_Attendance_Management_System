@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { SelectionField } from "./Input/SelectionField.tsx";
-import { useScrollFunctions } from "../hooks/useScrollFunctions.ts";
+import { SelectionField } from "../Input/SelectionField.tsx";
+import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
 
 type FilterOptionsProps = {
     onClose: () => void;
@@ -11,18 +11,37 @@ type FilterOptionsProps = {
         strand: string | null,
         byTime: "latest" | "earliest" | null
     ) => void;
+    selectedOrder: "A-Z" | "Z-A" | null;
+    setSelectedOrder: React.Dispatch<React.SetStateAction<"A-Z" | "Z-A" | null>>;
+    selectedMonth: string | null;
+    setSelectedMonth: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedYear: string | null;
+    setSelectedYear: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedStrand: string | null;
+    setSelectedStrand: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedByTime: "latest" | "earliest" | null;
+    setSelectedByTime: React.Dispatch<React.SetStateAction<"latest" | "earliest" | null>>;
 };
 
 const COLLAPSED_VH = 48;
 const EXPANDED_VH = 92;
 const CLOSE_THRESHOLD_VH = 28;
 
-export const FilterOptions = ({ onClose, onApplyFilters }: FilterOptionsProps) => {
-    const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
-    const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
-    const [selectedYear, setSelectedYear] = useState<string | null>(null);
-    const [selectedStrand, setSelectedStrand] = useState<string | null>(null);
-    const [selectedByTime, setSelectedByTime] = useState<"latest" | "earliest" | null>(null);
+export const AttendanceFilterOptions = ({
+        onClose,
+        onApplyFilters,
+        selectedOrder,
+        setSelectedOrder,
+        selectedMonth,
+        setSelectedMonth,
+        selectedYear,
+        setSelectedYear,
+        selectedStrand,
+        setSelectedStrand,
+        selectedByTime,
+        setSelectedByTime,
+    }: FilterOptionsProps) => {
+    
     const { useDisableScroll } = useScrollFunctions();
     useDisableScroll();
     const [heightVh, setHeightVh] = useState<number>(COLLAPSED_VH);
@@ -135,13 +154,13 @@ export const FilterOptions = ({ onClose, onApplyFilters }: FilterOptionsProps) =
                     
                     <div className="mb-4 flex flex-col gap-3">
                         <h3 className="text-sm font-bold text-slate-900">Strand</h3>
-                        <SelectionField id="strand" label="Select Strand" onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "ICT", "HRCTO"]} />
+                        <SelectionField id="strand" label="Select Strand" value={selectedStrand ?? ""} onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "ICT", "HRCTO"]} />
                     </div>
                     
                     <div className="flex flex-col">
                         <h3 className="text-sm font-bold text-slate-900 mb-2">Date</h3>
-                        <SelectionField id="month" label="Select Month" onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
-                        <SelectionField id="year" label="Select Year" onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
+                        <SelectionField id="month" label="Select Month" value={selectedMonth ?? ""} onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
+                        <SelectionField id="year" label="Select Year" value={selectedYear ?? ""} onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
                     </div>
                 </div>
             </div>

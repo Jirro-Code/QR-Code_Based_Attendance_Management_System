@@ -1,10 +1,10 @@
-import { type Attendance } from "../services/attendance.ts";
-import { type User } from "../services/users.ts";
-import { useView } from "../hooks/useView.ts";
+import { type Attendance } from "../../services/attendance.ts";
+import { type User } from "../../services/users.ts";
+import { useView } from "../../hooks/useView.ts";
 import { useEffect, useState } from "react";
 import { Trash2, SquarePen } from "lucide-react";
-import { UpdateAttendanceCard } from "./Cards/UpdateAttendanceCard.tsx";
-import { DeleteAttendanceCard } from "./Cards/DeleteAttendanceCard.tsx";
+import { UpdateAttendanceCard } from "../Cards/UpdateCards/UpdateAttendanceCard.tsx";
+import { DeleteAttendanceCard } from "../Cards/DeleteCards/DeleteAttendanceCard.tsx";
 
 type ListCellProps = {
     attendance: Partial<Attendance>;

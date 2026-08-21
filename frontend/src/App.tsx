@@ -6,7 +6,7 @@ import { AdminDashboard } from "./pages/admin/AdminDashboard.tsx";
 import { StudentDashboard } from "./pages/student/Dashboard.tsx";
 import { RegisterStudent } from "./pages/admin/register/RegisterStudent.tsx";
 import { RegisterAdmin } from "./pages/admin/register/RegisterAdmin.tsx";
-import { ManageUsers } from "./pages/admin/ManageStudents.tsx";
+import { ManageStudents } from "./pages/admin/ManageStudents.tsx";
 import { ManageEvents } from "./pages/admin/ManageEvents.tsx";
 import { CreateEvent } from "./pages/admin/CreateEvent.tsx";
 import { ScannerPage } from "./pages/admin/ScannerPage.tsx";
@@ -23,7 +23,7 @@ export const App = () => {
                 <Route path="/student-dashboard" element={<StudentDashboard />} />
                 <Route path="/create-student" element={<RegisterStudent />} />
                 <Route path="/create-admin" element={<RegisterAdmin />} />
-                <Route path="/manage-students" element={<ManageUsers />} />
+                <Route path="/manage-students" element={<ManageStudents />} />
                 <Route path="/manage-events" element={<ManageEvents />} />
                 <Route path="/create-event" element={<CreateEvent />} />
                 <Route path="/scanner" element={<ScannerPage />} />

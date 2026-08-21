@@ -1,4 +1,4 @@
-import { type Event } from "../../services/events";
+import { type Event } from "../../../services/events";
 
 type ViewEventCardProps = {
     event: Partial<Event>;

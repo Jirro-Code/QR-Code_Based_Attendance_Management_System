@@ -1,4 +1,4 @@
-import { useDelete } from "../../hooks/useDelete.ts";
+import { useDelete } from "../../../hooks/useDelete.ts";
 import { useState } from "react";
 import { TriangleAlert } from "lucide-react";
 

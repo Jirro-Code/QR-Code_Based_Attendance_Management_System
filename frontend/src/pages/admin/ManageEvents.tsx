@@ -4,10 +4,10 @@ import { useView } from "../../hooks/useView.ts";
 import { useEffect, useState } from "react";
 import { type Event } from "../../services/events.ts";
 import { EventCard } from "../../components/Cards/EventCard.tsx";
-import { UpdateEventCard } from "../../components/Cards/UpdateEventCard.tsx";
-import { DeleteEventCard } from "../../components/Cards/DeleteEventCard.tsx";
+import { UpdateEventCard } from "../../components/Cards/UpdateCards/UpdateEventCard.tsx";
+import { DeleteEventCard } from "../../components/Cards/DeleteCards/DeleteEventCard.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
-import { ViewEventCard } from "../../components/Cards/ViewEventCard.tsx";
+import { ViewEventCard } from "../../components/Cards/ViewCards/ViewEventCard.tsx";
 
 export const ManageEvents = () => {
     useEffect(() => {
@@ -132,7 +132,7 @@ export const ManageEvents = () => {
                         )}
                     </div>
                     {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}            
-                    {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} />}
+                    {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)} eventName={selectedEvent.eventName} />}
                     {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
                 </div>

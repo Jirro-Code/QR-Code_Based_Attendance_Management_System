@@ -34,7 +34,7 @@ export const useView = () => {
             throw e;
         }
     }
-    const useViewAllUsers = async (setUserArray: React.Dispatch<React.SetStateAction<Partial<User>[]>>, setError: React.Dispatch<React.SetStateAction<string>>) => {
+    const useViewAllUsers = async (setUserArray: (users: User[]) => void, setError: React.Dispatch<React.SetStateAction<string>>) => {
         const fetchUsers = async () => {
             try {
                 const data = await getUsersByRole("user");

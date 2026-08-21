@@ -1,7 +1,7 @@
-import { type User } from "../../services/users.ts";
-import { CancelButton } from "../Button/Button.tsx";
+import { type User } from "../../../services/users.ts";
+import { CancelButton } from "../../Button/Button.tsx";
 import { UserPen } from "lucide-react";
-import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
+import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 
 type ViewStudentCardProps = {
     student: Partial<User>;

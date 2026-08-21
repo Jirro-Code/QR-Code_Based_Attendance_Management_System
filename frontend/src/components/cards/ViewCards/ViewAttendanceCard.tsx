@@ -1,10 +1,10 @@
-import { type Event } from "../../services/events.ts";
-import { type Attendance } from "../../services/attendance.ts";
-import { AttendanceListCell } from "../AttendanceListCell.tsx";
-import { NotificationCard } from "./NotificationCard.tsx";
-import { useView } from "../../hooks/useView.ts";
+import { type Event } from "../../../services/events.ts";
+import { type Attendance } from "../../../services/attendance.ts";
+import { AttendanceListCell } from "../../ListCells/AttendanceListCell.tsx";
+import { NotificationCard } from "./../NotificationCard.tsx";
+import { useView } from "../../../hooks/useView.ts";
 import { useEffect, useState } from "react";
-import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
+import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 import { X } from "lucide-react";
 
 type AttendanceCardProps = {

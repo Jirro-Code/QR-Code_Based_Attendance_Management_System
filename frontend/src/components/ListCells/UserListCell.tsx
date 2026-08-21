@@ -1,4 +1,4 @@
-import { type User } from "../services/users";
+import { type User } from "../../services/users";
 import { Trash2, Eye } from 'lucide-react';
 
 type ListCellProps = {

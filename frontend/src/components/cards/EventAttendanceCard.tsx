@@ -1,6 +1,11 @@
 import { type Event } from "../../services/events.ts";
 
-export const EventAttendanceCard = ({ event, onView }: { event: Event; onView: (event: Event) => void;}) => {
+type EventAttendanceCardProps = {
+    event: Event;
+    onView: (event: Event) => void;
+};
+
+export const EventAttendanceCard = ({ event, onView }: EventAttendanceCardProps) => {
     
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("en-US", {
