@@ -3,7 +3,7 @@ import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import { users, userRoleSchema } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
 import { hashPassword } from "../utils/password.ts";
-import { eq, and, or, ilike, desc} from "drizzle-orm";
+import { eq, and, or, ilike, desc, not} from "drizzle-orm";
 import z from "zod";
 
 
@@ -127,23 +127,57 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
 
 
 export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
-    try{
+    try {
         const userId = z.string().parse(req.params.id);
         const userPassword = req.body.password ? await hashPassword(req.body.password) : undefined;
-        const updatedData = userPassword ? {...req.body, password: userPassword, updatedAt: new Date()} : {...req.body, updatedAt: new Date()};
-        const [updatedUser] = await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
+        const updatedData = userPassword
+            ? { ...req.body, password: userPassword, updatedAt: new Date() }
+            : { ...req.body, updatedAt: new Date() };
+
+        // Check each unique field individually
+        const [emailConflict, studentIdConflict, studentLRNConflict] = await Promise.all([
+            req.body.email
+                ? db.query.users.findFirst({
+                    where: and(not(eq(users.id, userId)), eq(users.email, req.body.email)),
+                })
+                : null,
+            req.body.studentId
+                ? db.query.users.findFirst({
+                    where: and(not(eq(users.id, userId)), eq(users.studentId, req.body.studentId)),
+                })
+                : null,
+            req.body.studentLRN
+                ? db.query.users.findFirst({
+                    where: and(not(eq(users.id, userId)), eq(users.studentLRN, req.body.studentLRN)),
+                })
+                : null,
+        ]);
         
-        if(!updatedUser) {
-            return res.status(404).json({message: "User not found"});
+        const duplicateFields: string[] = [];
+        if (emailConflict) duplicateFields.push("email");
+        if (studentIdConflict) duplicateFields.push("studentId");
+        if (studentLRNConflict) duplicateFields.push("studentLRN");
+        
+        if (duplicateFields.length > 0) {
+            console.error("Duplicate data found for:", duplicateFields);
+            return res.status(409).json({
+                message: `Duplicate data found for: ${duplicateFields.join(", ")}`,
+                duplicateFields,
+            });
         }
         
-        res.status(200).json({message: "User updated successfully", user: updatedUser});
-    }
-    catch(e){
+        const [updatedUser] = await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
+        
+        if (!updatedUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        
+        res.status(200).json({ message: "User updated successfully", user: updatedUser });
+    } catch (e) {
         console.error("Error updating user:", e);
-        res.status(500).json({message: "Error updating user"});
+        res.status(500).json({ message: "Error updating user" });
     }
-}
+};
 
 
 export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {

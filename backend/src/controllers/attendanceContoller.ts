@@ -59,18 +59,35 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
 
 
 
-export const getAllAttendance = async ( _req: AuthenticatedRequest, res: Response) => {
-    try{
-        const attendanceList = await db.query.attendance.findMany();
+export const getAllEventAttendance = async (_req: AuthenticatedRequest, res: Response) => {
+    try {
+        const attendanceList = await db.query.attendance.findMany({
+            with: {
+                event: true,
+            },
+        });
         
-        console.log("Fetched attendance:", attendanceList);
-        res.status(200).json({message: "Attendance fetched successfully", attendance: attendanceList});
-    }
-    catch (e){
+        const nonDuplicateEvents = new Map();
+        
+        for (const record of attendanceList) {
+            if (!nonDuplicateEvents.has(record.eventId)) {
+                nonDuplicateEvents.set(record.eventId, record.event);
+            }
+        }
+        
+        const events = Array.from(nonDuplicateEvents.values());
+        
+        if (events.length === 0) {
+            return res.status(404).json({ message: "No events found" });
+        }
+        
+        res.status(200).json({ message: "Attendance fetched successfully", events: events });
+    } 
+    catch (e) {
         console.error("Error fetching attendance:", e);
-        res.status(500).json({message: "Error fetching attendance"});
+        res.status(500).json({ message: "Error fetching attendance" });
     }
-}
+};
 
 
 export const getUserAttendance = async (req: AuthenticatedRequest, res: Response) => {
@@ -126,6 +143,7 @@ export const getEventAttendance = async (req: AuthenticatedRequest, res: Respons
     }
 }
 
+
 export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.uuid().parse(req.params.eventId);
@@ -140,7 +158,7 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
         }
         
         const groupAttendance = await 
-            db.select({id: attendance.id, userId: attendance.userId, eventId: attendance.eventId, isLate: attendance.isLate}).
+            db.select({id: attendance.id, userId: attendance.userId, eventId: attendance.eventId, isLate: attendance.isLate, attendedAt: attendance.attendedAt}).
             from(attendance).
             innerJoin(users, eq(attendance.userId, users.id)).
             where(and(eq(attendance.eventId, eventId), eq(users.studentStrand, groupStrand)));
@@ -190,37 +208,38 @@ export const getEventAttendanceByStrand = async (req: AuthenticatedRequest, res:
 
 
 export const updateAttendance = async (req: AuthenticatedRequest, res: Response) => {
-    try{
-        const userId = z.uuid().parse(req.params.id);
+    try {
+        const attendanceId = z.uuid().parse(req.params.id);
         const isLate = z.boolean().parse(req.body.isLate);
         
-        const [updatedAttendance] = await db.update(attendance).set({ isLate }).where(eq(attendance.userId, userId)).returning();
+        const [updatedAttendance] = await db.update(attendance).set({ isLate }).where(eq(attendance.id, attendanceId)).returning();
         
-        if(!updatedAttendance){
-            console.error("Attendance not found for user:", userId);
-            return res.status(404).json({message: "Attendance not found for this user"});
+        if (!updatedAttendance) {
+            console.error("Attendance not found:", attendanceId);
+            return res.status(404).json({ message: "Attendance not found" });
         }
         console.log("Attendance updated:", updatedAttendance);
-        res.status(200).json({message: "Attendance updated successfully", attendance: updatedAttendance});
+        res.status(200).json({ message: "Attendance updated successfully", attendance: updatedAttendance });
     }
-    catch(e){
-        if(e instanceof z.ZodError){
+    catch (e) {
+        if (e instanceof z.ZodError) {
             console.error("Invalid attendance update", e.issues);
-            return res.status(400).json({message: "Invalid attendance update", error: e.issues});
+            return res.status(400).json({ message: "Invalid attendance update", error: e.issues });
         }
+        
         console.error("Error updating attendance:", e);
-        res.status(500).json({message: "Error updating attendance"});
+        res.status(500).json({ message: "Error updating attendance" });
     }
 }
 
 
 export const deleteUserAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
-        const userId = z.uuid().parse(req.params.id);
-        const [deletedUser] = await db.delete(attendance).where(eq(attendance.userId, userId)).returning();
+        const attendanceId = z.uuid().parse(req.params.id);
+        const [deletedUser] = await db.delete(attendance).where(eq(attendance.id, attendanceId)).returning();
         
         if(!deletedUser){
-            console.error("User not found", userId);
+            console.error("User not found", attendanceId);
             return res.status(404).json({message: "User not found"})
         }
         

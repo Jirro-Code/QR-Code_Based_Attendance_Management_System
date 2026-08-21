@@ -1,5 +1,5 @@
 import Router from "express";
-import { markAttendance, getAllAttendance, getEventAttendanceByStrand, getEventAttendance, getAttendanceByStrand, getUserAttendance, updateAttendance, deleteUserAttendance} from "../controllers/attendanceContoller.ts";
+import { markAttendance, getEventAttendanceByStrand, getEventAttendance, getAttendanceByStrand, getUserAttendance, updateAttendance, deleteUserAttendance, getAllEventAttendance} from "../controllers/attendanceContoller.ts";
 import { authAdminToken, authToken} from "../middlewares/authToken.ts";
 import { insertAttendanceSchema } from "../db/schema.ts";
 import { validateBody, validateParams } from "../middlewares/validation.ts";
@@ -31,7 +31,7 @@ router.get("/myAttendance", getUserAttendance);
 
 router.use(authAdminToken);
 router.post("/mark", validateBody(insertAttendanceSchema), markAttendance);
-router.get("/all", getAllAttendance);
+router.get("/allEvents", getAllEventAttendance);
 router.get("/userId/:id", validateParams(uuidSchema), getUserAttendance);
 router.get("/eventId/:id", validateParams(uuidSchema), getEventAttendance);
 router.get("/strand/:strand", validateParams(strandSchema), getEventAttendanceByStrand);
