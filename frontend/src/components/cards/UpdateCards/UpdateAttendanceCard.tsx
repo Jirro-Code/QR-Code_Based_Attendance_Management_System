@@ -39,7 +39,7 @@ export const UpdateAttendanceCard = ({ attendance, studentName, onUpdated, setSh
     }; 
     
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+        <div className="not-scrollable-card fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-lg p-5 flex flex-col gap-3 max-w-xs w-full">
                 <h1 className="text-blue-800 text-base font-bold flex gap-1"><UserPen /> Update Attendance</h1>
                 

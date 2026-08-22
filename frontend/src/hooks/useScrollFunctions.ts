@@ -13,10 +13,14 @@ export const useScrollFunctions = () => {
             const preventPageScroll = (e: WheelEvent) => {
                 const target = e.target as HTMLElement;
                 
-                if (target.closest(".scrollable-card")){
+                if (target.closest(".not-scrollable-card")){
+                    e.preventDefault();
                     return;
                 }
                 
+                if (target.closest(".scrollable-card")){
+                    return;
+                }
                 e.preventDefault();
             };
             window.addEventListener("wheel", preventPageScroll, { passive: false });

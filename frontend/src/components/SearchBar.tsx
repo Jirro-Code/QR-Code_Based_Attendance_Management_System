@@ -7,7 +7,7 @@ type SearchBarProps = {
     searchQuery: string;
     isOnSearch: boolean;
     handleClearSearch: () => void;
-    handleFilterClick?: () => void;
+    handleFilterClick: () => void;
 };
 
 export const SearchBar = ({ handleSearch, setSearchQuery, searchQuery, isOnSearch, handleClearSearch, handleFilterClick }: SearchBarProps) => {   

@@ -1,6 +1,7 @@
 import { TriangleAlert } from "lucide-react";
 import { useDelete } from "../../../hooks/useDelete.ts";
 import { useState } from "react";
+import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 
 type DeleteCardUserProps = {
     userId: string;
@@ -14,6 +15,8 @@ type DeleteCardUserProps = {
 export const DeleteUserCard = ({ userId, username, onDeleted, setShowNotification, onSetNotif, onClose }: DeleteCardUserProps) => {
     const [error, setError] = useState<string>("");
     const { useDeleteStudent } = useDelete();
+    const { useDisableScroll } = useScrollFunctions();
+    useDisableScroll();
     
     const handleDelete = async () => {
         try {

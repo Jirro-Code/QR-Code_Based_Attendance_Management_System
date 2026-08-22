@@ -8,11 +8,6 @@ import { AttendanceCard } from "../../components/Cards/ViewCards/ViewAttendanceC
 import { AttendanceFilterOptions } from "../../components/Filters/AttendanceFilter.tsx";
 import { Ellipsis } from "lucide-react";
 
-const MONTHS = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-];
-
 export const ManageAttendances = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0 });
@@ -35,6 +30,16 @@ export const ManageAttendances = () => {
     useEffect(() => {
         useViewAllEventsWithAttendanceRecords(setEventArray, setError);
     }, [setEventArray, setError]);
+    
+    const MONTHS = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    
+    const parseYMD = (dateStr: string) => {
+        const [year, month, day] = dateStr.split("-").map(Number);
+        return { year, monthIndex: month - 1, day };
+    };
     
     const applyAllFilters = async (
         order: "A-Z" | "Z-A" | null,
@@ -68,17 +73,16 @@ export const ManageAttendances = () => {
             if (monthIndex === -1) {
                 result = [];
             } else {
-                const cutoffDate = new Date(Number(year), monthIndex + 1, 0);
-                cutoffDate.setHours(23, 59, 59, 999);
-                result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
+                result = result.filter((event) => {
+                    const { year: eYear, monthIndex: eMonthIndex } = parseYMD(event.eventDate);
+                    return eYear === Number(year) && eMonthIndex === monthIndex;
+                });
             }
         } else if (month && !year) {
             const monthIndex = MONTHS.indexOf(month);
-            result = result.filter((event) => new Date(event.eventDate).getMonth() === monthIndex);
+            result = result.filter((event) => parseYMD(event.eventDate).monthIndex === monthIndex);
         } else if (!month && year) {
-            const cutoffDate = new Date(Number(year), 11, 31);
-            cutoffDate.setHours(23, 59, 59, 999);
-            result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
+            result = result.filter((event) => parseYMD(event.eventDate).year === Number(year));
         }
         
         if (order) {

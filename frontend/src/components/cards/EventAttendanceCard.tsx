@@ -28,7 +28,7 @@ export const EventAttendanceCard = ({ event, onView }: EventAttendanceCardProps)
             <div className="card relative w-full overflow-hidden rounded-md rounded-tl-none bg-white shadow-sm transition duration-200 group-hover:shadow-xl">
                 
                 <div className="flex min-h-12 items-center bg-blue-800 p-3 transition-colors duration-200 group-hover:bg-blue-900">
-                    <h3 className="text-[16px] font-bold mt-1 text-white">{event.eventName}</h3>
+                    <h3 className="text-[16px] font-bold mt-1 text-white overflow-hidden text-ellipsis whitespace-nowrap">{event.eventName}</h3>
                 </div>
                 
                 <div className="flex items-center gap-1 p-3 mb-5">

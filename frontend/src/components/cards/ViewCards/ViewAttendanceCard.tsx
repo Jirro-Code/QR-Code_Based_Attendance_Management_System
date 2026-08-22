@@ -25,6 +25,14 @@ export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) 
         message: ""
     });
     
+    const formatDate = (dateString: string) => {
+        return new Date(dateString).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
+    
     const sortByAttendedAt = (data: Attendance[]) =>
         [...data].sort((a, b) => new Date(a.attendedAt).getTime() - new Date(b.attendedAt).getTime());
     
@@ -58,9 +66,12 @@ export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) 
                     <X className="w-5 h-5" />
                 </button>
                 
-                
-                <div className="h-1/2 bg-blue-800 p-3 flex items-center">
-                    <h2 className="text-white text-lg font-bold">{event.eventName}</h2>
+                <div className="h-1/2 bg-blue-800 p-3 flex flex-col justify-center gap-1">
+                    <h1 className="w-80 text-white text-lg font-bold overflow-hidden text-ellipsis whitespace-nowrap">{event.eventName}</h1>
+                    <div className="w-full flex justify-between items-center">
+                        {strand ? <h4 className="text-white text-sm"><b>Strand:</b> {strand}</h4> : <div></div>}
+                        <h4 className="text-white text-sm">{formatDate(event.eventDate)}</h4>
+                    </div>
                     {error && <p className="text-red-600 text-sm ml-4">{error}</p>}
                 </div>
                 

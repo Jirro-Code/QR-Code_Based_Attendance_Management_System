@@ -1,6 +1,7 @@
 import { useDelete } from "../../../hooks/useDelete.ts";
 import { useState } from "react";
 import { TriangleAlert } from "lucide-react";
+import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 
 type DeleteCardAttendanceProps = {
     attendanceId: string;
@@ -14,6 +15,8 @@ type DeleteCardAttendanceProps = {
 export const DeleteAttendanceCard = ({ attendanceId, username, onDeleted, setShowNotification, onSetNotif, onClose }: DeleteCardAttendanceProps) => {
     const [error, setError] = useState<string>("");
     const { useDeleteAttendance } = useDelete();
+    const { useDisableScroll } = useScrollFunctions();
+    useDisableScroll();
     
     const handleDelete = async () => {
         try {
@@ -33,7 +36,7 @@ export const DeleteAttendanceCard = ({ attendanceId, username, onDeleted, setSho
     };
     
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+        <div className="not-scrollable-card fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-lg p-5 flex flex-col gap-3 max-w-xs w-full">
                 <h1 className="text-red-800 text-base font-bold flex gap-1"><TriangleAlert/> Delete Attendance</h1>
                 

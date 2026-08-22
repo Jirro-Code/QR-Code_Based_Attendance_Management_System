@@ -11,10 +11,6 @@ import { ViewEventCard } from "../../components/Cards/ViewCards/ViewEventCard.ts
 import { EventFilterOptions } from "../../components/Filters/EventFilter.tsx";
 import { Ellipsis } from "lucide-react";
 
-const MONTHS = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December"
-];
 
 export const ManageEvents = () => {
     useEffect(() => {
@@ -31,57 +27,58 @@ export const ManageEvents = () => {
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [showViewCard, setShowViewCard] = useState<boolean>(false);
     const [showFilter, setShowFilter] = useState<boolean>(false);
-    const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
-        title: "",
-        message: ""
-    });
-
-    // persisted filter selections, same pattern as ManageAttendances/ManageStudents
     const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
     const [selectedByTime, setSelectedByTime] = useState<"latest" | "earliest" | null>(null);
-
-    // Single source of truth for filtering + searching + sorting.
-    // All logic runs inside the useViewAllEvents callback (same structure
-    // as ManageAttendances / ManageStudents) so we're guaranteed the data
-    // is actually loaded before we filter it.
-    const applyAllFilters = async (
-        order: "A-Z" | "Z-A" | null,
-        month: string | null,
-        year: string | null,
-        byTime: "latest" | "earliest" | null,
-        query: string
-    ) => {
+    const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
+        title: "",
+        message: ""
+    });
+    
+    useEffect(() => {
+        useViewAllEvents(setEventArray, setError);
+    }, [setEventArray, setError]);
+    
+    const MONTHS = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    ];
+    
+    const parseYMD = (dateStr: string) => {
+        const [year, month, day] = dateStr.split("-").map(Number);
+        return { year, monthIndex: month - 1, day };
+    };
+    
+    const applyAllFilters = async ( order: "A-Z" | "Z-A" | null,  month: string | null,  year: string | null, byTime: "latest" | "earliest" | null, query: string ) => {
         await useViewAllEvents(async (allEvents: Event[]) => {
             setError("");
-
+            
             let result = [...allEvents];
-
+            
             if (query.trim() !== "") {
                 const searchedEvents = await useSearchEvents(query.trim(), setError);
                 const searchedIds = new Set(searchedEvents.map((event) => event.id));
                 result = result.filter((event) => searchedIds.has(event.id));
             }
-
+            
             if (month && year) {
                 const monthIndex = MONTHS.indexOf(month);
                 if (monthIndex === -1) {
                     result = [];
                 } else {
-                    const cutoffDate = new Date(Number(year), monthIndex + 1, 0);
-                    cutoffDate.setHours(23, 59, 59, 999);
-                    result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
+                    result = result.filter((event) => {
+                        const { year: eYear, monthIndex: eMonthIndex } = parseYMD(event.eventDate);
+                        return eYear === Number(year) && eMonthIndex === monthIndex;
+                    });
                 }
             } else if (month && !year) {
                 const monthIndex = MONTHS.indexOf(month);
-                result = result.filter((event) => new Date(event.eventDate).getMonth() === monthIndex);
+                result = result.filter((event) => parseYMD(event.eventDate).monthIndex === monthIndex);
             } else if (!month && year) {
-                const cutoffDate = new Date(Number(year), 11, 31);
-                cutoffDate.setHours(23, 59, 59, 999);
-                result = result.filter((event) => new Date(event.eventDate).getTime() <= cutoffDate.getTime());
+                result = result.filter((event) => parseYMD(event.eventDate).year === Number(year));
             }
-
+            
             if (order) {
                 result.sort((a, b) =>
                     order === "A-Z"
@@ -89,7 +86,7 @@ export const ManageEvents = () => {
                         : b.eventName.localeCompare(a.eventName)
                 );
             }
-
+            
             if (byTime) {
                 result.sort((a, b) =>
                     byTime === "latest"
@@ -97,11 +94,11 @@ export const ManageEvents = () => {
                         : new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime()
                 );
             }
-
+            
             setEventArray(result);
         }, setError);
     };
-
+    
     const handleApplyFilters = async (
         sortAlphabetical: "A-Z" | "Z-A" | null,
         month: string | null,
@@ -112,14 +109,11 @@ export const ManageEvents = () => {
         setSelectedMonth(month);
         setSelectedYear(year);
         setSelectedByTime(byTime);
-
+        
         await applyAllFilters(sortAlphabetical, month, year, byTime, isOnSearch ? searchQuery : "");
     };
-
-    useEffect(() => {
-        useViewAllEvents(setEventArray, setError);
-    }, [setEventArray, setError]);
-
+    
+    
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
             setIsOnSearch(false);
@@ -127,11 +121,11 @@ export const ManageEvents = () => {
             await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, "");
             return;
         }
-
+        
         setIsOnSearch(true);
         await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, searchQuery);
     };
-
+    
     const handleClearSearch = async () => {
         setSearchQuery("");
         setIsOnSearch(false);
@@ -141,7 +135,7 @@ export const ManageEvents = () => {
         setError("");
         await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, "");
     }
-
+    
     const refreshEventList = async () => {
         setShowUpdateCard(false);
         setShowDeleteCard(false);
@@ -149,7 +143,7 @@ export const ManageEvents = () => {
         setError("");
         await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, isOnSearch ? searchQuery : "");
     };
-
+    
     const loadViewCard = (event: Event) => {
         setSelectedEvent(event);
         setShowViewCard(true);
@@ -157,7 +151,7 @@ export const ManageEvents = () => {
         setShowDeleteCard(false);
         setShowNotification(false);
     };
-
+    
     const loadDeleteCard = (event: Event) => {
         setSelectedEvent(event);
         setShowDeleteCard(true);
@@ -165,14 +159,14 @@ export const ManageEvents = () => {
         setShowViewCard(false);
         setShowNotification(false);
     }
-
+    
     const loadUpdateCard = (event: Event) => {
         setSelectedEvent(event);
         setShowUpdateCard(true);
         setShowDeleteCard(false);
         setShowNotification(false);
     };
-
+    
     const updateNotification = async (updatedEvent: Event) => {
         setSelectedEvent(updatedEvent);
         setEventArray((prevEvents) => prevEvents.map((event) => event.id === updatedEvent.id ? updatedEvent : event));
@@ -182,7 +176,7 @@ export const ManageEvents = () => {
         setShowNotification(true);
         await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, isOnSearch ? searchQuery : "");
     }
-
+    
     return(
         <>
             <Header title="Manage Events" />
@@ -190,7 +184,7 @@ export const ManageEvents = () => {
                 <div className="max-w-5xl mx-auto p-6">
                     <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
                     <p className="text-red-600 text-sm">{error}</p>
-
+                    
                     {!isOnSearch &&
                         <div className="mt-3 mb-3 flex items-center justify-end">
                             <button onClick={() => setShowFilter(true)}>
@@ -198,7 +192,7 @@ export const ManageEvents = () => {
                             </button>
                         </div>
                     }
-
+                    
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                         {eventArray.length > 0 ? (
                             eventArray.map((event: Event) => (
