@@ -50,8 +50,8 @@ export const DeleteEventCard = ({ id, eventName, onDeleted, setShowNotification,
                 
                 <p className="text-red-600 text-sm">{error}</p>
                 
-                <p className="text-gray-700 text-sm">
-                    Are you sure you want to delete <b>{eventName}</b>?
+                <p className="text-gray-700 text-sm overflow-hidden text-ellipsis">
+                    Are you sure you want to delete <b >{eventName}</b>?
                 </p>
                 
                 <div className="flex justify-between items-center mt-1">

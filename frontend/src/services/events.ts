@@ -7,6 +7,8 @@ export interface Event {
     eventLocation: string;
     creator: string;
     id: string;
+    createdAt: string;
+    updatedAt: string;
 }
 export interface CreateEventData {
     eventName: string;

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { Input }  from "../../Input/Input.tsx";
 import { type User } from "../../../services/users.ts";
 import { SelectionField } from "../../Input/SelectionField.tsx";
+import { CancelButton } from "../../Button.tsx";
 
 type UpdateUserCardProps = {
     userId: string;
@@ -77,9 +78,9 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
     
     return (
         <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
-            <div className="bg-blue-800 p-6 rounded-tl-lg shadow-md flex flex-col justify-center max-w-md w-full h-20 relative">
-                <button className="absolute top-2 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold" onClick={onClose}>×</button>
-                <h1 className="text-white text-lg font-bold">Update Student: <br/>{userName}</h1>
+            <div className="bg-blue-800 p-6 rounded-tl-lg shadow-md items-center flex justify-between max-w-md w-full h-20 relative">
+                <h1 className="text-white text-2xl font-bold">{userName}</h1>
+                <CancelButton onClose={onClose} />
             </div>
             <div ref={updateCardRef} id="update-user-card" className="scrollable-card bg-white rounded-bl-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full max-h-[80vh] overflow-y-auto overscroll-contain">
                 <p className="text-red-600 text-sm">{error}</p>

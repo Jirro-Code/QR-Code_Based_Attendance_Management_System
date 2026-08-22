@@ -1,4 +1,4 @@
-import { SlidersHorizontal, CircleX } from "lucide-react"
+import { SlidersHorizontal, X } from "lucide-react"
 import { useState } from "react";
 
 type SearchBarProps = {
@@ -22,7 +22,7 @@ export const SearchBar = ({ handleSearch, setSearchQuery, searchQuery, isOnSearc
                 value={searchQuery}
                 placeholder="Search..."
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="border border-gray-300 rounded-l pl-2 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-blue-800 w-0 grow"
+                className="border border-gray-300 rounded-l pl-2 pr-8 py-2 focus:outline-none focus:ring-1 focus:ring-gray-500 w-0 grow"
             />
             
             {isOnSearch && (
@@ -32,7 +32,7 @@ export const SearchBar = ({ handleSearch, setSearchQuery, searchQuery, isOnSearc
                     onPointerDown={(e) => e.preventDefault()}
                     onClick={() => {handleClearSearch(); setIsTyping(false);}}
                 >
-                    <CircleX className="w-5 h-5 text-gray-500 hover:text-gray-600" />
+                    <button className=" flex items-center justify-center w-5 h-5 rounded-2xl bg-gray-400 hover:text-gray-600"><X className="text-white" size={14} /></button>
                 </button>
             )}
             

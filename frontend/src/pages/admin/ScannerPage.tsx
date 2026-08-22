@@ -4,6 +4,7 @@ import { useView } from "../../hooks/useView.ts";
 import { type Event } from "../../services/events.ts";
 import { Scanner } from "../../components/Scanner.tsx";
 import { Header } from "../../components/Header.tsx";
+import { Html5Qrcode, type CameraDevice } from "html5-qrcode";
 
 export const ScannerPage = () => {
     useEffect(() => {
@@ -15,6 +16,7 @@ export const ScannerPage = () => {
     const [events, setEvents] = useState<Event[]>([]);
     const [eventId, setEventId] = useState<string | null>(null);
     const [showScanner, setShowScanner] = useState<boolean>(false);
+    const [cameras, setCameras] = useState<CameraDevice[]>([]);
     
     useEffect(() => {
         useViewAllEvents(setEvents, setError);
@@ -24,6 +26,24 @@ export const ScannerPage = () => {
         const localDateToday = Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
         return event.eventDate === localDateToday;
     });
+    
+    const handleStartScanner = async () => {
+        try {
+            setError("");
+            const devices = await Html5Qrcode.getCameras();
+            
+            if (devices.length === 0) {
+                setError("No camera was found.");
+                return;
+            }
+            setCameras(devices);
+            setShowScanner(true);
+        } 
+        catch (err) {
+            console.error("Error getting cameras:", err);
+            setError("Unable to access the camera. Please allow camera permission.");
+        }
+    };
     
     if (!eventId) {
         return (
@@ -37,7 +57,8 @@ export const ScannerPage = () => {
                             {availableEvents.length === 0 && (<p className="text-gray-500 text-sm">No events available for today.</p>)}
                             
                             {availableEvents?.map((event) => (
-                                <button key={event.id} onClick={() => {setEventId(event.id), setError(""); }} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded">{event.eventName} - {event.eventDate}</button>
+                                <button key={event.id} onClick={() => {setEventId(event.id), setError(""); }} 
+                                className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded overflow-hidden text-ellipsis">{event.eventName} - {event.eventDate}</button>
                             ))}
                             <button onClick={() => navigate("/admin-dashboard")} className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded">Cancel</button>
                         </div>
@@ -54,9 +75,9 @@ export const ScannerPage = () => {
                 <div className="max-w-md mx-auto pt-10 p-6">
                     <div className="bg-white p-6 rounded-lg shadow-md flex flex-col gap-3">
                         {error && <p className="text-red-600 text-sm">{error}</p>}
-                        <p className="text-gray-700">Selected Event: {events.find((event) => event.id === eventId)?.eventName} - {events.find((event) => event.id === eventId)?.eventDate}</p>
-                        <button onClick={() => setShowScanner(true)} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded">Start Scanner</button>
-                        {showScanner && <Scanner onClose={() => setShowScanner(false)} eventId={eventId} />}
+                        <p className="text-gray-700 overflow-hidden text-ellipsis"> <b>Selected Event:</b> {events.find((event) => event.id === eventId)?.eventName} - {events.find((event) => event.id === eventId)?.eventDate}</p>
+                        <button onClick={handleStartScanner} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded">Start Scanner</button>
+                        {showScanner && <Scanner onClose={() => setShowScanner(false)} eventId={eventId} cameras={cameras} />}
                     </div>
                 </div>
             </div>

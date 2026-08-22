@@ -193,7 +193,7 @@ export const ManageEvents = () => {
                         </div>
                     }
                     
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
                         {eventArray.length > 0 ? (
                             eventArray.map((event: Event) => (
                                 <EventCard key={event.id} event={event} onDelete={() => loadDeleteCard(event)} onLoadView={() => loadViewCard(event)} />
@@ -216,7 +216,7 @@ export const ManageEvents = () => {
                             setSelectedByTime={setSelectedByTime}
                         />
                     )}
-                    {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
+                    {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} eventName={selectedEvent.eventName} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
                     {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)} eventName={selectedEvent.eventName} />}
                     {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}

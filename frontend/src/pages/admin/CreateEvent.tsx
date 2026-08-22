@@ -51,8 +51,7 @@ export const CreateEvent = () => {
                 <div className="max-w-md mx-auto pt-10 p-6">
                     <div className="bg-white rounded-lg shadow-md p-6">
                         
-                        <h1 className="text-2xl font-bold text-gray-800">Create Event</h1>
-                        <p className="text-gray-600 mb-2">This is the Create Event page.</p>
+                        <h1 className="text-2xl font-bold text-gray-800 mb-6">Create Event</h1>
                         <p className="text-red-600 text-sm">{error}</p>
                         
                         <form className="flex flex-col gap-1" onSubmit={handleSubmit}>
