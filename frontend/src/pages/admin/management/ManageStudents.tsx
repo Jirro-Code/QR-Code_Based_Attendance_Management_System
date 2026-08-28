@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { SearchBar } from "../../../components/SearchBar.tsx";
 import { UserListCell } from "../../../components/ListCells/UserListCell.tsx";
 import { UpdateUserCard } from "../../../components/Cards/UpdateCards/UpdateUserCard.tsx";
-import { DeleteUserCard } from "../../../components/Cards/DeleteCards/DeleteUserCard.tsx";
+import { DeleteUserCard } from "../../../components/Cards/ArchiveCards/DeleteUserCard.tsx";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 import { ViewStudentCard } from "../../../components/Cards/ViewCards/ViewStudentCard.tsx";
 import { Header } from "../../../components/Header.tsx";

@@ -56,7 +56,7 @@ export const ScannerPage = () => {
                             {error && <p className="text-red-600 text-sm">{error}</p>}
                             {availableEvents.length === 0 && (<p className="text-gray-500 text-sm">No events available for today.</p>)}
                             
-                            {availableEvents?.map((event) => (
+                            {availableEvents?.filter((event) => !event.isArchived).map((event) => (
                                 <button key={event.id} onClick={() => {setEventId(event.id), setError(""); }} 
                                 className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded overflow-hidden text-ellipsis">{event.eventName} - {event.eventDate}</button>
                             ))}

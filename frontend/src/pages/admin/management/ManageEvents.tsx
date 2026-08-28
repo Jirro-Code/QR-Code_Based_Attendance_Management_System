@@ -5,17 +5,18 @@ import { useEffect, useState } from "react";
 import { type Event } from "../../../services/events.ts";
 import { EventCard } from "../../../components/Cards/EventCard.tsx";
 import { UpdateEventCard } from "../../../components/Cards/UpdateCards/UpdateEventCard.tsx";
-import { DeleteEventCard } from "../../../components/Cards/DeleteCards/DeleteEventCard.tsx";
+import { ArchiveEventCard } from "../../../components/Cards/ArchiveCards/ArchiveEventCard.tsx";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 import { ViewEventCard } from "../../../components/Cards/ViewCards/ViewEventCard.tsx";
 import { EventFilterOptions } from "../../../components/Filters/EventFilter.tsx";
-import { Ellipsis } from "lucide-react";
-
+import { Ellipsis, Archive } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const ManageEvents = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0 });
     }, []);
+    const navigate = useNavigate();
     const { useViewAllEvents, useSearchEvents } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -23,7 +24,7 @@ export const ManageEvents = () => {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
     const [showUpdateCard, setShowUpdateCard] = useState<boolean>(false);
-    const [showDeleteCard, setShowDeleteCard] = useState<boolean>(false);
+    const [showArchiveCard, setShowArchiveCard] = useState<boolean>(false);
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [showViewCard, setShowViewCard] = useState<boolean>(false);
     const [showFilter, setShowFilter] = useState<boolean>(false);
@@ -130,7 +131,7 @@ export const ManageEvents = () => {
         setSearchQuery("");
         setIsOnSearch(false);
         setShowUpdateCard(false);
-        setShowDeleteCard(false);
+        setShowArchiveCard(false);
         setShowViewCard(false);
         setError("");
         await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, "");
@@ -138,7 +139,7 @@ export const ManageEvents = () => {
     
     const refreshEventList = async () => {
         setShowUpdateCard(false);
-        setShowDeleteCard(false);
+        setShowArchiveCard(false);
         setShowViewCard(false);
         setError("");
         await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, isOnSearch ? searchQuery : "");
@@ -148,13 +149,13 @@ export const ManageEvents = () => {
         setSelectedEvent(event);
         setShowViewCard(true);
         setShowUpdateCard(false);
-        setShowDeleteCard(false);
+        setShowArchiveCard(false);
         setShowNotification(false);
     };
     
-    const loadDeleteCard = (event: Event) => {
+    const loadArchiveCard = (event: Event) => {
         setSelectedEvent(event);
-        setShowDeleteCard(true);
+        setShowArchiveCard(true);
         setShowUpdateCard(false);
         setShowViewCard(false);
         setShowNotification(false);
@@ -163,7 +164,7 @@ export const ManageEvents = () => {
     const loadUpdateCard = (event: Event) => {
         setSelectedEvent(event);
         setShowUpdateCard(true);
-        setShowDeleteCard(false);
+        setShowArchiveCard(false);
         setShowNotification(false);
     };
     
@@ -171,7 +172,7 @@ export const ManageEvents = () => {
         setSelectedEvent(updatedEvent);
         setEventArray((prevEvents) => prevEvents.map((event) => event.id === updatedEvent.id ? updatedEvent : event));
         setShowUpdateCard(false);
-        setShowDeleteCard(false);
+        setShowArchiveCard(false);
         setShowViewCard(true);
         setShowNotification(true);
         await applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedByTime, isOnSearch ? searchQuery : "");
@@ -186,7 +187,10 @@ export const ManageEvents = () => {
                     <p className="text-red-600 text-sm">{error}</p>
                     
                     {!isOnSearch &&
-                        <div className="mt-3 mb-3 flex items-center justify-end">
+                        <div className="mt-3 mb-3 flex items-center justify-between">
+                            <button onClick={() => navigate("/archived-events")}>
+                                <Archive className="w-5 h-5" />
+                            </button>
                             <button onClick={() => setShowFilter(true)}>
                                 <Ellipsis className="w-5 h-5" />
                             </button>
@@ -195,8 +199,8 @@ export const ManageEvents = () => {
                     
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
                         {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
-                            eventArray.map((event: Event) => (
-                                <EventCard key={event.id} event={event} onDelete={() => loadDeleteCard(event)} onLoadView={() => loadViewCard(event)} />
+                            eventArray.filter((event) => event.isArchived === false).map((event: Event) => (
+                                <EventCard key={event.id} event={event} isOnArchivedPage={false} onArchive={() => loadArchiveCard(event)} onLoadView={() => loadViewCard(event)} />
                             ))
                         ) : (
                             <p>No events found.</p>
@@ -217,7 +221,7 @@ export const ManageEvents = () => {
                         />
                     )}
                     {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} eventName={selectedEvent.eventName} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
-                    {showDeleteCard && selectedEvent && <DeleteEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)} eventName={selectedEvent.eventName} />}
+                    {showArchiveCard && selectedEvent && <ArchiveEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowArchiveCard(false)} eventName={selectedEvent.eventName} />}
                     {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
                 </div>

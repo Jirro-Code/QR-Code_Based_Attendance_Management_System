@@ -11,6 +11,7 @@ import { CreateEvent } from "./pages/admin/create/CreateEvent.tsx";
 import { ScannerPage } from "./pages/admin/ScannerPage.tsx";
 import { ManageAttendances } from "./pages/admin/management/ManageAttendances.tsx";
 import { ArchivedStudents } from "./pages/admin/archive/ArchivedStudents.tsx";
+import { ArchivedEvents } from "./pages/admin/archive/ArchivedEvents.tsx";
 
 export const App = () => {
     return (
@@ -28,6 +29,7 @@ export const App = () => {
                 <Route path="/scanner" element={<ScannerPage />} />
                 <Route path="/manage-attendances" element={<ManageAttendances />} />
                 <Route path="/archived-students" element={<ArchivedStudents />} />
+                <Route path="/archived-events" element={<ArchivedEvents />} />
             </Routes>
         </div>
     );

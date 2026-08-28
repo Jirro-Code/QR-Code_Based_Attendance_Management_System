@@ -4,7 +4,7 @@ import { useView } from "../../hooks/useView.ts";
 import { useEffect, useState } from "react";
 import { Trash2, SquarePen } from "lucide-react";
 import { UpdateAttendanceCard } from "../Cards/UpdateCards/UpdateAttendanceCard.tsx";
-import { DeleteAttendanceCard } from "../Cards/DeleteCards/DeleteAttendanceCard.tsx";
+import { DeleteAttendanceCard } from "../Cards/ArchiveCards/DeleteAttendanceCard.tsx";
 
 type ListCellProps = {
     attendance: Partial<Attendance>;

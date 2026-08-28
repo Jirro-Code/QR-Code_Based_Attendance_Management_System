@@ -56,9 +56,17 @@ export const updateEvent = async (id: string, eventData: Partial<Event>) => {
     return response.json();
 }
 
-export const deleteEvent = async (id: string) => {
-    const response = await apiFetch(`/events/delete/${id}`, {
-        method: "DELETE",
+export const archiveEvent = async (id: string) => {
+    const response = await apiFetch(`/events/archive/${id}`, {
+        method: "PATCH",
+        credentials: "include"
+    });
+    return response.json().catch(() => null);
+}
+
+export const unarchiveEvent = async (id: string) => {
+    const response = await apiFetch(`/events/unarchive/${id}`, {
+        method: "PATCH",
         credentials: "include"
     });
     return response.json().catch(() => null);

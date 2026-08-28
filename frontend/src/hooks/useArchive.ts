@@ -1,5 +1,5 @@
 import { archiveUser, unarchiveUser} from "../services/users";
-import { deleteEvent } from "../services/events";
+import { archiveEvent, unarchiveEvent } from "../services/events";
 import { deleteAttendance } from "../services/attendance";
 import { ApiError } from "../services/error";
 import { logout } from "../services/auth";
@@ -64,9 +64,9 @@ export const useArchive = () => {
         }
     }
     
-    const useDeleteEvent = async (id: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
+    const useArchiveEvent = async (id: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
-            await deleteEvent(id);
+            await archiveEvent(id);
         } 
         catch (e) {
             if (e instanceof ApiError) {
@@ -80,6 +80,35 @@ export const useArchive = () => {
                 if (e.status === 404) {
                     setError(e.message || "Event not found.");
                 } 
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("Failed to delete data.");
+            console.error("Error deleting event:", e);
+            throw e;
+        }
+    }
+
+    const useUnarchiveEvent = async (id: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
+        try {
+            await unarchiveEvent(id);
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "Event not found.");
+                }
                 if (e.status >= 500) {
                     alert("Server error. Please try again later.");
                     setError("Server error. Please try again later.");
@@ -122,5 +151,5 @@ export const useArchive = () => {
         }
     }
     
-    return { useArchiveStudent, useUnarchiveStudent, useDeleteEvent, useDeleteAttendance };
+    return { useArchiveStudent, useUnarchiveStudent, useArchiveEvent, useUnarchiveEvent, useDeleteAttendance };
 }
