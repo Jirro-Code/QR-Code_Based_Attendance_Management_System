@@ -1,17 +1,23 @@
 import app from "./server.ts";
 import env from "../env.ts";
-import http from "http";
+import https from "https";
+import fs from "fs";
 import { Server } from "socket.io";
 import { verifyToken } from "./utils/jwt.ts";
 
+const httpsOptions = {
+  key: fs.readFileSync("./certs/localhost+1-key.pem"),
+  cert: fs.readFileSync("./certs/localhost+1.pem")
+};
 
-const httpServer = http.createServer(app);
+const httpServer = https.createServer(httpsOptions, app);
 
 
 // io will be used as a server variable to handle socket connections and events
 export const io = new Server(httpServer, {
   cors: {
-    origin: "*",
+    origin: "https://localhost:5173",
+    credentials: true,
   }
 });
 
@@ -66,6 +72,6 @@ io.on("connection", (socket) => {
 });
 
 
-httpServer.listen(env.PORT, () => {
-  console.log(`Server is running on port http://localhost:${env.PORT}`);
+httpServer.listen(env.PORT, "0.0.0.0", () => {
+  console.log(`Server is running on https://localhost:${env.PORT}`);
 });

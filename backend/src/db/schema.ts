@@ -1,5 +1,5 @@
 import { pgTable, uuid, varchar, text, timestamp, date, boolean, unique, pgEnum} from "drizzle-orm/pg-core";
-import {relations} from "drizzle-orm";
+import { relations} from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
 
@@ -22,6 +22,7 @@ export const users = pgTable("users", {
     studentLRN: varchar("student_LRN", { length: 12 }).unique(),
     studentStrand: userStrands(),
     studentSection: varchar("student_section", { length: 255 }),
+    isArchived: boolean("is_archived").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -36,6 +37,7 @@ export const events = pgTable("events", {
     eventDescription: text("event_description"),
     eventLocation: varchar("event_location", { length: 255 }).notNull(),
     eventDate: date("event_date").notNull(),
+    isArchived: boolean("is_archived").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
@@ -50,7 +52,9 @@ export const attendance = pgTable("attendance", {
         onDelete: "cascade"
     }).notNull(),
     attendedAt: timestamp("attended_at", { withTimezone: true }).defaultNow().notNull(),
-    isLate: boolean("is_late").notNull().default(false)
+    isLate: boolean("is_late").notNull().default(false),
+    isArchivedByStudent: boolean("is_archived_by_student").notNull().default(false),
+    isArchived: boolean("is_archived").notNull().default(false),
     },
     (table) => [
         unique("attendance_user_event_unique").

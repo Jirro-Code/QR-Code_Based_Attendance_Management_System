@@ -1,6 +1,6 @@
 import type { Response } from "express";
 import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
-import { users, userRoleSchema } from "../db/schema.ts";
+import { users, attendance, userRoleSchema } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
 import { hashPassword } from "../utils/password.ts";
 import { eq, and, or, ilike, desc, not} from "drizzle-orm";
@@ -16,6 +16,10 @@ export const getSelf = async (req: AuthenticatedRequest, res: Response) => {
         
         if(!user) {
             return res.status(404).json({message: "User not found"});
+        }
+        
+        if(user.isArchived === true){
+            return res.status(403).json({message: "User is archived"});
         }
         
         const {password, ...userWithoutPassword} = user;
@@ -96,7 +100,6 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
                 where: and(
                     term ? or(
                         ilike(users.username, `%${term}%`),
-                        ilike(users.email, `%${term}%`),
                         ilike(users.studentId, `%${term}%`),
                         ilike(users.studentLRN, `%${term}%`)
                     ) : undefined
@@ -133,8 +136,8 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         const updatedData = userPassword
             ? { ...req.body, password: userPassword, updatedAt: new Date() }
             : { ...req.body, updatedAt: new Date() };
-
-        // Check each unique field individually
+        
+        
         const [emailConflict, studentIdConflict, studentLRNConflict] = await Promise.all([
             req.body.email
                 ? db.query.users.findFirst({
@@ -179,25 +182,52 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
     }
 };
 
-
-export const deleteUser = async (req: AuthenticatedRequest, res: Response) => {
+export const unarchiveUser = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.params.id);
-        const [deletedUser] = await db.delete(users).where(eq(users.id, userId)).returning();
+        const [unarchivedUser] = await db.transaction(async (tx) => {
+            await tx.update(attendance).set({ isArchivedByStudent: false }).where(eq(attendance.userId, userId)).returning();
+            return await tx.update(users).set({ isArchived: false }).where(eq(users.id, userId)).returning();
+        });
         
-        if(!deletedUser) {
-            console.error("User not found or unauthorized to delete");
-            return res.status(404).json({message: "User not found or unauthorized to delete"});
+        if(!unarchivedUser) {
+            console.error("User not found or unauthorized to unarchive");
+            return res.status(404).json({message: "User not found or unauthorized to unarchive"});
         }
         
-        res.status(200).json({message: "User deleted successfully", user: deletedUser});
+        res.status(200).json({message: "User unarchived successfully", user: unarchivedUser});
     }
     catch(e){
         if(e instanceof z.ZodError){
             console.error("Invalid user ID parameter:", e.issues);
             return res.status(400).json({message: "Invalid user ID parameter", errors: e.issues});
         }
-        console.error("Error deleting user:", e);
-        res.status(500).json({message: "Error deleting user"});
+        console.error("Error unarchiving user:", e);
+        res.status(500).json({message: "Error unarchiving user"});
+    }
+}
+
+export const archiveUser = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.string().parse(req.params.id);
+        const archivedUser = await db.transaction(async (tx) => {
+            await tx.update(attendance).set({ isArchivedByStudent: true }).where(eq(attendance.userId, userId)).returning();
+            return await tx.update(users).set({ isArchived: true }).where(eq(users.id, userId)).returning();
+        });
+        
+        if(!archivedUser) {
+            console.error("User not found or unauthorized to archive");
+            return res.status(404).json({message: "User not found or unauthorized to archive"});
+        }
+        
+        res.status(200).json({message: "User archived successfully", user: archivedUser});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid user ID parameter:", e.issues);
+            return res.status(400).json({message: "Invalid user ID parameter", errors: e.issues});
+        }
+        console.error("Error archiving user:", e);
+        res.status(500).json({message: "Error archiving user"});
     }
 }

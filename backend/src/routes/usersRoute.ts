@@ -1,7 +1,7 @@
 import Router from "express";
 import { authAdminToken, authToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
-import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, deleteUser } from "../controllers/usersController.ts";
+import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, archiveUser, unarchiveUser } from "../controllers/usersController.ts";
 import { userStrandSchema } from "../db/schema.ts";
 import z from "zod";
 
@@ -38,7 +38,8 @@ router.get("/userId/:id", getUserById);
 router.get("/role/:role", getAllUserByRole);
 router.get("/search", validateQuery(searchSchema), searchUsers);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateUserSchema), updateUser);
-router.delete("/delete/:id", validateParams(uuidSchema), deleteUser);
+router.patch("/archive/:id", validateParams(uuidSchema), archiveUser);
+router.patch("/unarchive/:id", validateParams(uuidSchema), unarchiveUser);
 
 
 export default router;

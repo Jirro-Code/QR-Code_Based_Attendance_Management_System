@@ -29,6 +29,9 @@ export const getAllEvents = async ( _req: AuthenticatedRequest, res: Response) =
                                             eventDescription: events.eventDescription, 
                                             eventDate: events.eventDate, 
                                             eventLocation: events.eventLocation,
+                                            createdAt: events.createdAt,
+                                            updatedAt: events.updatedAt,
+                                            isArchived: events.isArchived,
                                             creator: users.username}).
                                             from(events).
                                             innerJoin(users, eq(events.createdBy, users.id)).
@@ -56,6 +59,9 @@ export const getEventById = async (req: AuthenticatedRequest, res: Response) => 
                                         eventDescription: events.eventDescription,
                                         eventDate: events.eventDate,
                                         eventLocation: events.eventLocation,
+                                        cretedAt: events.createdAt,
+                                        updatedAt: events.updatedAt,
+                                        isArchived: events.isArchived,
                                         creator: users.username}).from(events).
                                         innerJoin(users, and(eq(events.createdBy, users.id), eq(events.id, eventId)));
         
@@ -95,7 +101,10 @@ export const searchEvents = async (req: AuthenticatedRequest, res: Response) => 
                                             eventDescription: events.eventDescription,
                                             eventDate: events.eventDate,
                                             eventLocation: events.eventLocation,
+                                            createdAt: events.createdAt,
+                                            updatedAt: events.updatedAt,
                                             id: events.id,
+                                            isArchived: events.isArchived,
                                             creator: users.username }).
                                             from(events).
                                             leftJoin(users, eq(events.createdBy, users.id)).
@@ -146,18 +155,18 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
 }
 
 
-export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
+export const unarchiveEvent = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.string().parse(req.params.id);
-        const [deletedEvent] = await db.delete(events).where(eq(events.id, eventId)).returning();
+        const [unarchivedEvent] = await db.update(events).set({isArchived: false}).where(eq(events.id, eventId)).returning();
         
-        if(!deletedEvent){
+        if(!unarchivedEvent){
             console.error("Event not found:", eventId);
             return res.status(404).json({message: "Event not found"});
         }
         
-        console.log("Event deleted:", eventId);
-        res.status(200).json({message: "Event deleted successfully", event: deletedEvent});
+        console.log("Event unarchived:", eventId);
+        res.status(200).json({message: "Event unarchived successfully", event: unarchivedEvent});
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -165,7 +174,32 @@ export const deleteEvent = async (req: AuthenticatedRequest, res: Response) => {
             return res.status(400).json({message: "Invalid event ID parameter", errors: e.issues});
         }
         
-        console.error("Error occurred while deleting event:", e);
-        res.status(500).json({message: "Error deleting event"});
+        console.error("Error occurred while unarchiving event:", e);
+        res.status(500).json({message: "Error unarchiving event"});
+    }
+}
+
+
+export const archiveEvent = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const eventId = z.string().parse(req.params.id);
+        const [archivedEvent] = await db.update(events).set({isArchived: true}).where(eq(events.id, eventId)).returning();
+        
+        if(!archivedEvent){
+            console.error("Event not found:", eventId);
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        console.log("Event archived:", eventId);
+        res.status(200).json({message: "Event archived successfully", event: archivedEvent});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid event ID parameter:", e.issues);
+            return res.status(400).json({message: "Invalid event ID parameter", errors: e.issues});
+        }
+        
+        console.error("Error occurred while archiving event:", e);
+        res.status(500).json({message: "Error archiving event"});
     }
 }
