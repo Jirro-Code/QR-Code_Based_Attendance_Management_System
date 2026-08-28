@@ -1,17 +1,17 @@
-import { useView } from "../../hooks/useView.ts";
-import { type User } from "../../services/users";
+import { useView } from "../../../hooks/useView.ts";
+import { type User } from "../../../services/users.ts";
 import { useEffect, useState } from "react";
-import { SearchBar } from "../../components/SearchBar.tsx";
-import { UserListCell } from "../../components/ListCells/UserListCell.tsx";
-import { UpdateUserCard } from "../../components/Cards/UpdateCards/UpdateUserCard.tsx";
-import { DeleteUserCard } from "../../components/Cards/DeleteCards/DeleteUserCard.tsx";
-import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
-import { ViewStudentCard } from "../../components/Cards/ViewCards/ViewStudentCard.tsx";
-import { Header } from "../../components/Header.tsx";
-import { StudentFilterOptions } from "../../components/Filters/StudentFilter.tsx";
+import { SearchBar } from "../../../components/SearchBar.tsx";
+import { UserListCell } from "../../../components/ListCells/UserListCell.tsx";
+import { UpdateUserCard } from "../../../components/Cards/UpdateCards/UpdateUserCard.tsx";
+import { DeleteUserCard } from "../../../components/Cards/DeleteCards/DeleteUserCard.tsx";
+import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
+import { ViewStudentCard } from "../../../components/Cards/ViewCards/ViewStudentCard.tsx";
+import { Header } from "../../../components/Header.tsx";
+import { StudentFilterOptions } from "../../../components/Filters/StudentFilter.tsx";
 import { Ellipsis } from "lucide-react";
 
-export const ManageStudents = () => {
+export const ArchivedStudents = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0 });
     }, []);
@@ -34,6 +34,10 @@ export const ManageStudents = () => {
     const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
     const [selectedStrand, setSelectedStrand] = useState<string | null>(null);
     const [selectedBySection, setSelectedBySection] = useState<string | null>(null);
+    
+    useEffect(() => {
+        useViewAllUsers(setUserArray, setError);
+    }, [setUserArray, setError]);
     
     const applyAllFilters = async (
         order: "A-Z" | "Z-A" | null,
@@ -71,10 +75,9 @@ export const ManageStudents = () => {
                         : b.username.localeCompare(a.username)
                 );
             }
-            
             setUserArray(result);
         }, setError);
-    };
+    }
     
     const handleApplyFilters = async (
         sortAlphabetical: "A-Z" | "Z-A" | null,
@@ -88,9 +91,6 @@ export const ManageStudents = () => {
         await applyAllFilters(sortAlphabetical, strand, bySection, isOnSearch ? searchQuery : "");
     };
     
-    useEffect(() => {
-        useViewAllUsers(setUserArray, setError);
-    }, [setUserArray, setError]);
     
     const handleSearch = async () => {
         if (searchQuery.trim() === "") {
@@ -157,7 +157,7 @@ export const ManageStudents = () => {
     
     return (
         <>
-            <Header title="Manage Students" />
+            <Header title={ "Archived Students"} path="/manage-students" />
             <div className="inset-0 min-h-screen bg-slate-100">
                 <div className="px-5 py-4">
                     <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)} />
@@ -182,8 +182,8 @@ export const ManageStudents = () => {
                     <div className="ml-8">Actions</div>
                 </div>
                 
-                {userArray.length > 0 ? (
-                    userArray.map((user: Partial<User>, index) => (
+                {userArray.filter((user) => user.isArchived === true).length > 0 ? (
+                    userArray.filter((user) => user.isArchived === true).map((user: Partial<User>, index) => (
                         <UserListCell
                             key={user.id}
                             user={user}
@@ -197,7 +197,6 @@ export const ManageStudents = () => {
                         No users found.
                     </p>
                 )}
-                
                 {showFilter && (<StudentFilterOptions onApplyFilters={handleApplyFilters} onClose={() => setShowFilter(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} selectedStrand={selectedStrand} setSelectedStrand={setSelectedStrand} selectedBySection={selectedBySection} setSelectedBySection={setSelectedBySection} /> )}
                 {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id!} userName={selectedUser.username!} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
                 {showDeleteCard && selectedUser && <DeleteUserCard userId={selectedUser.id!} username={selectedUser.username!} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)}  />}

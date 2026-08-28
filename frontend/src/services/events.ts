@@ -7,6 +7,7 @@ export interface Event {
     eventLocation: string;
     creator: string;
     id: string;
+    isArchived: boolean;
     createdAt: string;
     updatedAt: string;
 }

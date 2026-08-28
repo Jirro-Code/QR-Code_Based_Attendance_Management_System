@@ -18,6 +18,9 @@ export const useLogin = (path: string, setError: React.Dispatch<React.SetStateAc
                 if (e.status === 401) {
                     setError(e?.message ?? "Invalid credentials.");
                 }
+                if (e.status === 403) {
+                    setError(e?.message ?? "This account is archived. Please contact the administrator.");
+                }
                 if (e.status === 404) {
                     setError(e?.message ?? "User not found.");
                 }

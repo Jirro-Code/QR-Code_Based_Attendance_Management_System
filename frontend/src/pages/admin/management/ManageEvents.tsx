@@ -1,14 +1,14 @@
-import { Header } from "../../components/Header.tsx";
-import { SearchBar } from "../../components/SearchBar.tsx";
-import { useView } from "../../hooks/useView.ts";
+import { Header } from "../../../components/Header.tsx";
+import { SearchBar } from "../../../components/SearchBar.tsx";
+import { useView } from "../../../hooks/useView.ts";
 import { useEffect, useState } from "react";
-import { type Event } from "../../services/events.ts";
-import { EventCard } from "../../components/Cards/EventCard.tsx";
-import { UpdateEventCard } from "../../components/Cards/UpdateCards/UpdateEventCard.tsx";
-import { DeleteEventCard } from "../../components/Cards/DeleteCards/DeleteEventCard.tsx";
-import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
-import { ViewEventCard } from "../../components/Cards/ViewCards/ViewEventCard.tsx";
-import { EventFilterOptions } from "../../components/Filters/EventFilter.tsx";
+import { type Event } from "../../../services/events.ts";
+import { EventCard } from "../../../components/Cards/EventCard.tsx";
+import { UpdateEventCard } from "../../../components/Cards/UpdateCards/UpdateEventCard.tsx";
+import { DeleteEventCard } from "../../../components/Cards/DeleteCards/DeleteEventCard.tsx";
+import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
+import { ViewEventCard } from "../../../components/Cards/ViewCards/ViewEventCard.tsx";
+import { EventFilterOptions } from "../../../components/Filters/EventFilter.tsx";
 import { Ellipsis } from "lucide-react";
 
 
@@ -194,7 +194,7 @@ export const ManageEvents = () => {
                     }
                     
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
-                        {eventArray.length > 0 ? (
+                        {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
                             eventArray.map((event: Event) => (
                                 <EventCard key={event.id} event={event} onDelete={() => loadDeleteCard(event)} onLoadView={() => loadViewCard(event)} />
                             ))

@@ -50,7 +50,7 @@ export const useView = () => {
                         setError(e.message || "Access denied. You do not have permission to perform this action.");
                     }
                     if (e.status === 404) {
-                        setError(e.message || "No users found.");
+                        return [];
                     }
                     if(e.status >= 500) {
                         alert("Server error. Please try again later.");
@@ -114,7 +114,7 @@ export const useView = () => {
                         setError("Access denied. You do not have permission to perform this action.");
                     }
                     if (e.status === 404) {
-                        setError("No events found.");
+                        return [];
                     }
                     if(e.status >= 500) {
                         alert("Server error. Please try again later.");

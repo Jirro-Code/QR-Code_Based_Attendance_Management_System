@@ -6,6 +6,7 @@ export interface Attendance {
     userId: string;
     isLate: boolean;
     attendedAt: string;
+    isArchived: boolean;
 }
 
 

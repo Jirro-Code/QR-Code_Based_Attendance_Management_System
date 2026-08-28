@@ -19,6 +19,13 @@ export const useCurrentUser = (path: string, setUserData: React.Dispatch<React.S
                         alert("Unauthorized. Please log in.");
                         await logout(path);
                     }
+                    if (e.status === 403) {
+                        alert("This account is archived. Please contact the administrator.");
+                    }
+                    if (e.status === 404) {
+                        alert("User not found. Please log in again.");
+                        await logout(path);
+                    }
                     if (e.status >= 500) {
                         alert("Server error. Please try again later.");
                     }

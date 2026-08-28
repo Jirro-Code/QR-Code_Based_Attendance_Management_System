@@ -1,4 +1,4 @@
-import { useDelete } from "../../../hooks/useDelete.ts";
+import { useArchive } from "../../../hooks/useArchive.ts";
 import { useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
@@ -14,7 +14,7 @@ type DeleteCardAttendanceProps = {
 
 export const DeleteAttendanceCard = ({ attendanceId, username, onDeleted, setShowNotification, onSetNotif, onClose }: DeleteCardAttendanceProps) => {
     const [error, setError] = useState<string>("");
-    const { useDeleteAttendance } = useDelete();
+    const { useDeleteAttendance } = useArchive();
     const { useDisableScroll } = useScrollFunctions();
     useDisableScroll();
     

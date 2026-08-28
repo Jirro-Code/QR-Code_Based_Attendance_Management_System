@@ -1,11 +1,11 @@
-import { Header } from "../../components/Header.tsx";
-import { SearchBar } from "../../components/SearchBar.tsx";
-import { useView } from "../../hooks/useView.ts";
+import { Header } from "../../../components/Header.tsx";
+import { SearchBar } from "../../../components/SearchBar.tsx";
+import { useView } from "../../../hooks/useView.ts";
 import { useEffect, useState } from "react";
-import { type Event } from "../../services/events.ts";
-import { EventAttendanceCard } from "../../components/Cards/EventAttendanceCard.tsx";
-import { AttendanceCard } from "../../components/Cards/ViewCards/ViewAttendanceCard.tsx";
-import { AttendanceFilterOptions } from "../../components/Filters/AttendanceFilter.tsx";
+import { type Event } from "../../../services/events.ts";
+import { EventAttendanceCard } from "../../../components/Cards/EventAttendanceCard.tsx";
+import { AttendanceCard } from "../../../components/Cards/ViewCards/ViewAttendanceCard.tsx";
+import { AttendanceFilterOptions } from "../../../components/Filters/AttendanceFilter.tsx";
 import { Ellipsis } from "lucide-react";
 
 export const ManageAttendances = () => {

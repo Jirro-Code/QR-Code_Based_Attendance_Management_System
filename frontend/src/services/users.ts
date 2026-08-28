@@ -12,6 +12,7 @@ export interface User {
     studentSection: string;
     createdAt: string;
     updatedAt: string;
+    isArchived: boolean;
 }
 
 export const getSelf = async () => {
@@ -58,9 +59,17 @@ export const updateUser = async (id: string, userData: Partial<User>) => {
     return response.json();
 }
 
-export const deleteUser = async (id: string) => {
-    const response = await apiFetch(`/users/delete/${id}`, {
-        method: "DELETE",
+export const archiveUser = async (id: string) => {
+    const response = await apiFetch(`/users/archive/${id}`, {
+        method: "PATCH",
+        credentials: "include"
+    });
+    return response.json().catch(() => null);
+}
+
+export const unarchiveUser = async (id: string) => {
+    const response = await apiFetch(`/users/unarchive/${id}`, {
+        method: "PATCH",
         credentials: "include"
     });
     return response.json().catch(() => null);

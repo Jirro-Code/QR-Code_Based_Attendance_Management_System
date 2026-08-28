@@ -1,5 +1,5 @@
 import { TriangleAlert } from "lucide-react";
-import { useDelete } from "../../../hooks/useDelete.ts";
+import { useArchive } from "../../../hooks/useArchive.ts";
 import { useState } from "react";
 import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 
@@ -14,25 +14,25 @@ type DeleteCardUserProps = {
 
 export const DeleteUserCard = ({ userId, username, onDeleted, setShowNotification, onSetNotif, onClose }: DeleteCardUserProps) => {
     const [error, setError] = useState<string>("");
-    const { useDeleteStudent } = useDelete();
+    const { useArchiveStudent } = useArchive();
     const { useDisableScroll } = useScrollFunctions();
     useDisableScroll();
     
     const handleDelete = async () => {
         try {
-            await useDeleteStudent(userId, setError);
+            await useArchiveStudent(userId, setError);
             onDeleted();
             onSetNotif({
-                title: "Delete Successful",
-                message: "Student deleted successfully!"
+                title: "Archive Successful",
+                message: "Student archived successfully!"
             });
             setShowNotification(true);
         } 
         catch (error) {
-            console.error("Error deleting student:", error);
+            console.error("Error archiving student:", error);
             onSetNotif({
-                title: "Delete Failed",
-                message: "Failed to delete student."
+                title: "Archive Failed",
+                message: "Failed to archive student."
             });
             setShowNotification(true);
         }
@@ -47,7 +47,7 @@ export const DeleteUserCard = ({ userId, username, onDeleted, setShowNotificatio
                 <p className="text-red-600 text-sm">{error}</p>
                 
                 <p className="text-gray-700 text-sm">
-                    Are you sure you want to delete <b>{username}</b>?
+                    Are you sure you want to archive <b>{username}</b>?
                 </p>
                 
                 <div className="flex justify-between items-center mt-1">
@@ -55,7 +55,7 @@ export const DeleteUserCard = ({ userId, username, onDeleted, setShowNotificatio
                         Cancel
                     </button>
                     <button type="button" onClick={handleDelete} className="bg-red-700 hover:bg-red-800 text-white font-bold py-1.5 px-4 rounded">
-                        Yes, Delete
+                        Yes, Archive
                     </button>
                 </div>
             </div>
