@@ -54,6 +54,7 @@ export const attendance = pgTable("attendance", {
     attendedAt: timestamp("attended_at", { withTimezone: true }).defaultNow().notNull(),
     isLate: boolean("is_late").notNull().default(false),
     isArchivedByStudent: boolean("is_archived_by_student").notNull().default(false),
+    isArchivedByEvent: boolean("is_archived_by_event").notNull().default(false),
     isArchived: boolean("is_archived").notNull().default(false),
     },
     (table) => [

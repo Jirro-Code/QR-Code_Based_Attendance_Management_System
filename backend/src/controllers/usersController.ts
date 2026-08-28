@@ -185,6 +185,7 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
 export const unarchiveUser = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.params.id);
+        
         const [unarchivedUser] = await db.transaction(async (tx) => {
             await tx.update(attendance).set({ isArchivedByStudent: false }).where(eq(attendance.userId, userId)).returning();
             return await tx.update(users).set({ isArchived: false }).where(eq(users.id, userId)).returning();
@@ -210,7 +211,8 @@ export const unarchiveUser = async (req: AuthenticatedRequest, res: Response) =>
 export const archiveUser = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.params.id);
-        const archivedUser = await db.transaction(async (tx) => {
+        
+        const [archivedUser] = await db.transaction(async (tx) => {
             await tx.update(attendance).set({ isArchivedByStudent: true }).where(eq(attendance.userId, userId)).returning();
             return await tx.update(users).set({ isArchived: true }).where(eq(users.id, userId)).returning();
         });

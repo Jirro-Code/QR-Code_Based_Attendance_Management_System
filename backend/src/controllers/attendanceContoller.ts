@@ -2,7 +2,7 @@ import type {Response} from "express";
 import type {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import {attendance, users, events} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
-import { eq, desc, and} from "drizzle-orm";
+import { eq, desc, and, or} from "drizzle-orm";
 import { z } from "zod";
 import { io } from "../index.ts";
 
@@ -58,10 +58,10 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
 }
 
 
-
 export const getAllEventAttendance = async (_req: AuthenticatedRequest, res: Response) => {
     try {
         const attendanceList = await db.query.attendance.findMany({
+            where: and(eq(attendance.isArchived, false), eq(attendance.isArchivedByEvent, false), eq(attendance.isArchivedByStudent, false)),
             with: {
                 event: true,
             },
@@ -86,6 +86,37 @@ export const getAllEventAttendance = async (_req: AuthenticatedRequest, res: Res
     catch (e) {
         console.error("Error fetching attendance:", e);
         res.status(500).json({ message: "Error fetching attendance" });
+    }
+};
+
+
+export const getAllArchivedEventAttendance = async (_req: AuthenticatedRequest, res: Response) => {
+    try {
+        const archivedAttendanceList = await db.query.attendance.findMany({
+            where: or(eq(attendance.isArchivedByEvent, true), eq(attendance.isArchivedByStudent, true), eq(attendance.isArchived, true)),
+            with: {
+                event: true,
+            },
+        });
+        
+        const nonDuplicateEvents = new Map();
+        
+        for (const record of archivedAttendanceList) {
+            if (!nonDuplicateEvents.has(record.eventId)) {
+                nonDuplicateEvents.set(record.eventId, record.event);
+            }
+        }
+        
+        const events = Array.from(nonDuplicateEvents.values());
+        
+        if (events.length === 0) {
+            return res.status(404).json({ message: "No archived attendance found" });
+        }
+        
+        res.status(200).json({ message: "Archived events attendance fetched successfully", events: events });
+    } catch (e) {
+        console.error("Error fetching archived events attendance:", e);
+        res.status(500).json({ message: "Error fetching events archived attendance" });
     }
 };
 
@@ -118,7 +149,8 @@ export const getUserAttendance = async (req: AuthenticatedRequest, res: Response
 }
 
 
-export const getEventAttendance = async (req: AuthenticatedRequest, res: Response) => {
+
+export const getEventAttendanceByEventId = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.uuid().parse(req.params.id);
         const event = await db.query.attendance.findMany({
@@ -158,7 +190,16 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
         }
         
         const groupAttendance = await 
-            db.select({id: attendance.id, userId: attendance.userId, eventId: attendance.eventId, isLate: attendance.isLate, attendedAt: attendance.attendedAt}).
+            db.select({
+                id: attendance.id, 
+                userId: attendance.userId, 
+                eventId: attendance.eventId, 
+                isLate: attendance.isLate, 
+                attendedAt: attendance.attendedAt,
+                isArchived: attendance.isArchived,
+                isArchivedByEvent: attendance.isArchivedByEvent,
+                isArchivedByStudent: attendance.isArchivedByStudent,
+            }).
             from(attendance).
             innerJoin(users, eq(attendance.userId, users.id)).
             where(and(eq(attendance.eventId, eventId), eq(users.studentStrand, groupStrand)));
@@ -183,13 +224,16 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
 export const getEventAttendanceByStrand = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const strand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.strand);
+        const archived = req.query.archived === "true";
+        
+        const archivedCondition = archived ? or(eq(attendance.isArchivedByEvent, true), eq(attendance.isArchivedByStudent, true), eq(attendance.isArchived, true)) : and(eq(attendance.isArchived, false), eq(attendance.isArchivedByEvent, false));
         
         const eventsByStrand = await db
             .selectDistinct({id: events.id, eventName: events.eventName, eventDate: events.eventDate})
             .from(events)
             .innerJoin(attendance, eq(attendance.eventId, events.id))
             .innerJoin(users, eq(users.id, attendance.userId))
-            .where(eq(users.studentStrand, strand));
+            .where(and(archivedCondition, eq(users.studentStrand, strand)));
         
         if (eventsByStrand.length === 0) {
             return res.status(404).json({message: "No events found for this strand"});
@@ -232,19 +276,18 @@ export const updateAttendance = async (req: AuthenticatedRequest, res: Response)
     }
 }
 
-
-export const deleteUserAttendance = async (req: AuthenticatedRequest, res: Response) => {
+export const unarchiveAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const attendanceId = z.uuid().parse(req.params.id);
-        const [deletedUser] = await db.delete(attendance).where(eq(attendance.id, attendanceId)).returning();
+        const [unarchivedAttendance] = await db.update(attendance).set({ isArchived: false }).where(eq(attendance.id, attendanceId)).returning();
         
-        if(!deletedUser){
-            console.error("User not found", attendanceId);
-            return res.status(404).json({message: "User not found"})
+        if(!unarchivedAttendance){
+            console.error("Attendance not found", attendanceId);
+            return res.status(404).json({message: "Attendance not found"})
         }
         
-        console.log("User attendance deleted successfully:", deletedUser);
-        res.status(200).json({message: "User attendance deleted successfully", user: deletedUser})
+        console.log("User attendance unarchived successfully:", unarchivedAttendance);
+        res.status(200).json({message: "User attendance unarchived successfully", user: unarchivedAttendance})
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -252,7 +295,31 @@ export const deleteUserAttendance = async (req: AuthenticatedRequest, res: Respo
             return res.status(400).json({message: "Invalid user id",error: e.issues})
         }
         
-        console.error("Error deleting attendance:", e);
-        res.status(500).json({message: "Error deleting attendance"})
+        console.error("Error archiving attendance:", e);
+        res.status(500).json({message: "Error archiving attendance"})
+    }
+}
+
+export const archiveAttendance = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const attendanceId = z.uuid().parse(req.params.id);
+        const [archivedAttendance] = await db.update(attendance).set({ isArchived: true }).where(eq(attendance.id, attendanceId)).returning();
+        
+        if(!archivedAttendance){
+            console.error("Attendance not found", attendanceId);
+            return res.status(404).json({message: "Attendance not found"})
+        }
+        
+        console.log("User attendance archived successfully:", archivedAttendance);
+        res.status(200).json({message: "User attendance archived successfully", user: archivedAttendance})
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid user id", e);
+            return res.status(400).json({message: "Invalid user id",error: e.issues})
+        }
+        
+        console.error("Error archiving attendance:", e);
+        res.status(500).json({message: "Error archiving attendance"})
     }
 }

@@ -1,5 +1,5 @@
 import Router from "express";
-import { markAttendance, getEventAttendanceByStrand, getEventAttendance, getAttendanceByStrand, getUserAttendance, updateAttendance, deleteUserAttendance, getAllEventAttendance} from "../controllers/attendanceContoller.ts";
+import { markAttendance, getEventAttendanceByStrand, getEventAttendanceByEventId, getAllArchivedEventAttendance, getAttendanceByStrand, getUserAttendance, updateAttendance, unarchiveAttendance,  archiveAttendance, getAllEventAttendance} from "../controllers/attendanceContoller.ts";
 import { authAdminToken, authToken} from "../middlewares/authToken.ts";
 import { insertAttendanceSchema } from "../db/schema.ts";
 import { validateBody, validateParams } from "../middlewares/validation.ts";
@@ -32,11 +32,13 @@ router.get("/myAttendance", getUserAttendance);
 router.use(authAdminToken);
 router.post("/mark", validateBody(insertAttendanceSchema), markAttendance);
 router.get("/allEvents", getAllEventAttendance);
+router.get("/allArchivedEvents", getAllArchivedEventAttendance);
 router.get("/userId/:id", validateParams(uuidSchema), getUserAttendance);
-router.get("/eventId/:id", validateParams(uuidSchema), getEventAttendance);
+router.get("/eventId/:id", validateParams(uuidSchema), getEventAttendanceByEventId);
 router.get("/strand/:strand", validateParams(strandSchema), getEventAttendanceByStrand);
 router.get("/groupStrand/:groupStrand/eventId/:eventId", validateParams(groupStrandSchema), getAttendanceByStrand);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateSchema), updateAttendance)
-router.delete("/delete/:id", validateParams(uuidSchema), deleteUserAttendance);
+router.patch("/unarchive/:id", validateParams(uuidSchema), unarchiveAttendance);
+router.patch("/archive/:id", validateParams(uuidSchema), archiveAttendance);
 
 export default router

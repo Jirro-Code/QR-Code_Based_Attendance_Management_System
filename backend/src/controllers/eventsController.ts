@@ -1,6 +1,6 @@
 import type {Response} from "express";
 import type {AuthenticatedRequest} from "../middlewares/authToken.ts";
-import {events, users} from "../db/schema.ts";
+import {events, users, attendance} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
 import { eq, desc, and, or, ilike } from "drizzle-orm";
 import { z } from "zod";
@@ -158,7 +158,11 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
 export const unarchiveEvent = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.string().parse(req.params.id);
-        const [unarchivedEvent] = await db.update(events).set({isArchived: false}).where(eq(events.id, eventId)).returning();
+        
+        const [unarchivedEvent] = await db.transaction(async (tx) => {
+            await tx.update(attendance).set({isArchivedByEvent: false}).where(eq(attendance.eventId, eventId)).returning();
+            return await tx.update(events).set({isArchived: false}).where(eq(events.id, eventId)).returning();
+        });
         
         if(!unarchivedEvent){
             console.error("Event not found:", eventId);
@@ -183,7 +187,11 @@ export const unarchiveEvent = async (req: AuthenticatedRequest, res: Response) =
 export const archiveEvent = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.string().parse(req.params.id);
-        const [archivedEvent] = await db.update(events).set({isArchived: true}).where(eq(events.id, eventId)).returning();
+        
+        const [archivedEvent] = await db.transaction(async (tx) => {
+            await tx.update(attendance).set({isArchivedByEvent: true}).where(eq(attendance.eventId, eventId)).returning();``
+            return await tx.update(events).set({isArchived: true}).where(eq(events.id, eventId)).returning();
+        });
         
         if(!archivedEvent){
             console.error("Event not found:", eventId);
