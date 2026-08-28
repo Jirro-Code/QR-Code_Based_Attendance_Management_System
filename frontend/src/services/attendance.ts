@@ -7,6 +7,8 @@ export interface Attendance {
     isLate: boolean;
     attendedAt: string;
     isArchived: boolean;
+    isArchivedByStudent: boolean;
+    isArchivedByEvent: boolean;
 }
 
 
@@ -33,6 +35,15 @@ export const getAllEventAttendance = async () => {
 }
 
 
+export const getAllArchivedEventAttendance = async () => {
+    const response = await apiFetch(`/attendance/allArchivedEvents`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+}
+
+
 export const getAttendanceByEventId = async (eventId: string) => {
     const response = await apiFetch(`/attendance/eventId/${eventId}`, {
         method: "GET",
@@ -42,8 +53,9 @@ export const getAttendanceByEventId = async (eventId: string) => {
 }
 
 
-export const getEventAttendanceByStrand = async ( strand: string) => {
-    const response = await apiFetch(`/attendance/strand/${strand}`, {
+
+export const getEventAttendanceByStrand = async ( strand: string, archived: boolean) => {
+    const response = await apiFetch(`/attendance/strand/${strand}?archived=${archived}`, {
         method: "GET",
         credentials: "include",
     });
@@ -68,9 +80,17 @@ export const updateAttendance = async (attendanceId: string, isLate: boolean) =>
     return response.json();
 }
 
-export const deleteAttendance = async (attendanceId: string) => {
-    const response = await apiFetch(`/attendance/delete/${attendanceId}`, {
-        method: "DELETE",
+export const unarchiveAttendance = async (attendanceId: string) => {
+    const response = await apiFetch(`/attendance/unarchive/${attendanceId}`, {
+        method: "PATCH",
+        credentials: "include",
+    });
+    return response.json();
+}
+
+export const archiveAttendance = async (attendanceId: string) => {
+    const response = await apiFetch(`/attendance/archive/${attendanceId}`, {
+        method: "PATCH",
         credentials: "include",
     });
     return response.json();

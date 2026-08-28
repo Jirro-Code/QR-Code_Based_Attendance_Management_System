@@ -221,7 +221,7 @@ export const ManageEvents = () => {
                         />
                     )}
                     {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} eventName={selectedEvent.eventName} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
-                    {showArchiveCard && selectedEvent && <ArchiveEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowArchiveCard(false)} eventName={selectedEvent.eventName} />}
+                    {showArchiveCard && selectedEvent && <ArchiveEventCard id={selectedEvent.id} onArchived={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowArchiveCard(false)} eventName={selectedEvent.eventName} />}
                     {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
                 </div>

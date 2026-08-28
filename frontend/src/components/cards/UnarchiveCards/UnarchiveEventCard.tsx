@@ -6,37 +6,37 @@ import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 type UnarchiveCardEventProps = {
     id: string;
     eventName: string;
-    onDeleted: () => void;
+    onRestored: () => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
     onClose: () => void;
 }
 
-export const UnarchiveEventCard = ({ id, eventName, onDeleted, setShowNotification, onSetNotif, onClose }: UnarchiveCardEventProps) => {
+export const UnarchiveEventCard = ({ id, eventName, onRestored, setShowNotification, onSetNotif, onClose }: UnarchiveCardEventProps) => {
     const [error, setError] = useState<string>("");
     const { useUnarchiveEvent } = useArchive();
     const { useDisableScroll } = useScrollFunctions();
     useDisableScroll();
     
-    const handleDelete = async () => {
+    const handleUnarchive = async () => {
         try {
             await useUnarchiveEvent(id, setError);
-            onDeleted();
+            onRestored();
             onSetNotif({
-                title: "Archive Successful",
-                message: "Event archived successfully!"
+                title: "Unarchive Successful",
+                message: "Event unarchived successfully!"
             });
             setShowNotification(true);
             onSetNotif({
-                title: "Archive Successful",
-                message: "Event archived successfully!"
+                title: "Unarchive Successful",
+                message: "Event unarchived successfully!"
             });
         } 
         catch (error) {
             console.error("Error archiving event:", error);
             onSetNotif({
-                title: "Archive Failed",
-                message: "Failed to archive event."
+                title: "Unarchive Failed",
+                message: "Failed to unarchive event."
             });
             setShowNotification(true);
         }
@@ -58,7 +58,7 @@ export const UnarchiveEventCard = ({ id, eventName, onDeleted, setShowNotificati
                     <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded">
                         Cancel
                     </button>
-                    <button type="button" onClick={handleDelete} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-1.5 px-4 rounded">
+                    <button type="button" onClick={handleUnarchive} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-1.5 px-4 rounded">
                         Yes, Unarchive
                     </button>
                 </div>

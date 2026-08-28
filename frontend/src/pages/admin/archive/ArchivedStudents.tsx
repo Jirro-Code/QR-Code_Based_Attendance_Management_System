@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { SearchBar } from "../../../components/SearchBar.tsx";
 import { UserListCell } from "../../../components/ListCells/UserListCell.tsx";
 import { UpdateUserCard } from "../../../components/Cards/UpdateCards/UpdateUserCard.tsx";
-import { DeleteUserCard } from "../../../components/Cards/ArchiveCards/DeleteUserCard.tsx";
+import { UnarchiveUserCard } from "../../../components/Cards/UnarchiveCards/UnarchiveUserCard.tsx";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 import { ViewStudentCard } from "../../../components/Cards/ViewCards/ViewStudentCard.tsx";
 import { Header } from "../../../components/Header.tsx";
@@ -22,7 +22,7 @@ export const ArchivedStudents = () => {
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
     const [showUpdateCard, setShowUpdateCard] = useState<boolean>(false);
-    const [showDeleteCard, setShowDeleteCard] = useState<boolean>(false);
+    const [showUnarchiveCard, setShowUnarchiveCard] = useState<boolean>(false);
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [showViewCard, setShowViewCard] = useState<boolean>(false);
     const [showFilter, setShowFilter] = useState<boolean>(false);
@@ -108,7 +108,7 @@ export const ArchivedStudents = () => {
         setSearchQuery("");
         setIsOnSearch(false);
         setShowUpdateCard(false);
-        setShowDeleteCard(false);
+        setShowUnarchiveCard(false);
         setShowViewCard(false);
         setError("");
         await applyAllFilters(selectedOrder, selectedStrand, selectedBySection, "");
@@ -116,7 +116,7 @@ export const ArchivedStudents = () => {
     
     const refreshUserList = async () => {
         setShowUpdateCard(false);
-        setShowDeleteCard(false);
+        setShowUnarchiveCard(false);
         setShowViewCard(false);
         setError("");
         await applyAllFilters(selectedOrder, selectedStrand, selectedBySection, isOnSearch ? searchQuery : "");
@@ -126,13 +126,13 @@ export const ArchivedStudents = () => {
         setSelectedUser(user);
         setShowViewCard(true);
         setShowUpdateCard(false);
-        setShowDeleteCard(false);
+        setShowUnarchiveCard(false);
         setShowNotification(false);
     };
     
-    const loadDeleteCard = (user: Partial<User>) => {
+    const loadUnarchiveCard = (user: Partial<User>) => {
         setSelectedUser(user);
-        setShowDeleteCard(true);
+        setShowUnarchiveCard(true);
         setShowUpdateCard(false);
         setShowViewCard(false);
         setShowNotification(false);
@@ -141,7 +141,7 @@ export const ArchivedStudents = () => {
     const loadUpdateCard = (user: Partial<User>) => {
         setSelectedUser(user);
         setShowUpdateCard(true);
-        setShowDeleteCard(false);
+        setShowUnarchiveCard(false);
         setShowNotification(false);
     }
     
@@ -149,7 +149,7 @@ export const ArchivedStudents = () => {
         setSelectedUser(updatedUser);
         setUserArray((prevUsers) => prevUsers.map((user) => user.id === updatedUser.id ? updatedUser : user));
         setShowUpdateCard(false);
-        setShowDeleteCard(false);
+        setShowUnarchiveCard(false);
         setShowViewCard(true);
         setShowNotification(true);
         await applyAllFilters(selectedOrder, selectedStrand, selectedBySection, isOnSearch ? searchQuery : "");
@@ -188,7 +188,7 @@ export const ArchivedStudents = () => {
                             key={user.id}
                             user={user}
                             number={index + 1}
-                            onDelete={() => loadDeleteCard(user)}
+                            onRestore={() => loadUnarchiveCard(user)}
                             onLoadView={() => loadViewCard(user)}
                         />
                     ))
@@ -199,7 +199,7 @@ export const ArchivedStudents = () => {
                 )}
                 {showFilter && (<StudentFilterOptions onApplyFilters={handleApplyFilters} onClose={() => setShowFilter(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} selectedStrand={selectedStrand} setSelectedStrand={setSelectedStrand} selectedBySection={selectedBySection} setSelectedBySection={setSelectedBySection} /> )}
                 {showUpdateCard && selectedUser && <UpdateUserCard userId={selectedUser.id!} userName={selectedUser.username!} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
-                {showDeleteCard && selectedUser && <DeleteUserCard userId={selectedUser.id!} username={selectedUser.username!} onDeleted={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowDeleteCard(false)}  />}
+                {showUnarchiveCard && selectedUser && <UnarchiveUserCard userId={selectedUser.id!} username={selectedUser.username!} onRestored={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUnarchiveCard(false)}  />}
                 {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                 {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
             </div>

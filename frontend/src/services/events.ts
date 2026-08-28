@@ -18,22 +18,24 @@ export interface CreateEventData {
     eventLocation: string;
 }
 
-export const createEvent = (eventData: CreateEventData) => {
-    return apiFetch("/events/create", {
+export const createEvent = async (eventData: CreateEventData) => {
+    const response = await apiFetch("/events/create", {
         method: "POST",
         credentials: "include",
         body: JSON.stringify(eventData),
         headers: {
             "Content-Type": "application/json"
         }
-    }).then((response) => response.json());
+    });
+    return response.json();
 }
 
-export const getAllEvents = () => {
-    return apiFetch("/events/all", {
+export const getAllEvents = async () => {
+    const response = await apiFetch("/events/all", {
         method: "GET",
         credentials: "include"
-    }).then((response) => response.json());
+    });
+    return response.json();
 }
 
 export const searchEvents = async (query: string) => {

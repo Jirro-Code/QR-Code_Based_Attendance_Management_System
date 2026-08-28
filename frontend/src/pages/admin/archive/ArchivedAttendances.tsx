@@ -6,15 +6,13 @@ import { type Event } from "../../../services/events.ts";
 import { EventAttendanceCard } from "../../../components/Cards/EventAttendanceCard.tsx";
 import { AttendanceCard } from "../../../components/Cards/ViewCards/ViewAttendanceCard.tsx";
 import { AttendanceFilterOptions } from "../../../components/Filters/AttendanceFilter.tsx";
-import { Ellipsis, Archive } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Ellipsis } from "lucide-react";
 
-export const ManageAttendances = () => {
+export const ArchivedAttendances = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0 });
     }, []);
-    const navigate = useNavigate();
-    const { useViewAllEventsWithAttendanceRecords, useSearchEvents, useViewEventAttendanceByStrand } = useView();
+    const { useViewAllEventsWithArchivedAttendanceRecords, useSearchEvents, useViewEventAttendanceByStrand } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [showFilter, setShowFilter] = useState<boolean>(false);
@@ -30,7 +28,7 @@ export const ManageAttendances = () => {
     const [selectedByTime, setSelectedByTime] = useState<"latest" | "earliest" | null>(null);
     
     useEffect(() => {
-        useViewAllEventsWithAttendanceRecords(setEventArray, setError);
+        useViewAllEventsWithArchivedAttendanceRecords(setEventArray, setError);
     }, [setEventArray, setError]);
     
     const MONTHS = [
@@ -55,12 +53,12 @@ export const ManageAttendances = () => {
         setStrand(null);
         
         let result: Event[] = [];
-        await useViewAllEventsWithAttendanceRecords((allEvents: Event[]) => {
+        await useViewAllEventsWithArchivedAttendanceRecords((allEvents: Event[]) => {
             result = [...allEvents];
         }, setError);
         
         if (strandFilter) {
-            result = await useViewEventAttendanceByStrand(strandFilter, false, setError);
+            result = await useViewEventAttendanceByStrand(strandFilter, true, setError);
             setStrand(strandFilter);
         }
         
@@ -80,12 +78,10 @@ export const ManageAttendances = () => {
                     return eYear === Number(year) && eMonthIndex === monthIndex;
                 });
             }
-        } 
-        else if (month && !year) {
+        } else if (month && !year) {
             const monthIndex = MONTHS.indexOf(month);
             result = result.filter((event) => parseYMD(event.eventDate).monthIndex === monthIndex);
-        } 
-        else if (!month && year) {
+        } else if (!month && year) {
             result = result.filter((event) => parseYMD(event.eventDate).year === Number(year));
         }
         
@@ -152,17 +148,14 @@ export const ManageAttendances = () => {
     
     return(
         <>
-            <Header title="Manage Attendances" />
+            <Header title="Archived Attendances" path="/manage-attendances" />
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-5xl mx-auto p-6">
                     <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)}/>
                     <p className="text-red-600 text-sm">{error}</p>
                     
                     {!isOnSearch && 
-                        <div className="mt-3 mb-3 flex items-center justify-between">
-                            <button onClick={() => navigate("/archived-attendances")}>
-                                <Archive className="w-5 h-5" />
-                            </button>
+                        <div className="mt-3 mb-3 flex items-center justify-end">
                             <button onClick={() => setShowFilter(true)}>
                                 <Ellipsis className="w-5 h-5" />
                             </button>
@@ -172,14 +165,14 @@ export const ManageAttendances = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
                         {eventArray.length > 0 ? (
                             eventArray.map((event: Event) => (
-                                <EventAttendanceCard key={event.id} event={event} onView={() => loadViewCard(event)}  />
+                                <EventAttendanceCard key={event.id} event={event} onView={() => loadViewCard(event)} />
                             ))
                         ) : (
                             <p>No events found.</p>
                         )}
                     </div>
                     
-                    {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} isOnArchive={false} strand={strand} onClose={() => setShowViewCard(false)} onComplete={() => {applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedByTime, searchQuery);}} />}
+                    {showViewCard && selectedEvent && <AttendanceCard  isOnArchive={true} event={selectedEvent} strand={strand} onClose={() => setShowViewCard(false)} onComplete={() => {applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedByTime, searchQuery);}} />}
                     {showFilter && (
                         <AttendanceFilterOptions
                             onClose={() => setShowFilter(false)}

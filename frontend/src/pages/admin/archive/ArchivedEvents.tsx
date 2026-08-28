@@ -217,7 +217,7 @@ export const ArchivedEvents = () => {
                         />
                     )}
                     {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} eventName={selectedEvent.eventName} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
-                    {showUnarchiveCard && selectedEvent && <UnarchiveEventCard id={selectedEvent.id} onDeleted={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUnarchiveCard(false)} eventName={selectedEvent.eventName} />}
+                    {showUnarchiveCard && selectedEvent && <UnarchiveEventCard id={selectedEvent.id} onRestored={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUnarchiveCard(false)} eventName={selectedEvent.eventName} />}
                     {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
                 </div>

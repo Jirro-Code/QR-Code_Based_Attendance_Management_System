@@ -1,57 +1,49 @@
-import { TriangleAlert } from "lucide-react";
 import { useArchive } from "../../../hooks/useArchive.ts";
 import { useState } from "react";
+import { TriangleAlert } from "lucide-react";
 import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 
-type ArchiveCardEventProps = {
-    id: string;
-    eventName: string;
-    onArchived: () => void;
+type ArchiveAttendanceCardProps = {
+    attendanceId: string;
+    username: string;
+    onArchived: (attendanceId: string) => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
-    onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
+    onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string }>>;
     onClose: () => void;
-}
+};
 
-export const ArchiveEventCard = ({ id, eventName, onArchived, setShowNotification, onSetNotif, onClose }: ArchiveCardEventProps) => {
+export const ArchiveAttendanceCard = ({ attendanceId, username, onArchived, setShowNotification, onSetNotif, onClose }: ArchiveAttendanceCardProps) => {
     const [error, setError] = useState<string>("");
-    const { useArchiveEvent } = useArchive();
+    const { useArchiveAttendance } = useArchive();
     const { useDisableScroll } = useScrollFunctions();
     useDisableScroll();
     
     const handleArchive = async () => {
         try {
-            await useArchiveEvent(id, setError);
-            onArchived();
+            await useArchiveAttendance(attendanceId, setError);
+            onArchived(attendanceId);
             onSetNotif({
                 title: "Archive Successful",
-                message: "Event archived successfully!"
+                message: "Attendance archived successfully!"
             });
             setShowNotification(true);
-            onSetNotif({
-                title: "Archive Successful",
-                message: "Event archived successfully!"
-            });
-        } 
+        }
         catch (error) {
-            console.error("Error archiving event:", error);
-            onSetNotif({
-                title: "Archive Failed",
-                message: "Failed to archive event."
-            });
+            console.error("Error archiving attendance:", error);
+            onSetNotif({ title: "Archive Failed", message: "Failed to archive attendance." });
             setShowNotification(true);
         }
     };
     
-    
     return (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+        <div className="not-scrollable-card fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-lg p-5 flex flex-col gap-3 max-w-xs w-full">
-                <h1 className="text-red-800 text-base font-bold flex gap-1"><TriangleAlert/> Archive Event</h1>
+                <h1 className="text-red-800 text-base font-bold flex gap-1"><TriangleAlert/> Archive Attendance</h1>
                 
                 <p className="text-red-600 text-sm">{error}</p>
                 
-                <p className="text-gray-700 text-sm overflow-hidden text-ellipsis">
-                    Are you sure you want to archive <b >{eventName}</b>?
+                <p className="text-gray-700 text-sm">
+                    Are you sure you want to archive <b>{username}</b>'s attendance record?
                 </p>
                 
                 <div className="flex justify-between items-center mt-1">
@@ -65,4 +57,4 @@ export const ArchiveEventCard = ({ id, eventName, onArchived, setShowNotificatio
             </div>
         </div>
     );
-}
+};

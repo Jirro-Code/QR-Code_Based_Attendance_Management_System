@@ -10,10 +10,12 @@ import { X } from "lucide-react";
 type AttendanceCardProps = {
     event: Event;
     strand: string | null;
+    isOnArchive: boolean;
+    onComplete: () => void;
     onClose: () => void;
 };
 
-export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) => {
+export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete }: AttendanceCardProps) => {
     const { useDisableScroll } = useScrollFunctions();
     useDisableScroll();
     const { useViewAttendanceByEventId, useViewAttendanceByStrand } = useView();
@@ -54,9 +56,15 @@ export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) 
         );
     }
     
-    const onDeleteAttendance = (deletedId: string) => {
+    const onArchivedAttendance = (deletedId: string) => {
+        onComplete();
         setAttendanceArray((prev) => prev.filter((a) => a.id !== deletedId));
     };
+    
+    const isArchivedRecord = (attendance: Attendance) =>
+    attendance.isArchived === true ||
+    attendance.isArchivedByStudent === true ||
+    attendance.isArchivedByEvent === true;
     
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 p-3 z-10 backdrop-blur-[2px]">
@@ -90,19 +98,35 @@ export const AttendanceCard = ({ event, strand, onClose }: AttendanceCardProps) 
                     </div>
                     
                     <div className="grid grid-cols-1">
-                        {attendanceArray.length > 0 ? (
-                            attendanceArray.map((attendance: Attendance, index: number) => (
-                                <AttendanceListCell key={attendance.id} attendance={attendance} number={index + 1}
-                                    onUpdated={(attendance) => onUpdatedAttendance(attendance)}
-                                    onDelete={(attendanceId) => onDeleteAttendance(attendanceId)}
-                                    setShowNotification={setShowNotification}
-                                    onSetNotif={setNotificationMessage}
-                                />
-                            ))
-                        ) : 
-                        (
-                            <p>No attendance records found.</p>
-                        )}
+                        {
+                            isOnArchive ? (
+                                attendanceArray.filter(isArchivedRecord).length > 0 ? (
+                                    attendanceArray.filter(isArchivedRecord).map((attendance: Attendance, index: number) => (
+                                        <AttendanceListCell key={attendance.id} attendance={attendance} number={index + 1}
+                                            onUpdated={(attendance) => onUpdatedAttendance(attendance)}
+                                            onRestored={(attendanceId) => onArchivedAttendance(attendanceId)}
+                                            setShowNotification={setShowNotification}
+                                            onSetNotif={setNotificationMessage}
+                                        />
+                                    ))
+                                ) : (
+                                    <p>No attendance records found.</p>
+                                )
+                            ) : (
+                                attendanceArray.filter((a) => !isArchivedRecord(a)).length > 0 ? (
+                                    attendanceArray.filter((a) => !isArchivedRecord(a)).map((attendance: Attendance, index: number) => (
+                                        <AttendanceListCell key={attendance.id} attendance={attendance} number={index + 1}
+                                            onUpdated={(attendance) => onUpdatedAttendance(attendance)}
+                                            onArchived={(attendanceId) => onArchivedAttendance(attendanceId)}
+                                            setShowNotification={setShowNotification}
+                                            onSetNotif={setNotificationMessage}
+                                        />
+                                    ))
+                                ) : (
+                                    <p>No attendance records found.</p>
+                                )
+                            )
+                        }
                     </div>
                     
                 </div>
