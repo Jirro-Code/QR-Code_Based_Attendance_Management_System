@@ -186,15 +186,23 @@ export const unarchiveUser = async (req: AuthenticatedRequest, res: Response) =>
     try{
         const userId = z.string().parse(req.params.id);
         
+        const checkUser = await db.query.users.findFirst({
+            where: eq(users.id, userId)
+        });
+        
+        if(!checkUser) {
+            console.error("User not found:", userId);
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        if(checkUser?.isArchived === false){
+            return res.status(400).json({message: "User is not archived"});
+        }
+        
         const [unarchivedUser] = await db.transaction(async (tx) => {
             await tx.update(attendance).set({ isArchivedByStudent: false }).where(eq(attendance.userId, userId)).returning();
             return await tx.update(users).set({ isArchived: false }).where(eq(users.id, userId)).returning();
         });
-        
-        if(!unarchivedUser) {
-            console.error("User not found or unauthorized to unarchive");
-            return res.status(404).json({message: "User not found or unauthorized to unarchive"});
-        }
         
         res.status(200).json({message: "User unarchived successfully", user: unarchivedUser});
     }
@@ -212,15 +220,24 @@ export const archiveUser = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const userId = z.string().parse(req.params.id);
         
+        const checkUser = await db.query.users.findFirst({
+            where: eq(users.id, userId)
+        });
+        
+        if(!checkUser) {
+            console.error("User not found:", userId);
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        if(checkUser?.isArchived){
+            return res.status(400).json({message: "User is already archived"});
+        }
+        
         const [archivedUser] = await db.transaction(async (tx) => {
             await tx.update(attendance).set({ isArchivedByStudent: true }).where(eq(attendance.userId, userId)).returning();
             return await tx.update(users).set({ isArchived: true }).where(eq(users.id, userId)).returning();
         });
         
-        if(!archivedUser) {
-            console.error("User not found or unauthorized to archive");
-            return res.status(404).json({message: "User not found or unauthorized to archive"});
-        }
         
         res.status(200).json({message: "User archived successfully", user: archivedUser});
     }

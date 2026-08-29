@@ -38,7 +38,8 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
         id: createdUser.id,
         username: createdUser.username,
         email: createdUser.email,
-        role: createdUser.role
+        role: createdUser.role,
+        isActive: createdUser.isArchived
     })
     
     const testAdmin = {
@@ -56,7 +57,8 @@ export const createTestUser = async (userData: Partial<NewUser> = {}) => {
         id: createdAdmin.id,
         username: createdAdmin.username,
         email: createdAdmin.email,
-        role: createdAdmin.role
+        role: createdAdmin.role,
+        isActive: createdAdmin.isArchived
     })
     
     return { testUser: createdUser, userToken, testAdmin: createdAdmin, adminToken, testUserPassword: "testUser", testAdminPassword: "testAdmin" };
@@ -86,7 +88,8 @@ export const createMultipleUser = async (userData: Partial<NewUser>, userCount: 
             id: createdUser.id,
             username: createdUser.username,
             email: createdUser.email,
-            role: createdUser.role
+            role: createdUser.role,
+            isActive: createdUser.isArchived
         })
         testUsersToken.push(userToken);
     }
@@ -112,7 +115,8 @@ export const createMultipleUser = async (userData: Partial<NewUser>, userCount: 
             id: createdAdmin.id,
             username: createdAdmin.username,
             email: createdAdmin.email,
-            role: createdAdmin.role
+            role: createdAdmin.role,
+            isActive: createdAdmin.isArchived
         });
         testAdminsToken.push(adminToken);
     }

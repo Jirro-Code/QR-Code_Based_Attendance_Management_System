@@ -17,6 +17,14 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
             return res.status(404).json({message: "Student not found"});
         }
         
+        if (studentExist.role !== "user") {
+            return res.status(400).json({message: "User is not a student"});
+        }
+        
+        if (studentExist.isArchived) {
+            return res.status(400).json({message: "Student is archived"});
+        }
+        
         const eventExist = await db.query.events.findFirst({
             where:
                 eq(events.id, req.body.eventId)
@@ -281,9 +289,31 @@ export const unarchiveAttendance = async (req: AuthenticatedRequest, res: Respon
         const attendanceId = z.uuid().parse(req.params.id);
         const [unarchivedAttendance] = await db.update(attendance).set({ isArchived: false }).where(eq(attendance.id, attendanceId)).returning();
         
-        if(!unarchivedAttendance){
+        const checkAttendance = await db.query.attendance.findFirst({
+            where: eq(attendance.id, attendanceId)
+        });
+        
+        if(!checkAttendance) {
             console.error("Attendance not found", attendanceId);
-            return res.status(404).json({message: "Attendance not found"})
+            return res.status(404).json({message: "Attendance not found"});
+        }
+        
+        const isEventArchived = checkAttendance?.isArchivedByEvent ?? false;
+        
+        if (isEventArchived) {
+            return res.status(400).json({message: "Cannot unarchive attendance because the event is archived"});
+        }
+        
+        const isUserArchived = checkAttendance?.isArchivedByStudent ?? false;
+        
+        if (isUserArchived) {
+            return res.status(400).json({message: "Cannot unarchive attendance because the user is archived"});
+        }
+        
+        const isAttendanceArchived = checkAttendance?.isArchived ?? false;
+        
+        if (!isAttendanceArchived) {
+            return res.status(400).json({message: "Attendance is not archived"});
         }
         
         console.log("User attendance unarchived successfully:", unarchivedAttendance);
@@ -303,12 +333,21 @@ export const unarchiveAttendance = async (req: AuthenticatedRequest, res: Respon
 export const archiveAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const attendanceId = z.uuid().parse(req.params.id);
-        const [archivedAttendance] = await db.update(attendance).set({ isArchived: true }).where(eq(attendance.id, attendanceId)).returning();
         
-        if(!archivedAttendance){
+        const checkAttendance = await db.query.attendance.findFirst({
+            where: eq(attendance.id, attendanceId)
+        });
+        
+        if(!checkAttendance) {
             console.error("Attendance not found", attendanceId);
             return res.status(404).json({message: "Attendance not found"})
         }
+        
+        if(checkAttendance?.isArchived){
+            return res.status(400).json({message: "Attendance is already archived"});
+        }
+        
+        const [archivedAttendance] = await db.update(attendance).set({ isArchived: true }).where(eq(attendance.id, attendanceId)).returning();
         
         console.log("User attendance archived successfully:", archivedAttendance);
         res.status(200).json({message: "User attendance archived successfully", user: archivedAttendance})

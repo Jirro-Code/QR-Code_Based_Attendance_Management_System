@@ -3,7 +3,7 @@ import type {Request, Response} from "express";
 import {db} from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
 import { generateToken } from "../utils/jwt.ts";
-import { and, eq, or } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { env } from "../../env.ts";
 import ms from "ms";
 import type { AuthenticatedRequest } from "../middlewares/authToken.ts";
@@ -24,14 +24,33 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
             return res.status(400).json({message: "Missing required fields for user role"});
         }
         
-        const existingUser = await db.query.users.findFirst({
-            where: req.body.role === "user" ? 
-            or(eq(users.email, req.body.email), eq(users.studentId, req.body.studentId!), eq(users.studentLRN, req.body.studentLRN!)) : eq(users.email, req.body.email)
-        });
+        const [emailConflict, studentIdConflict, studentLRNConflict] = await Promise.all([
+            db.query.users.findFirst({
+                where: eq(users.email, req.body.email),
+            }),
+            req.body.role === "user"
+                ? db.query.users.findFirst({
+                    where: eq(users.studentId, req.body.studentId!),
+                })
+                : null,
+            req.body.role === "user"
+                ? db.query.users.findFirst({
+                    where: eq(users.studentLRN, req.body.studentLRN!),
+                })
+                : null,
+        ]);
         
-        if(existingUser){
-            console.error("User already exists:", existingUser);
-            return res.status(409).json({message: "User already exists"});
+        const duplicateFields: string[] = [];
+        if (emailConflict) duplicateFields.push("email");
+        if (studentIdConflict) duplicateFields.push("studentId");
+        if (studentLRNConflict) duplicateFields.push("studentLRN");
+        
+        if (duplicateFields.length > 0) {
+            console.error("Duplicate data found for:", duplicateFields);
+            return res.status(409).json({
+                message: `Duplicate data found for: ${duplicateFields.join(", ")}`,
+                duplicateFields,
+            });
         }
         
         const hashedPassword = await hashPassword(req.body.password);
@@ -68,21 +87,22 @@ export const loginUser = async (req: Request, res: Response) => {
             return res.status(404).json({message: "User not found"});
         }
         
-        if(user.isArchived){
-            return res.status(403).json({message: "This account is archived. Please contact the administrator."});
-        }
-        
         const isPasswordValid = await comparePassword(req.body.password, user.password);
         
         if(!isPasswordValid){
             return res.status(401).json({message: "Invalid Credentials"});
         }
         
+        if(user.isArchived){
+            return res.status(403).json({message: "This account is archived. Please contact the administrator."});
+        }
+        
         const token = await generateToken({
             id: user.id,
             username: user.username,
             email: user.email,
-            role: user.role
+            role: user.role,
+            isActive: user.isArchived
         });
         
         const {password, ...userWithoutPassword} = user;     

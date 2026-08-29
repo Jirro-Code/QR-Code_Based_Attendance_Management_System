@@ -159,15 +159,23 @@ export const unarchiveEvent = async (req: AuthenticatedRequest, res: Response) =
     try{
         const eventId = z.string().parse(req.params.id);
         
+        const checkEvent = await db.query.events.findFirst({
+            where: eq(events.id, eventId)
+        });
+        
+        if(!checkEvent) {
+            console.error("Event not found:", eventId);
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        if(checkEvent?.isArchived === false){
+            return res.status(400).json({message: "Event is not archived"});
+        }
+        
         const [unarchivedEvent] = await db.transaction(async (tx) => {
             await tx.update(attendance).set({isArchivedByEvent: false}).where(eq(attendance.eventId, eventId)).returning();
             return await tx.update(events).set({isArchived: false}).where(eq(events.id, eventId)).returning();
         });
-        
-        if(!unarchivedEvent){
-            console.error("Event not found:", eventId);
-            return res.status(404).json({message: "Event not found"});
-        }
         
         console.log("Event unarchived:", eventId);
         res.status(200).json({message: "Event unarchived successfully", event: unarchivedEvent});
@@ -187,16 +195,23 @@ export const unarchiveEvent = async (req: AuthenticatedRequest, res: Response) =
 export const archiveEvent = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.string().parse(req.params.id);
+        const checkEvent = await db.query.events.findFirst({
+            where: eq(events.id, eventId)
+        });
+        
+        if(!checkEvent) {
+            console.error("Event not found:", eventId);
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        if(checkEvent?.isArchived){
+            return res.status(400).json({message: "Event is already archived"});
+        }
         
         const [archivedEvent] = await db.transaction(async (tx) => {
             await tx.update(attendance).set({isArchivedByEvent: true}).where(eq(attendance.eventId, eventId)).returning();``
             return await tx.update(events).set({isArchived: true}).where(eq(events.id, eventId)).returning();
         });
-        
-        if(!archivedEvent){
-            console.error("Event not found:", eventId);
-            return res.status(404).json({message: "Event not found"});
-        }
         
         console.log("Event archived:", eventId);
         res.status(200).json({message: "Event archived successfully", event: archivedEvent});

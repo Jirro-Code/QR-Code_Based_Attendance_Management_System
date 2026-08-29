@@ -7,6 +7,7 @@ export interface JwtPayload extends JWTPayload {
     username: string;
     email: string;
     role: string;
+    isActive: boolean;
 }
 
 export const generateToken = async (payload: JwtPayload) => {
