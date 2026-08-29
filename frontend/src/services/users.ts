@@ -3,6 +3,7 @@ import {apiFetch} from "./http";
 export interface User {
     role: "admin" | "user";
     id: string;
+    profilePictureUrl: string;
     username: string;
     email: string;
     password: string;
@@ -25,6 +26,14 @@ export const getSelf = async () => {
 
 export const getUserById = async (id: string) => {
     const response = await apiFetch(`/users/userId/${id}`, {
+        method: "GET",
+        credentials: "include"
+    });
+    return response.json();
+}
+
+export const getProfilePictureById = async (id: string) => {
+    const response = await apiFetch(`/users/profile-picture/${id}`, {
         method: "GET",
         credentials: "include"
     });

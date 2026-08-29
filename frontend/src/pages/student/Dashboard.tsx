@@ -1,11 +1,14 @@
 import { type User } from "../../services/users";
 import { useCurrentUser } from "../../hooks/useCurrentUser"
-import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { Navbar } from "../../components/Navbar.tsx";
+import { useView } from "../../hooks/useView.ts";
+import QRCode from "qrcode";
+
 
 export const StudentDashboard = () => {
     const [qrCode, setQrCode] = useState<string | null>(null);
+    const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [studentData, setStudentData] = useState<Partial<User>>({
         id: "",
         username: "",
@@ -16,9 +19,27 @@ export const StudentDashboard = () => {
     });
     const qrURl = `${studentData.id}|icpsantamaria|${studentData.username}|icpsantamaria|${studentData.studentStrand}|icpsantamaria|${studentData.studentSection}`;
     useCurrentUser("/student-login", setStudentData);
+    const { useViewProfilePicture } = useView();
     
     useEffect(() => {
+        const fetchProfilePicture = async () => {
+            if (!studentData.id) return;
+            
+            try {
+                const url = await useViewProfilePicture(studentData.id, (error) => {
+                    console.error("Error fetching profile picture:", error);
+                });
+                setProfilePicture(url);
+            }
+            catch (e) {
+                console.error("Error fetching profile picture:", e);
+                setProfilePicture(null);
+            }
+        }
+        fetchProfilePicture();
+        
         if (studentData.id && studentData.username) {
+            
             QRCode.toDataURL(qrURl, (err, url) => {
                 if (err) {
                     console.error("Error generating QR code:", err);
@@ -27,7 +48,10 @@ export const StudentDashboard = () => {
                 setQrCode(url);
             });
         }
+        
     }, [studentData.id, studentData.username]);
+    
+    
     
     return (
         <>
@@ -38,6 +62,8 @@ export const StudentDashboard = () => {
                         <h1 className="text-2xl font-bold text-gray-800">Student Dashboard</h1>
                         <p className="text-gray-600">Welcome back, {studentData.username}!</p>
                         {qrCode && <img className="w-56 h-56 border border-gray-200 rounded-md p-2" src={qrCode} alt="QR Code" />}
+                        
+                        {profilePicture && <img className="w-32 h-32 border border-gray-200 rounded-full" src={profilePicture} alt="Profile Picture" />}
                     </div>
                 </div>
             </div>

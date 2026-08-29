@@ -1,6 +1,6 @@
 import { logout } from "../services/auth.ts";
 import { getAllEvents, searchEvents, type Event } from "../services/events.ts";
-import { getUserById, getUsersByRole, searchUsers, type User } from "../services/users.ts";
+import { getProfilePictureById, getUserById, getUsersByRole, searchUsers, type User } from "../services/users.ts";
 import { ApiError } from "../services/error.ts";
 import { getAllEventAttendance, getAllArchivedEventAttendance, getAttendanceByEventId, getAttendanceByStrand, getEventAttendanceByStrand } from "../services/attendance.ts";
 import { type Attendance } from "../services/attendance.ts";
@@ -10,7 +10,8 @@ export const useView = () => {
         try {
             const data = await getUserById(id);
             return data.user as User;
-        } catch (e) {
+        } 
+        catch (e) {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
@@ -34,6 +35,37 @@ export const useView = () => {
             throw e;
         }
     }
+    
+    const useViewProfilePicture = async (id: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<string> => {
+        try {
+            const data = await getProfilePictureById(id);
+            return data.url as string;
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/admin-login");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "Profile picture not found.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("An error occurred while fetching the profile picture. Please try again.");
+            console.error("Error fetching profile picture:", e);
+            throw e;
+        }
+    }
+    
     const useViewAllUsers = async (setUserArray: (users: User[]) => void, setError: React.Dispatch<React.SetStateAction<string>>) => {
         const fetchUsers = async () => {
             try {
@@ -312,5 +344,5 @@ export const useView = () => {
         }
     }
     
-    return { useViewUser, useViewAllUsers, useSearchUsers, useViewAllEventsWithArchivedAttendanceRecords, useViewAllEvents, useSearchEvents, useViewAttendanceByEventId, useViewEventAttendanceByStrand, useViewAttendanceByStrand, useViewAllEventsWithAttendanceRecords };
+    return { useViewUser, useViewProfilePicture, useViewAllUsers, useSearchUsers, useViewAllEventsWithArchivedAttendanceRecords, useViewAllEvents, useSearchEvents, useViewAttendanceByEventId, useViewEventAttendanceByStrand, useViewAttendanceByStrand, useViewAllEventsWithAttendanceRecords };
 }

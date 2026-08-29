@@ -6,6 +6,7 @@ export type LoginPayload =
 
 export type StudentRegisterPayload = {
     role: "user";
+    profilePicture: File | null;
     username: string;
     email: string;
     password: string;
@@ -25,9 +26,22 @@ export type AdminRegisterPayload = {
 export type RegisterPayload = StudentRegisterPayload | AdminRegisterPayload;
 
 export const register = async (data: RegisterPayload) => {
+    const formData = new FormData();
+
+    Object.entries(data).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
+            if (value instanceof File) {
+                formData.append(key, value);
+            } else {
+                formData.append(key, String(value));
+            }
+        }
+    });
+    
+    
     const response = await apiFetch("/auth/register", {
         method: "POST",
-        body: JSON.stringify(data)
+        body: formData
     });
     return response.json();
 }

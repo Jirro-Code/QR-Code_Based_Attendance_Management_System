@@ -30,7 +30,6 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
         setShowIsDetected(false);
         setScannedStudent(null);
         setRestartScanner((prev) => !prev);
-        console.log("Scanner restarted:", !restartScanner);
     }
     
     useEffect(() => {

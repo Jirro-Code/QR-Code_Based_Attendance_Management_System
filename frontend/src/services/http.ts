@@ -3,13 +3,14 @@ import { ApiError } from "./error";
 const API_BASE_URL = "https://localhost:3000/api";
 
 export const apiFetch = async (path: string, init: RequestInit = {}) => {
+    const headers = new Headers(init.headers);
+    if (!(init.body instanceof FormData)) {
+        headers.set("Content-Type", "application/json");
+    }
     const response = await fetch(`${API_BASE_URL}${path}`, {
         ...init,
         credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-            ...(init.headers ?? {})
-        }
+        headers
     });
     
     if (!response.ok) {

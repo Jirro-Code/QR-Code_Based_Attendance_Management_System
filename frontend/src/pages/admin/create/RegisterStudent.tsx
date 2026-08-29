@@ -18,6 +18,7 @@ export const RegisterStudent = () => {
     });
     const [studentData, setStudentData] = useState<StudentRegisterPayload>({
         role: "user",
+        profilePicture: null,
         username: "",
         email: "",
         password: "",
@@ -79,6 +80,7 @@ export const RegisterStudent = () => {
     const reloadPage = () => {
         setStudentData({
             role: "user",
+            profilePicture: null,
             username: "",
             email: "",
             password: "",
@@ -104,6 +106,32 @@ export const RegisterStudent = () => {
                         <p className="text-red-600 text-sm">{error}</p>
                         
                         <form className="flex flex-col gap-1" onSubmit={handleSubmit}>
+                            
+                            <div className="flex flex-col mb-4">
+                                <label
+                                    className="block text-sm font-medium text-gray-700"
+                                    htmlFor="profilePicture"
+                                >
+                                    Profile Picture:
+                                </label>
+                                
+                                <input
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                                    id="profilePicture"
+                                    type="file"
+                                    name="profilePicture"
+                                    accept="image/png,image/jpeg,image/webp"
+                                    onChange={(e) => {
+                                        const file = e.target.files?.[0] ?? null;
+                                        
+                                        setStudentData((current) => ({
+                                            ...current,
+                                            profilePicture: file
+                                        }));
+                                    }}
+                                />
+                            </div>
+                            
                             <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleChange} name="username" value={studentData.username} error={error?.includes("name") ? error : undefined} />
                             <Input label="Email" id="studentEmail" type="email" placeholder="Email" onChange={handleChange} name="email" value={studentData.email} error={error?.includes("email") ? error : undefined} />
                             <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={studentData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
