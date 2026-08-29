@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Html5Qrcode, type CameraDevice } from "html5-qrcode";
 import { ScannedStudentCard } from "./Cards/ScannedStudentCard.tsx";
+import { NotificationCard } from "./Cards/NotificationCard.tsx";
 
 type ScannerProps = {
     onClose: () => void;
@@ -13,6 +14,11 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
     const [orderedCameras, setOrderedCameras] = useState<CameraDevice[]>(cameras);
     const [showIsDetected, setShowIsDetected] = useState<boolean>(false);
     const [restartScanner, setRestartScanner] = useState<boolean>(false);
+    const [showNotification, setShowNotification] = useState<boolean>(false);
+    const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
+        title: "",
+        message: ""
+    });
     const [scannedStudent, setScannedStudent] = useState<{
         uuid: string;
         username: string;
@@ -108,10 +114,11 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
     return (
         <>  
             <div id="qr-reader" style={{ width: "350px", height: "350px" }}/>
-            {error && <p>{error}</p>}
+            {error && <p className="text-red-700">{error}</p>}
             <button onClick={() => setOrderedCameras((prev) => [...prev.slice(1), prev[0]])} disabled={orderedCameras.length <= 1}> Flip Camera </button>
             <button onClick={onClose}> Cancel </button>
-            {showIsDetected && <ScannedStudentCard scannedStudent={scannedStudent} eventId={eventId} setError={setError} onClose={onCloseScannedStudentCard}/>}
+            {showIsDetected && <ScannedStudentCard scannedStudent={scannedStudent} setNotificationMessage={setNotificationMessage} setShowNotification={setShowNotification} eventId={eventId} setError={setError} onClose={onCloseScannedStudentCard}/>}
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </>
     );
 }

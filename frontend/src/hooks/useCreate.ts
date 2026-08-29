@@ -25,7 +25,7 @@ export const useCreate = () => {
         isLate: boolean,
         setError: (message: string) => void
     };   
-
+    
     const useRegister = async ({ form, setError, setShowNotification, setNotificationMessage}: useRegisterProps) => {
         try {
             const data = await register(form);
@@ -109,6 +109,7 @@ export const useCreate = () => {
             if (e instanceof ApiError) {
                 if (e.status === 400) {
                     setError(e.message ?? "Invalid attendance data.");
+                    return { result: `invalid_data|${e.message}` };
                 }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
@@ -118,10 +119,10 @@ export const useCreate = () => {
                     setError(e.message ?? "Access denied. You do not have permission to perform this action.");
                 }
                 if (e.status === 404) {
-                    setError(e.message ?? "Event not found or student not found.");;               
+                    setError(e.message ?? "Event not found or student not found.");
+                    return { result: `not_found|${e.message}` };
                 }
                 if (e.status === 409) {
-                    alert("Attendance already marked.");
                     setError(e.message || "Attendance already marked.");
                     return { result: "already_marked" };
                 }

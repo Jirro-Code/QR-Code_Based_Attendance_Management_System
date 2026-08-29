@@ -12,6 +12,9 @@ export const useArchive = () => {
         } 
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Failed to archive user. User may already archived.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -41,6 +44,9 @@ export const useArchive = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Failed to unarchive user. The user may not be archived.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -70,6 +76,9 @@ export const useArchive = () => {
         } 
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Failed to archive event. The event may already be archived.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -99,6 +108,9 @@ export const useArchive = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Failed to unarchive event. The event may not be archived.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -128,6 +140,9 @@ export const useArchive = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Failed to archive attendance. Attendance may already archived.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -157,6 +172,9 @@ export const useArchive = () => {
         } 
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Failed to unarchive attendance. The user or event may be archived.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");

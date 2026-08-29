@@ -14,7 +14,7 @@ export const useView = () => {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
-                    await logout("/");
+                    await logout("/admin-login");
                 }
                 if (e.status === 404) {
                     setError(e.message || "User not found.");
@@ -44,7 +44,7 @@ export const useView = () => {
                 if (e instanceof ApiError) {
                     if (e.status === 401) {
                         alert("Unauthorized. Please log in.");
-                        await logout("/");
+                        await logout("/admin-login");
                     }
                     if (e.status === 403) {
                         setError(e.message || "Access denied. You do not have permission to perform this action.");
@@ -77,7 +77,7 @@ export const useView = () => {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
-                    await logout("/");
+                    await logout("/admin-login");
                 }
                 if (e.status === 404) {
                     return [];
@@ -108,7 +108,7 @@ export const useView = () => {
                 if (e instanceof ApiError) {
                     if (e.status === 401) {
                         alert("Unauthorized. Please log in.");
-                        await logout("/");
+                        await logout("/admin-login");//TODO: Change this to /admin-login if the user is an admin, or / if the user is a student
                     }
                     if (e.status === 403) {
                         setError("Access denied. You do not have permission to perform this action.");
@@ -141,7 +141,7 @@ export const useView = () => {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
-                    await logout("/");
+                    await logout("/admin-login");//TODO: Change this to /admin-login if the user is an admin, or / if the user is a student
                 }
                 if (e.status === 404) {
                     return [];
@@ -171,7 +171,7 @@ export const useView = () => {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
-                    await logout("/");
+                    await logout("/admin-login");
                 }
                 if (e.status === 404) {
                     return [];
@@ -201,7 +201,7 @@ export const useView = () => {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
-                    await logout("/");
+                    await logout("/admin-login");
                 }
                 if (e.status === 404) {
                     return [];
@@ -231,7 +231,7 @@ export const useView = () => {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
-                    await logout("/");
+                    await logout("/admin-login");
                 }
                 if (e.status === 403) {
                     setError("Access denied. You do not have permission to perform this action.");
@@ -261,7 +261,7 @@ export const useView = () => {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
-                    await logout("/");
+                    await logout("/admin-login");
                 }
                 if (e.status === 403) {
                     setError("Access denied. You do not have permission to perform this action.");
@@ -291,7 +291,7 @@ export const useView = () => {
             if (e instanceof ApiError) {
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
-                    await logout("/");
+                    await logout("/admin-login");
                 }
                 if (e.status === 403) {
                     setError("Access denied. You do not have permission to perform this action.");

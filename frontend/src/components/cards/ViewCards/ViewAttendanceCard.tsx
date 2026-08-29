@@ -113,8 +113,8 @@ export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete
                                     <p>No attendance records found.</p>
                                 )
                             ) : (
-                                attendanceArray.filter((a) => !isArchivedRecord(a)).length > 0 ? (
-                                    attendanceArray.filter((a) => !isArchivedRecord(a)).map((attendance: Attendance, index: number) => (
+                                attendanceArray.filter((attendance) => !isArchivedRecord(attendance)).length > 0 ? (
+                                    attendanceArray.filter((attendance) => !isArchivedRecord(attendance)).map((attendance: Attendance, index: number) => (
                                         <AttendanceListCell key={attendance.id} attendance={attendance} number={index + 1}
                                             onUpdated={(attendance) => onUpdatedAttendance(attendance)}
                                             onArchived={(attendanceId) => onArchivedAttendance(attendanceId)}

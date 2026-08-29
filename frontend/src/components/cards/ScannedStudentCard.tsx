@@ -9,23 +9,42 @@ type ScannedStudentCardProps = {
         studentSection: string;
     } | null;
     eventId: string;
+    setNotificationMessage: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
+    setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     setError: React.Dispatch<React.SetStateAction<string>>;
     onClose: () => void;
 };
 
-export const ScannedStudentCard = ({ scannedStudent, eventId, onClose, setError }: ScannedStudentCardProps) => {
+export const ScannedStudentCard = ({ scannedStudent, setNotificationMessage, setShowNotification, eventId, onClose, setError }: ScannedStudentCardProps) => {
     const { useMarkAttendance } = useCreate();
     const [isLate, setIsLate] = useState<boolean>(false);
     const handleMarkPresent = async () => {
         if (!scannedStudent || !eventId) return;
         const result = await useMarkAttendance( { uuid: scannedStudent.uuid, eventId, isLate, setError } );
-        if (result.result === "already_marked") {
+        
+        if (result.result.includes("invalid_data")) {
+            const errorMessage = result.result.split("|")[1] || "Invalid attendance data.";
+            setNotificationMessage({ title: "Error", message: errorMessage });
+            setShowNotification(true);
             onClose();
-            setError("Attendance already marked.");
             return;
         }
+        if (result.result.includes("not_found")) {
+            const errorMessage = result.result.split("|")[1] || "Event or student not found.";
+            setNotificationMessage({ title: "Error", message: errorMessage });
+            setShowNotification(true);
+            onClose();
+            return;
+        }        
+        if (result.result === "already_marked") {
+            setNotificationMessage({ title: "Attendance Already Marked", message: "This student has already been marked present for this event." });
+            setShowNotification(true);
+            onClose();
+            return;
+        }        
         if (result) {
-            alert("Attendance marked successfully.");
+            setNotificationMessage({ title: "Attendance Marked", message: "The student has been successfully marked present for this event." });
+            setShowNotification(true);
             onClose();
         }
     };

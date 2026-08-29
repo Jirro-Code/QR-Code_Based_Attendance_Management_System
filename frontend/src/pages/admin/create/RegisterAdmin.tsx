@@ -30,6 +30,21 @@ export const RegisterAdmin = () => {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         try {
+            if(adminData.username.trim().length < 2) {
+                window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                setError("Admin name must be at least 2 characters long!");
+                return;
+            }
+            if (!adminData.email.includes("@") || !adminData.email.includes(".")) {
+                window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                setError("Invalid email format!");
+                return;
+            }
+            if(adminData.password.trim().length < 6) {
+                window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+                setError("Password must be at least 6 characters long!");
+                return;
+            }
             if (adminData.password !== confirmPassword) {
                 window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
                 setError("Passwords do not match!");
@@ -65,10 +80,10 @@ export const RegisterAdmin = () => {
                         <h2 className="text-lg font-semibold text-gray-700">Register an Admin</h2>
                         <p className="text-red-600 text-sm">{error}</p>
                         <form className="flex flex-col gap-1" onSubmit={handleSubmit}>
-                            <Input label="Admin Name" id="adminName" type="text" placeholder="Admin Name" onChange={handleChange} name="username" value={adminData.username} />
-                            <Input label="Email" id="adminEmail" type="email" placeholder="Email" onChange={handleChange} name="email" value={adminData.email} />
-                            <Input label="Password" id="adminPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={adminData.password} />
-                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} />
+                            <Input label="Admin Name" id="adminName" type="text" placeholder="Admin Name" onChange={handleChange} name="username" value={adminData.username} error={error?.includes("name") ? error : undefined} />
+                            <Input label="Email" id="adminEmail" type="email" placeholder="Email" onChange={handleChange} name="email" value={adminData.email} error={error?.includes("email") ? error : undefined}/>
+                            <Input label="Password" id="adminPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={adminData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined}/>
+                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
                             <button type="submit" className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">Register Admin</button>
                         </form>
                     </div>

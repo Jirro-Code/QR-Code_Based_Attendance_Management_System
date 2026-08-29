@@ -33,6 +33,18 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
     
     const handleUpdate = async (data: User) => {
         try {
+            if (data.username && data.username.trim().length < 2) {
+                useScrollToTopOverflow(updateCardRef);
+                setError("Student name must be at least 2 characters long.");
+                return;
+            }
+            
+            if (data.email && (!data.email.includes("@") || !data.email.includes("."))) {
+                useScrollToTopOverflow(updateCardRef);
+                setError("Invalid email format.");
+                return;
+            }
+            
             if(confirmPassword && data.password === undefined) {
                 useScrollToTopOverflow(updateCardRef);
                 setError("Ensure that the password is filled out.");
@@ -50,6 +62,18 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
                     setError("Passwords do not match!");
                     return;
                 }
+            }
+            
+            if (data.studentId && /^\d{4}-\d{4}-ICP$/.test(data.studentId) === false) {
+                useScrollToTopOverflow(updateCardRef);
+                setError("Invalid Student ID format.");
+                return;
+            }
+            
+            if (data.studentLRN && data.studentLRN.length !== 12) {
+                useScrollToTopOverflow(updateCardRef);
+                setError("Student LRN must be exactly 12 digits long.");
+                return;
             }
             
             setError("");
@@ -86,12 +110,12 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
                 <p className="text-red-600 text-sm">{error}</p>
                 
                 <form className="flex flex-col gap-1">
-                    <Input label="Student Name" id="studentName" type="text" placeholder="John Doe" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} />
-                    <Input label="Email" id="studentEmail" type="email" placeholder="example09@gmail.com" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} />
-                    <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} />
-                    <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} />
-                    <Input label="Student LRN" id="studentLRN" type="number" placeholder="XXXXXXXXXXXX" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} />
-                    <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} />
+                    <Input label="Student Name" id="studentName" type="text" placeholder="John Doe" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} error={error?.includes("name") ? error : undefined} />
+                    <Input label="Email" id="studentEmail" type="email" placeholder="example09@gmail.com" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} error={error?.includes("email") ? error : undefined} />
+                    <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                    <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} error={error?.includes("Password") || error?.includes("Passwords") ? error : undefined} />
+                    <Input label="Student LRN" id="studentLRN" type="number" placeholder="XXXXXXXXXXXX" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} error={error?.includes("LRN") || error?.includes("studentLRN") ? error : undefined} />
+                    <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} error={error?.includes("ID") || error?.includes("studentId") ? error : undefined} />
                     <SelectionField label="Student Strand" id="studentStrand" value={formData.studentStrand ?? ""} onChange={handleFormChange} isRequired={false} 
                         placeholder="Select strand"
                         options={[

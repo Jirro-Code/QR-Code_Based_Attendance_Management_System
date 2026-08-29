@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useLogin } from "../../hooks/useLogin";
 import { Input } from "../../components/Input/Input";
-import { BackButton } from "../../components/Button";
-import { CircleAlert, User } from "lucide-react";
+import { CircleAlert } from "lucide-react";
+import icp from "../../assets/icp.png";
 
 export const StudentLoginPage = () => {
     const [form, setForm] = useState({studentId: "", password: ""});
@@ -15,7 +15,10 @@ export const StudentLoginPage = () => {
     
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        
+        if(/^\d{4}-\d{4}-ICP$/.test(form.studentId) === false) {
+            setError("Invalid Student ID format.");
+            return;
+        }
         if(form.password.length < 6){
             setError("Password must be at least 6 characters long.");
             return;
@@ -23,19 +26,15 @@ export const StudentLoginPage = () => {
         
         await useLoginUser({role: "user", studentId: form.studentId, password: form.password});
     }
-
-        
+    
+    
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-100">
             <div className="max-h-100 relative bg-white shadow-md flex rounded-2xl overflow-hidden">
                 
-                <div className="absolute top-4 right-2">
-                    <BackButton path="/" />
-                </div>
-                
                 <div className="bg-blue-800 p-6 flex items-center justify-center">
                     <div className="flex flex-col gap-1 items-center justify-center m-5">
-                        <User size={70} className="text-white" />
+                        <img src={icp} alt="ICP Logo" className="w-25 h-25" />
                         <h1 className="text-2xl font-bold text-white ml-2">AttendScan</h1>
                     </div>
                 </div>
@@ -49,11 +48,11 @@ export const StudentLoginPage = () => {
                     
                     <form onSubmit={handleSubmit} className="w-full">
                         <div className="mb-2">
-                            <Input label="Student ID" id="studentId" type="text" placeholder="2025-0000-ICP" onChange={handleChange} name="studentId" value={form.studentId} />
+                            <Input label="Student ID" id="studentId" type="text" placeholder="2025-0000-ICP" onChange={handleChange} name="studentId" value={form.studentId} error={error?.includes("User not found") || error?.includes("Student ID") || error?.includes("archived") ? error : undefined} />
                         </div>
                         
                         <div className="mb-2 relative">
-                            <Input label="Password" id="password" type="password" placeholder="Password" onChange={handleChange} name="password" value={form.password} />
+                            <Input label="Password" id="password" type="password" placeholder="Password" onChange={handleChange} name="password" value={form.password} error={error?.includes("Credentials") || error?.includes("Password") || error?.includes("archived") ? error : undefined} />
                             {error && (<span className="absolute w-[110%] -bottom-8 left-0 flex items-center gap-1 text-red-600 text-[10px]"><CircleAlert size={12} /><u>{error}</u></span>)}
                         </div>
                         <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors">Log In</button>
@@ -61,5 +60,5 @@ export const StudentLoginPage = () => {
                 </div>
             </div>
         </div>
-        )
+    )
 }
