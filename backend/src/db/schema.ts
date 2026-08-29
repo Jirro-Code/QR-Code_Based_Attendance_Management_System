@@ -14,6 +14,7 @@ export const userStrandSchema = z.enum(userStrandEnum, "Invalid student strand")
 
 export const users = pgTable("users", {
     id: uuid("id").primaryKey().defaultRandom(),
+    profilePictureUrl: varchar("profile_picture_url", { length: 500 }).unique(),
     username: varchar("username", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     password: varchar("password", { length: 255 }).notNull(),

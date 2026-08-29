@@ -56,7 +56,6 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
             attendance: newAttendance,
         });
         
-        console.log("Attendance marked:", newAttendance);
         res.status(201).json({message: "Attendance marked successfully", attendance: newAttendance});
     }
     catch(e){
@@ -142,7 +141,6 @@ export const getUserAttendance = async (req: AuthenticatedRequest, res: Response
             return res.status(404).json({message: "Attendance not found for this user"});
         }
         
-        console.log("Fetched attendance for user:", user);
         res.status(200).json({message: "Attendance fetched successfully", attendance: user});
     }
     catch(e){
@@ -169,7 +167,6 @@ export const getEventAttendanceByEventId = async (req: AuthenticatedRequest, res
             return res.status(404).json({message: "Attendance not found for this event"});
         }
         
-        console.log("Fetched attendance for event:", event);
         res.status(200).json({message: "Attendance fetched successfully", attendance: event});
     }
     catch(e){
@@ -216,7 +213,6 @@ export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Resp
             return res.status(404).json({message: "Attendance not found for this group"});
         }
         
-        console.log("Fetched attendance for group:", groupAttendance);
         res.status(200).json({message: "Attendance fetched successfully", attendance: groupAttendance});
     }
     catch(e){
@@ -270,7 +266,7 @@ export const updateAttendance = async (req: AuthenticatedRequest, res: Response)
             console.error("Attendance not found:", attendanceId);
             return res.status(404).json({ message: "Attendance not found" });
         }
-        console.log("Attendance updated:", updatedAttendance);
+        
         res.status(200).json({ message: "Attendance updated successfully", attendance: updatedAttendance });
     }
     catch (e) {
@@ -316,7 +312,6 @@ export const unarchiveAttendance = async (req: AuthenticatedRequest, res: Respon
             return res.status(400).json({message: "Attendance is not archived"});
         }
         
-        console.log("User attendance unarchived successfully:", unarchivedAttendance);
         res.status(200).json({message: "User attendance unarchived successfully", user: unarchivedAttendance})
     }
     catch(e){
@@ -349,7 +344,6 @@ export const archiveAttendance = async (req: AuthenticatedRequest, res: Response
         
         const [archivedAttendance] = await db.update(attendance).set({ isArchived: true }).where(eq(attendance.id, attendanceId)).returning();
         
-        console.log("User attendance archived successfully:", archivedAttendance);
         res.status(200).json({message: "User attendance archived successfully", user: archivedAttendance})
     }
     catch(e){

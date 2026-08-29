@@ -10,6 +10,7 @@ import cors from "cors";
 
 const app = express();
 
+//:method :status - :response-time ms swap this in production 
 app.use(morgan("dev"));
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }

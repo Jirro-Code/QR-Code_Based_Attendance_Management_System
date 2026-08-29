@@ -2,8 +2,9 @@ import { Router } from "express";
 import { registerUser, loginUser, logoutUser } from "../controllers/authController.ts";
 import { validateBody } from "../middlewares/validation.ts";
 import { userRoleSchema, userStrandSchema } from "../db/schema.ts";
-import z from "zod";
 import { authAdminToken } from "../middlewares/authToken.ts";
+import { upload } from "../middlewares/upload.ts";
+import z from "zod";
 
 const router = Router();
 
@@ -37,6 +38,6 @@ router.post("/login", validateBody(loginSchema), loginUser);
 router.post("/logout", logoutUser);
 
 router.use(authAdminToken);
-router.post("/register", validateBody(registerSchema), registerUser);
+router.post("/register", upload.single("profilePicture"), validateBody(registerSchema), registerUser);
 
 export default router;

@@ -1,4 +1,4 @@
-import {users, type NewUser} from "../db/schema.ts";
+import {users, } from "../db/schema.ts";
 import type {Request, Response} from "express";
 import {db} from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
@@ -7,6 +7,7 @@ import { and, eq } from "drizzle-orm";
 import { env } from "../../env.ts";
 import ms from "ms";
 import type { AuthenticatedRequest } from "../middlewares/authToken.ts";
+import { uploadProfilePicture } from "../services/azureBlob.ts";
 
 const cookieOptions = {
     httpOnly: true,
@@ -16,9 +17,11 @@ const cookieOptions = {
     maxAge: ms(env.JWT_EXPIRES_IN as ms.StringValue)
 };
 
-export const registerUser = async (req: Request<any, any, NewUser>, res: Response) => {
+export const registerUser = async (req: Request, res: Response) => {
     try{
         
+        const profilePicture = req.file; 
+
         if(req.body.role === "user" && (req.body.studentId === undefined || req.body.studentLRN === undefined || req.body.studentStrand === undefined || req.body.studentSection === undefined)){
             console.error("Missing required fields for user role:", req.body);
             return res.status(400).json({message: "Missing required fields for user role"});
@@ -53,14 +56,22 @@ export const registerUser = async (req: Request<any, any, NewUser>, res: Respons
             });
         }
         
+        let profilePictureUrl: string | null = null;
+        
+        if (profilePicture) {
+            profilePictureUrl = await uploadProfilePicture(profilePicture);
+        }
+        
         const hashedPassword = await hashPassword(req.body.password);
         
         const [newUser] = await db
         .insert(users)
         .values({
             ...req.body,
-            password: hashedPassword
+            password: hashedPassword,
+            profilePictureUrl: profilePictureUrl
         }).returning({
+            profilePictureUrl: users.profilePictureUrl,
             id: users.id,
             username: users.username,
             email: users.email,

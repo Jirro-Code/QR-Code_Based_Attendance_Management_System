@@ -140,7 +140,6 @@ export const updateEvent = async (req: AuthenticatedRequest, res: Response) => {
             return res.status(404).json({message: "Event not found"});
         }
         
-        console.log("Event updated:", eventId);
         res.status(200).json({message: "Event updated successfully", event: updatedEvent});
     }
     catch(e){
@@ -177,7 +176,6 @@ export const unarchiveEvent = async (req: AuthenticatedRequest, res: Response) =
             return await tx.update(events).set({isArchived: false}).where(eq(events.id, eventId)).returning();
         });
         
-        console.log("Event unarchived:", eventId);
         res.status(200).json({message: "Event unarchived successfully", event: unarchivedEvent});
     }
     catch(e){
@@ -213,7 +211,6 @@ export const archiveEvent = async (req: AuthenticatedRequest, res: Response) => 
             return await tx.update(events).set({isArchived: true}).where(eq(events.id, eventId)).returning();
         });
         
-        console.log("Event archived:", eventId);
         res.status(200).json({message: "Event archived successfully", event: archivedEvent});
     }
     catch(e){

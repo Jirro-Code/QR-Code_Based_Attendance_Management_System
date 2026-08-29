@@ -1,7 +1,7 @@
 import Router from "express";
 import { authAdminToken, authToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
-import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, archiveUser, unarchiveUser } from "../controllers/usersController.ts";
+import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, archiveUser, unarchiveUser, getProfilePictureById } from "../controllers/usersController.ts";
 import { userStrandSchema } from "../db/schema.ts";
 import z from "zod";
 
@@ -31,10 +31,11 @@ const uuidSchema = z.object({
 
 router.use(authToken);
 router.get("/me", getSelf);
+router.get("/profile-picture/:id", validateParams(uuidSchema), getProfilePictureById);
 
 
 router.use(authAdminToken);
-router.get("/userId/:id", getUserById);
+router.get("/userId/:id", validateParams(uuidSchema), getUserById);
 router.get("/role/:role", getAllUserByRole);
 router.get("/search", validateQuery(searchSchema), searchUsers);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateUserSchema), updateUser);

@@ -15,9 +15,7 @@ export const authToken = async (req: AuthenticatedRequest, res: Response, next: 
         
         const payload = await verifyToken(token);
         
-        //atteches the paylaad to the request json
         req.user = payload;
-        console.log("Authenticated user:", req.user);
         next();
     }
     catch(e){
@@ -41,7 +39,6 @@ export const authAdminToken = async (req: AuthenticatedRequest, res: Response, n
         }
         
         req.user = payload;
-        console.log("Authenticated user:", req.user);
         next();
     }
     catch(e){

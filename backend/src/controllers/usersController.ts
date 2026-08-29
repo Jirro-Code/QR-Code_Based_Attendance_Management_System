@@ -5,6 +5,7 @@ import { db } from "../db/connections.ts";
 import { hashPassword } from "../utils/password.ts";
 import { eq, and, or, ilike, desc, not} from "drizzle-orm";
 import z from "zod";
+import { generateProfilePictureSASUrl } from "../services/azureBlob.ts";
 
 
 export const getSelf = async (req: AuthenticatedRequest, res: Response) => {
@@ -59,6 +60,33 @@ export const getUserById = async (req: AuthenticatedRequest, res: Response) => {
         }
         console.error("Error fetching user:", e);
         res.status(500).json({message: "Error fetching user"});
+    }
+}
+
+export const getProfilePictureById = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.string().parse(req.params.id);
+        const user = await db.query.users.findFirst({
+            where: eq(users.id, userId)
+        });
+        
+        if(!user) {
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        if(!user.profilePictureUrl) {
+            return res.status(404).json({message: "Profile picture not found"});
+        }
+        
+        const blobUrl = new URL(user.profilePictureUrl);
+        const blobName = decodeURIComponent(blobUrl.pathname.split("/").slice(2).join("/"));
+        
+        const sasUrl = generateProfilePictureSASUrl(blobName);
+        res.status(200).json({message: "Profile picture retrieved successfully", url: sasUrl});
+    }
+    catch(e){
+        console.error("Error fetching profile picture:", e);
+        res.status(500).json({message: "Error fetching profile picture"});
     }
 }
 
@@ -136,7 +164,6 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         const updatedData = userPassword
             ? { ...req.body, password: userPassword, updatedAt: new Date() }
             : { ...req.body, updatedAt: new Date() };
-        
         
         const [emailConflict, studentIdConflict, studentLRNConflict] = await Promise.all([
             req.body.email
