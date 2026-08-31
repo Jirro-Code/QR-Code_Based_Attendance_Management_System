@@ -1,5 +1,5 @@
 import Router from "express";
-import { markAttendance, getEventAttendanceByStrand, getEventAttendanceByEventId, getAllArchivedEventAttendance, getAttendanceByStrand, getUserAttendance, updateAttendance, unarchiveAttendance,  archiveAttendance, getAllEventAttendance} from "../controllers/attendanceContoller.ts";
+import { markAttendance, getEventAttendanceByStrand, getEventAttendanceByEventId, getAllArchivedEventAttendance, getAttendanceByStrand, getUserAttendance, updateAttendance, unarchiveAttendance,  archiveAttendance, getAllEventAttendance, checkAttendance} from "../controllers/attendanceContoller.ts";
 import { authAdminToken, authToken} from "../middlewares/authToken.ts";
 import { insertAttendanceSchema } from "../db/schema.ts";
 import { validateBody, validateParams } from "../middlewares/validation.ts";
@@ -26,10 +26,16 @@ const strandSchema = z.object({
     strand: userStrandSchema
 });
 
+const doubleUuidSchema = z.object({
+    eventId: z.uuid("Invalid UUID format"),
+    userId: z.uuid("Invalid UUID format")
+});
+
 router.use(authToken);
 router.get("/myAttendance", getUserAttendance);
 
 router.use(authAdminToken);
+router.get("/checkAttendance/:eventId/:userId", validateParams(doubleUuidSchema), checkAttendance);
 router.post("/mark", validateBody(insertAttendanceSchema), markAttendance);
 router.get("/allEvents", getAllEventAttendance);
 router.get("/allArchivedEvents", getAllArchivedEventAttendance);

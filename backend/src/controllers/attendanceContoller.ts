@@ -6,6 +6,63 @@ import { eq, desc, and, or} from "drizzle-orm";
 import { z } from "zod";
 import { io } from "../index.ts";
 
+export const checkAttendance = async (req: AuthenticatedRequest, res: Response) => {
+    try{
+        const userId = z.uuid().parse(req.params.userId);
+        const eventId = z.uuid().parse(req.params.eventId);
+        
+        const userExist = await db.query.users.findFirst({
+            where: eq(users.id, userId)
+        });
+        
+        if (!userExist) {
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        const eventExist = await db.query.events.findFirst({
+            where: eq(events.id, eventId)
+        });
+        
+        if (!eventExist) {
+            return res.status(404).json({message: "Event not found"});
+        }
+        
+        const attendanceRecord = await db.query.attendance.findFirst({
+            where: and(eq(attendance.userId, userId), eq(attendance.eventId, eventId))
+        });
+        
+        
+        if (!attendanceRecord) {
+            return res.status(200).json({message: "Attendance not marked", canMark: true});
+        }
+        
+        if (attendanceRecord.isArchived) {
+            console.error("Attendance is archived:", attendanceRecord);
+            return res.status(400).json({message: "Attendance already marked and archived"});
+        }
+        
+        if (attendanceRecord.isArchivedByEvent) {
+            console.error("Attendance is archived by event:", attendanceRecord);
+            return res.status(400).json({message: "Attendance already marked and archived by event"});
+        }
+        
+        if (attendanceRecord.isArchivedByStudent) {
+            console.error("Attendance is archived by student:", attendanceRecord);
+            return res.status(400).json({message: "Attendance already marked and archived by student"});
+        }
+        
+        res.status(200).json({message: "Attendance already marked", canMark: false});
+    }
+    catch(e){
+        if(e instanceof z.ZodError){
+            console.error("Invalid user or event ID:", e.issues);
+            return res.status(400).json({message: "Invalid user or event ID", errors: e.issues});
+        }
+        console.error("Error checking attendance:", e);
+        res.status(500).json({message: "Error checking attendance"});
+    }
+}
+
 export const markAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{      
         const studentExist = await db.query.users.findFirst({
@@ -126,6 +183,8 @@ export const getAllArchivedEventAttendance = async (_req: AuthenticatedRequest, 
         res.status(500).json({ message: "Error fetching events archived attendance" });
     }
 };
+
+
 
 
 export const getUserAttendance = async (req: AuthenticatedRequest, res: Response) => {
@@ -283,7 +342,6 @@ export const updateAttendance = async (req: AuthenticatedRequest, res: Response)
 export const unarchiveAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const attendanceId = z.uuid().parse(req.params.id);
-        const [unarchivedAttendance] = await db.update(attendance).set({ isArchived: false }).where(eq(attendance.id, attendanceId)).returning();
         
         const checkAttendance = await db.query.attendance.findFirst({
             where: eq(attendance.id, attendanceId)
@@ -311,6 +369,8 @@ export const unarchiveAttendance = async (req: AuthenticatedRequest, res: Respon
         if (!isAttendanceArchived) {
             return res.status(400).json({message: "Attendance is not archived"});
         }
+        
+        const [unarchivedAttendance] = await db.update(attendance).set({ isArchived: false }).where(eq(attendance.id, attendanceId)).returning();
         
         res.status(200).json({message: "User attendance unarchived successfully", user: unarchivedAttendance})
     }
