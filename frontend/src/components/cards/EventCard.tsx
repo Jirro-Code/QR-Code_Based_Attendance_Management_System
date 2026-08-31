@@ -31,28 +31,17 @@ export const EventCard = ({ event, onArchive, onRestore, onLoadView, isOnArchive
             </div>
             
             <div className="flex gap-2 mt-5">
-                <button
-                    onClick={onLoadView}
-                    className="flex-1 flex items-center justify-center gap-1.5 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-lg transition-colors"
-                >
+                <button onClick={onLoadView} className="flex-1 flex items-center justify-center gap-1.5 bg-blue-800 hover:bg-blue-900 text-white text-sm font-semibold py-2 px-3 rounded-lg transition-colors" >
                     <Eye className="w-4 h-4" />
                     View
                 </button>
                 {isOnArchivedPage ? 
-                    <button
-                        onClick={onRestore}
-                        className="flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-3 rounded-lg transition-colors"
-                        aria-label="Restore event"
-                    >
+                    <button onClick={onRestore} className="flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-3 rounded-lg transition-colors" >
                         <ArchiveRestore className="w-4 h-4" />
                     </button>
                     : 
                     (
-                        <button
-                            onClick={onArchive}
-                            className="flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-700 py-2 px-3 rounded-lg transition-colors"
-                            aria-label="Delete event"
-                        >
+                        <button onClick={onArchive} className="flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-700 py-2 px-3 rounded-lg transition-colors">
                             <Archive className="w-4 h-4" />
                         </button>
                     )

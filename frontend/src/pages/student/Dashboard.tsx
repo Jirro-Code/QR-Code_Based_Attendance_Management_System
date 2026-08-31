@@ -17,7 +17,7 @@ export const StudentDashboard = () => {
         email: "",
         role: "user",
     });
-    const qrURl = `${studentData.id}|icpsantamaria|${studentData.username}|icpsantamaria|${studentData.studentStrand}|icpsantamaria|${studentData.studentSection}`;
+    const qrURl = `ICP|icpsantamaria|${studentData.id}|icpsantamaria|SantaMaria`;
     useCurrentUser("/student-login", setStudentData);
     const { useViewProfilePicture } = useView();
     

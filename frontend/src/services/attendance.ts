@@ -11,6 +11,13 @@ export interface Attendance {
     isArchivedByEvent: boolean;
 }
 
+export const checkAttendance = async (eventId: string, userId: string) => {
+    const response = await apiFetch(`/attendance/checkAttendance/${eventId}/${userId}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+};
 
 export const markStudentPresent = async (uuid: string, eventId: string, isLate: boolean) => {
     const response = await apiFetch(`/attendance/mark`, {

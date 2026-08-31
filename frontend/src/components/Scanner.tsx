@@ -19,12 +19,7 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
         title: "",
         message: ""
     });
-    const [scannedStudent, setScannedStudent] = useState<{
-        uuid: string;
-        username: string;
-        studentStrand: string;
-        studentSection: string;
-    } | null>(null);
+    const [scannedStudent, setScannedStudent] = useState<string | null>(null);
     
     const onCloseScannedStudentCard = () => {
         setShowIsDetected(false);
@@ -48,13 +43,13 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                         if (!isScanning || cancelled) return;
                         
                         const parts = decodedText.split("|icpsantamaria|");
-                        if (parts.length !== 4) {
+                        if (parts.length !== 3) {
                             setError("Invalid QR code. This is not a student QR code.");
                             return;
                         }
                         
-                        const [uuid, username, strand, section] = parts;
-                        if (!uuid.trim() || !username.trim() || !strand.trim() || !section.trim()) {
+                        const [schoolName, uuid, schoolName2 ] = parts;
+                        if ((!schoolName.trim() || !uuid.trim() || !schoolName2.trim()) || (schoolName.trim() !== "ICP" || schoolName2.trim() !== "SantaMaria")) {
                             setError("Invalid student QR code.");
                             return;
                         }
@@ -68,7 +63,7 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                             console.error("Error stopping QR scanner:", error);
                         }
                         
-                        setScannedStudent({ uuid: uuid.trim(), username: username.trim(), studentStrand: strand.trim(), studentSection: section.trim() });
+                        setScannedStudent(uuid.trim());
                         
                         setShowIsDetected(true);
                     },
@@ -116,7 +111,7 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
             {error && <p className="text-red-700">{error}</p>}
             <button onClick={() => setOrderedCameras((prev) => [...prev.slice(1), prev[0]])} disabled={orderedCameras.length <= 1}> Flip Camera </button>
             <button onClick={onClose}> Cancel </button>
-            {showIsDetected && <ScannedStudentCard scannedStudent={scannedStudent} setNotificationMessage={setNotificationMessage} setShowNotification={setShowNotification} eventId={eventId} setError={setError} onClose={onCloseScannedStudentCard}/>}
+            {showIsDetected && <ScannedStudentCard studentUuid={scannedStudent || ""} setNotificationMessage={setNotificationMessage} setShowNotification={setShowNotification} eventId={eventId} setError={setError} onClose={onCloseScannedStudentCard}/>}
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </>
     );

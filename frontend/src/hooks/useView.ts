@@ -2,7 +2,7 @@ import { logout } from "../services/auth.ts";
 import { getAllEvents, searchEvents, type Event } from "../services/events.ts";
 import { getProfilePictureById, getUserById, getUsersByRole, searchUsers, type User } from "../services/users.ts";
 import { ApiError } from "../services/error.ts";
-import { getAllEventAttendance, getAllArchivedEventAttendance, getAttendanceByEventId, getAttendanceByStrand, getEventAttendanceByStrand } from "../services/attendance.ts";
+import { getAllEventAttendance, getAllArchivedEventAttendance, getAttendanceByEventId, getAttendanceByStrand, getEventAttendanceByStrand, checkAttendance } from "../services/attendance.ts";
 import { type Attendance } from "../services/attendance.ts";
 
 export const useView = () => {
@@ -13,6 +13,7 @@ export const useView = () => {
         } 
         catch (e) {
             if (e instanceof ApiError) {
+                
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -194,6 +195,39 @@ export const useView = () => {
         }
     }
     
+    const useCheckAttendance = async (eventId: string, userId: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<{ canMark: boolean }> => {
+        try {
+            const data = await checkAttendance(eventId, userId);
+            return data as { canMark: boolean };
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request. Please check the event ID and user ID.");
+                }
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/admin-login");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "Attendance record not found.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("An error occurred while checking attendance. Please try again.");
+            console.error("Error checking attendance:", e);
+            throw e;
+        }
+    }
+    
     const useViewAttendanceByEventId = async (eventId: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Attendance[]> => {
         try {
             const data = await getAttendanceByEventId(eventId);
@@ -344,5 +378,5 @@ export const useView = () => {
         }
     }
     
-    return { useViewUser, useViewProfilePicture, useViewAllUsers, useSearchUsers, useViewAllEventsWithArchivedAttendanceRecords, useViewAllEvents, useSearchEvents, useViewAttendanceByEventId, useViewEventAttendanceByStrand, useViewAttendanceByStrand, useViewAllEventsWithAttendanceRecords };
+    return { useViewUser, useViewProfilePicture, useViewAllUsers, useSearchUsers, useCheckAttendance, useViewAllEventsWithArchivedAttendanceRecords, useViewAllEvents, useSearchEvents, useViewAttendanceByEventId, useViewEventAttendanceByStrand, useViewAttendanceByStrand, useViewAllEventsWithAttendanceRecords };
 }
