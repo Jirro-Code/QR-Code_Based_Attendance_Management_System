@@ -28,12 +28,23 @@ export const uploadProfilePicture = async (file: Express.Multer.File) => {
         }
     });
     
-    return blockBlobClient.url;
+    return blobName;
+};
+
+export const updateProfilePicture = async (blobName: string, file: Express.Multer.File) => {
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    
+    await blockBlobClient.uploadData(file.buffer, {
+        blobHTTPHeaders: {
+            blobContentType: file.mimetype
+        }
+    });
+    return blobName;
 };
 
 export const generateProfilePictureSASUrl = (blobName: string) => {
-    const startTime = new Date();
-    const expiryTime = new Date(startTime.getTime() + 30 * 60 * 1000);
+    const startTime = new Date(Date.now() - 5 * 60 * 1000); 
+    const expiryTime = new Date(Date.now() + 30 * 60 * 1000);
     
     const sasToken = generateBlobSASQueryParameters(
         {
@@ -47,4 +58,4 @@ export const generateProfilePictureSASUrl = (blobName: string) => {
     ).toString();
     
     return `${containerClient.getBlockBlobClient(blobName).url}?${sasToken}`;
-}
+};

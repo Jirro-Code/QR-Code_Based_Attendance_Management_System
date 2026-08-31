@@ -5,7 +5,7 @@ import { db } from "../db/connections.ts";
 import { hashPassword } from "../utils/password.ts";
 import { eq, and, or, ilike, desc, not} from "drizzle-orm";
 import z from "zod";
-import { generateProfilePictureSASUrl } from "../services/azureBlob.ts";
+import { generateProfilePictureSASUrl, updateProfilePicture, uploadProfilePicture } from "../services/azureBlob.ts";
 
 
 export const getSelf = async (req: AuthenticatedRequest, res: Response) => {
@@ -78,10 +78,7 @@ export const getProfilePictureById = async (req: AuthenticatedRequest, res: Resp
             return res.status(404).json({message: "Profile picture not found"});
         }
         
-        const blobUrl = new URL(user.profilePictureUrl);
-        const blobName = decodeURIComponent(blobUrl.pathname.split("/").slice(2).join("/"));
-        
-        const sasUrl = generateProfilePictureSASUrl(blobName);
+        const sasUrl = generateProfilePictureSASUrl(user.profilePictureUrl);
         res.status(200).json({message: "Profile picture retrieved successfully", url: sasUrl});
     }
     catch(e){
@@ -160,27 +157,35 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
 export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const userId = z.string().parse(req.params.id);
+        const profilePicture = req.file;
         const userPassword = req.body.password ? await hashPassword(req.body.password) : undefined;
-        const updatedData = userPassword
-            ? { ...req.body, password: userPassword, updatedAt: new Date() }
-            : { ...req.body, updatedAt: new Date() };
+        
+        let newBlobName: string | undefined;
+        
+        const existingUser = await db.query.users.findFirst({
+            where: eq(users.id, userId)
+        });
+        if(!existingUser) {
+            console.error("User not found:", userId);
+            return res.status(404).json({message: "User not found"});
+        }
         
         const [emailConflict, studentIdConflict, studentLRNConflict] = await Promise.all([
             req.body.email
-                ? db.query.users.findFirst({
-                    where: and(not(eq(users.id, userId)), eq(users.email, req.body.email)),
-                })
+            ? db.query.users.findFirst({
+                where: and(not(eq(users.id, userId)), eq(users.email, req.body.email)),
+            })
                 : null,
-            req.body.studentId
+                req.body.studentId
                 ? db.query.users.findFirst({
                     where: and(not(eq(users.id, userId)), eq(users.studentId, req.body.studentId)),
                 })
                 : null,
             req.body.studentLRN
-                ? db.query.users.findFirst({
-                    where: and(not(eq(users.id, userId)), eq(users.studentLRN, req.body.studentLRN)),
-                })
-                : null,
+            ? db.query.users.findFirst({
+                where: and(not(eq(users.id, userId)), eq(users.studentLRN, req.body.studentLRN)),
+            })
+            : null,
         ]);
         
         const duplicateFields: string[] = [];
@@ -196,11 +201,22 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
             });
         }
         
-        const [updatedUser] = await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
-        
-        if (!updatedUser) {
-            return res.status(404).json({ message: "User not found" });
+        if (profilePicture) {
+            newBlobName = existingUser.profilePictureUrl
+                ? await updateProfilePicture(existingUser.profilePictureUrl, profilePicture)
+                : await uploadProfilePicture(profilePicture);
         }
+        
+        const { profilePictureUrl: _ignored, ...safeBody } = req.body;
+        
+        const updatedData = {
+            ...safeBody,
+            ...(userPassword && { password: userPassword }),
+            ...(newBlobName && { profilePictureUrl: newBlobName }),
+            updatedAt: new Date()
+        };
+        
+        const [updatedUser] = await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
         
         res.status(200).json({ message: "User updated successfully", user: updatedUser });
     } catch (e) {

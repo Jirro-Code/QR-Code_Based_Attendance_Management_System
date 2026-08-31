@@ -3,6 +3,7 @@ import { authAdminToken, authToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
 import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, archiveUser, unarchiveUser, getProfilePictureById } from "../controllers/usersController.ts";
 import { userStrandSchema } from "../db/schema.ts";
+import { upload } from "../middlewares/upload.ts";
 import z from "zod";
 
 const router = Router();
@@ -38,7 +39,7 @@ router.use(authAdminToken);
 router.get("/userId/:id", validateParams(uuidSchema), getUserById);
 router.get("/role/:role", getAllUserByRole);
 router.get("/search", validateQuery(searchSchema), searchUsers);
-router.put("/update/:id", validateParams(uuidSchema), validateBody(updateUserSchema), updateUser);
+router.put("/update/:id", upload.single("profilePicture"), validateParams(uuidSchema), validateBody(updateUserSchema), updateUser);
 router.patch("/archive/:id", validateParams(uuidSchema), archiveUser);
 router.patch("/unarchive/:id", validateParams(uuidSchema), unarchiveUser);
 

@@ -24,8 +24,8 @@ export const users = pgTable("users", {
     studentStrand: userStrands(),
     studentSection: varchar("student_section", { length: 255 }),
     isArchived: boolean("is_archived").notNull().default(false),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 
@@ -39,8 +39,8 @@ export const events = pgTable("events", {
     eventLocation: varchar("event_location", { length: 255 }).notNull(),
     eventDate: date("event_date").notNull(),
     isArchived: boolean("is_archived").notNull().default(false),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull()
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
 });
 
 

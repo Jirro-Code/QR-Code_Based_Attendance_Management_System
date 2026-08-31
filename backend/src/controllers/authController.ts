@@ -21,7 +21,7 @@ export const registerUser = async (req: Request, res: Response) => {
     try{
         
         const profilePicture = req.file; 
-
+        
         if(req.body.role === "user" && (req.body.studentId === undefined || req.body.studentLRN === undefined || req.body.studentStrand === undefined || req.body.studentSection === undefined)){
             console.error("Missing required fields for user role:", req.body);
             return res.status(400).json({message: "Missing required fields for user role"});
