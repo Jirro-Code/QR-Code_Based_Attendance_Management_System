@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Header } from "../../../components/Header.tsx";
 import { Input } from "../../../components/Input/Input.tsx";
 import { SelectionField } from "../../../components/Input/SelectionField.tsx";
@@ -32,6 +32,7 @@ export const RegisterStudent = () => {
         studentSection: ""
     });
     const {useRegister} = useCreate();
+    const fileInputRef = useRef<HTMLInputElement>(null);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setConfirmPassword(e.target.name === "confirmPassword" ? e.target.value : confirmPassword);
@@ -158,9 +159,9 @@ export const RegisterStudent = () => {
                                         <div className="flex flex-col gap-1">
                                             <span className="text-sm text-gray-700 truncate max-w-45">{studentData.profilePicture?.name}</span>
                                             <div className="flex gap-3">
-                                                <label htmlFor="profilePicture" className="text-xs text-blue-800 hover:underline cursor-pointer">
+                                                <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs text-blue-800 hover:underline cursor-pointer">
                                                     Change
-                                                </label>
+                                                </button>
                                                 <button type="button" onClick={handleRemovePicture} className="text-xs text-red-600 hover:underline flex items-center gap-0.5">
                                                     <X size={12} /> Remove
                                                 </button>
@@ -169,6 +170,7 @@ export const RegisterStudent = () => {
                                     </div>
                                 ) : (
                                     <input
+                                        ref={fileInputRef}
                                         className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
                                         id="profilePicture"
                                         type="file"
@@ -181,13 +183,12 @@ export const RegisterStudent = () => {
                                 
                                 {previewUrl && (
                                     <input
+                                        ref={fileInputRef}
                                         className="hidden"
-                                        id="profilePicture"
                                         type="file"
                                         name="profilePicture"
                                         accept="image/png,image/jpeg,image/webp"
                                         onChange={handleFileSelected}
-                                        required
                                     />
                                 )}
                             </div>

@@ -61,7 +61,6 @@ export const updateUser = async (id: string, userData: Partial<User>) => {
     const formData = new FormData();
     
     Object.entries(userData).forEach(([key, value]) => {
-        if (key === "profilePicture") return; 
         if (value !== null && value !== undefined) {
             formData.append(key, String(value));
         }

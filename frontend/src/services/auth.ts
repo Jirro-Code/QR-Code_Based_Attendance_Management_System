@@ -29,7 +29,7 @@ export const register = async (data: RegisterPayload) => {
     const formData = new FormData();
     
     Object.entries(data).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
+        if (value !== null && value !== undefined) { 
             if (value instanceof File) {
                 formData.append(key, value);
             } else {
