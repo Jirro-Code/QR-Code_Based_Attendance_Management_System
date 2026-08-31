@@ -5,6 +5,8 @@ import { Input }  from "../../Input/Input.tsx";
 import { type User } from "../../../services/users.ts";
 import { SelectionField } from "../../Input/SelectionField.tsx";
 import { CancelButton } from "../../Button.tsx";
+import { ImageCropModal } from "../../../components/ImageCrop.tsx";
+import { X } from "lucide-react";
 
 type UpdateUserCardProps = {
     userId: string;
@@ -21,9 +23,11 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
     const [formData, setFormData] = useState<User>({} as User);
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const updateCardRef = useRef<HTMLDivElement>(null);
     const hasContent = Object.values(formData).some((value) => String(value ?? "").trim() !== "") || confirmPassword.trim() !== "";
-    
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
         if (e.target.name === "confirmPassword") {
@@ -31,7 +35,34 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
         }
     }
     
+    
+    const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+        e.target.value = "";
+        if (file) {
+            setPendingFile(file);
+        }
+    };
+    
+    const handleCropConfirm = (croppedFile: File) => {
+        setFormData((current) => ({ ...current, profilePicture: croppedFile }));
+        setPreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return URL.createObjectURL(croppedFile);
+        });
+        setPendingFile(null);
+    };
+    
+    const handleRemovePicture = () => {
+        setFormData((current) => ({ ...current, profilePicture: null }));
+        setPreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+    };
+    
     const handleUpdate = async (data: User) => {
+        setIsSubmitting(true);
         try {
             if (data.username && data.username.trim().length < 2) {
                 useScrollToTopOverflow(updateCardRef);
@@ -97,6 +128,9 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
             console.error("Error updating data:", error);
             onSetNotif({ title: "Update Failed",message: "Failed to update data." });
         }
+        finally {
+            setIsSubmitting(false);
+        }
     };
     
     
@@ -110,6 +144,55 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
                 <p className="text-red-600 text-sm">{error}</p>
                 
                 <form className="flex flex-col gap-1">
+                    
+                    <div className="flex flex-col mb-4">
+                        <label
+                            className="block text-sm font-medium text-gray-700"
+                            htmlFor="profilePicture"
+                        >
+                            Profile Picture:
+                        </label>
+                        
+                        {previewUrl ? (
+                            <div className="mt-2 flex items-center gap-3">
+                                <img src={previewUrl} alt="Selected profile" className="w-16 h-16 rounded-md object-cover ring-1 ring-gray-200" />
+                                <div className="flex flex-col gap-1">
+                                    <span className="text-sm text-gray-700 truncate max-w-45">{formData.profilePicture?.name}</span>
+                                    <div className="flex gap-3">
+                                        <label htmlFor="profilePicture" className="text-xs text-blue-800 hover:underline cursor-pointer">
+                                            Change
+                                        </label>
+                                        <button type="button" onClick={handleRemovePicture} className="text-xs text-red-600 hover:underline flex items-center gap-0.5">
+                                            <X size={12} /> Remove
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        ) : (
+                            <input
+                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                                id="profilePicture"
+                                type="file"
+                                name="profilePicture"
+                                accept="image/png,image/jpeg,image/webp"
+                                onChange={handleFileSelected}
+                                required
+                            />
+                        )}
+                        
+                        {previewUrl && (
+                            <input
+                                className="hidden"
+                                id="profilePicture"
+                                type="file"
+                                name="profilePicture"
+                                accept="image/png,image/jpeg,image/webp"
+                                onChange={handleFileSelected}
+                                required
+                            />
+                        )}
+                    </div>
+                    
                     <Input label="Student Name" id="studentName" type="text" placeholder="John Doe" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} error={error?.includes("name") ? error : undefined} />
                     <Input label="Email" id="studentEmail" type="email" placeholder="example09@gmail.com" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} error={error?.includes("email") ? error : undefined} />
                     <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
@@ -133,12 +216,19 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
                         <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded mt-2">
                             Cancel
                         </button>
-                        <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent}>
-                            Save Changes
+                        <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 w-33 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 w-33 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent || isSubmitting}>
+                            {isSubmitting ? "Saving..." : "Save Changes"}
                         </button>
                     </div>
                 </form>
             </div>
+            {pendingFile && (
+                <ImageCropModal
+                    file={pendingFile}
+                    onConfirm={handleCropConfirm}
+                    onClose={() => setPendingFile(null)}
+                />
+            )}
         </div>
     );
 }

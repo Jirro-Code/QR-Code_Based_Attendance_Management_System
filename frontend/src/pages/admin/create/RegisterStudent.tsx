@@ -5,13 +5,17 @@ import { SelectionField } from "../../../components/Input/SelectionField.tsx";
 import { type StudentRegisterPayload } from "../../../services/auth.ts";
 import { useCreate } from "../../../hooks/useCreate.ts";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
+import { ImageCropModal } from "../../../components/ImageCrop.tsx";
+import { X } from "lucide-react";
 
 export const RegisterStudent = () => {
     window.scrollTo({ top: 0, left: 0 });
-
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNotification, setShowNotification] = useState(false);
+    const [pendingFile, setPendingFile] = useState<File | null>(null);
+    const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
         title: "",
         message: ""
@@ -34,8 +38,34 @@ export const RegisterStudent = () => {
         setStudentData((current) => ({...current, [e.target.name]: e.target.value}));
     }
     
+    const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] ?? null;
+        e.target.value = "";
+        if (file) {
+            setPendingFile(file);
+        }
+    };
+    
+    const handleCropConfirm = (croppedFile: File) => {
+        setStudentData((current) => ({ ...current, profilePicture: croppedFile }));
+        setPreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return URL.createObjectURL(croppedFile);
+        });
+        setPendingFile(null);
+    };
+    
+    const handleRemovePicture = () => {
+        setStudentData((current) => ({ ...current, profilePicture: null }));
+        setPreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
+    };
+    
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setIsSubmitting(true);
         try {
             if(studentData.username.trim().length < 2) {
                 setError("Student name must be at least 2 characters long!");
@@ -75,6 +105,9 @@ export const RegisterStudent = () => {
             setError(error instanceof Error ? error.message : "An unexpected error occurred.");
         
         }
+        finally {
+            setIsSubmitting(false);
+        }
     };
     
     const reloadPage = () => {
@@ -92,6 +125,10 @@ export const RegisterStudent = () => {
         setError("");
         setConfirmPassword("");
         setShowNotification(false);
+        setPreviewUrl((prev) => {
+            if (prev) URL.revokeObjectURL(prev);
+            return null;
+        });
     }
     
     return (
@@ -115,21 +152,44 @@ export const RegisterStudent = () => {
                                     Profile Picture:
                                 </label>
                                 
-                                <input
-                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
-                                    id="profilePicture"
-                                    type="file"
-                                    name="profilePicture"
-                                    accept="image/png,image/jpeg,image/webp"
-                                    onChange={(e) => {
-                                        const file = e.target.files?.[0] ?? null;
-                                        
-                                        setStudentData((current) => ({
-                                            ...current,
-                                            profilePicture: file
-                                        }));
-                                    }}
-                                />
+                                {previewUrl ? (
+                                    <div className="mt-2 flex items-center gap-3">
+                                        <img src={previewUrl} alt="Selected profile" className="w-16 h-16 rounded-md object-cover ring-1 ring-gray-200" />
+                                        <div className="flex flex-col gap-1">
+                                            <span className="text-sm text-gray-700 truncate max-w-45">{studentData.profilePicture?.name}</span>
+                                            <div className="flex gap-3">
+                                                <label htmlFor="profilePicture" className="text-xs text-blue-800 hover:underline cursor-pointer">
+                                                    Change
+                                                </label>
+                                                <button type="button" onClick={handleRemovePicture} className="text-xs text-red-600 hover:underline flex items-center gap-0.5">
+                                                    <X size={12} /> Remove
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <input
+                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                                        id="profilePicture"
+                                        type="file"
+                                        name="profilePicture"
+                                        accept="image/png,image/jpeg,image/webp"
+                                        onChange={handleFileSelected}
+                                        required
+                                    />
+                                )}
+                                
+                                {previewUrl && (
+                                    <input
+                                        className="hidden"
+                                        id="profilePicture"
+                                        type="file"
+                                        name="profilePicture"
+                                        accept="image/png,image/jpeg,image/webp"
+                                        onChange={handleFileSelected}
+                                        required
+                                    />
+                                )}
                             </div>
                             
                             <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleChange} name="username" value={studentData.username} error={error?.includes("name") ? error : undefined} />
@@ -143,11 +203,21 @@ export const RegisterStudent = () => {
                                 options={["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]}
                             />
                             <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleChange} name="studentSection" value={studentData.studentSection} />
-                            <button type="submit" className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">Register Student</button>
+                            <button type="submit" disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">
+                                {isSubmitting ? 'Registering...' : 'Register Student'}
+                            </button>
                         </form>
                     </div>
                     
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
+                    
+                    {pendingFile && (
+                        <ImageCropModal
+                            file={pendingFile}
+                            onConfirm={handleCropConfirm}
+                            onClose={() => setPendingFile(null)}
+                        />
+                    )}
                     
                 </div>
             </div>

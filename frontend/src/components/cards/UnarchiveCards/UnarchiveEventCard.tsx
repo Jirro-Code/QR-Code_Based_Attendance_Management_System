@@ -16,9 +16,11 @@ export const UnarchiveEventCard = ({ id, eventName, onRestored, setShowNotificat
     const [error, setError] = useState<string>("");
     const { useUnarchiveEvent } = useArchive();
     const { useDisableScroll } = useScrollFunctions();
+    const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
     useDisableScroll();
     
     const handleUnarchive = async () => {
+        setIsSubmitting(true);
         try {
             await useUnarchiveEvent(id, setError);
             onRestored();
@@ -40,6 +42,9 @@ export const UnarchiveEventCard = ({ id, eventName, onRestored, setShowNotificat
             });
             setShowNotification(true);
         }
+        finally {
+            setIsSubmitting(false);
+        }
     };
     
     
@@ -58,8 +63,8 @@ export const UnarchiveEventCard = ({ id, eventName, onRestored, setShowNotificat
                     <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded">
                         Cancel
                     </button>
-                    <button type="button" onClick={handleUnarchive} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-1.5 px-4 rounded">
-                        Yes, Unarchive
+                    <button type="button" onClick={handleUnarchive} disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 w-35 text-white font-bold py-1.5 px-4 rounded">
+                        {isSubmitting ? 'Unarchiving...' : 'Yes, Unarchive'}
                     </button>
                 </div>
             </div>

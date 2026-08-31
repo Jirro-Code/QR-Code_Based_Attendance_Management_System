@@ -16,9 +16,11 @@ export const ArchiveAttendanceCard = ({ attendanceId, username, onArchived, setS
     const [error, setError] = useState<string>("");
     const { useArchiveAttendance } = useArchive();
     const { useDisableScroll } = useScrollFunctions();
+    const [ isSubmitting, setIsSubmitting ] = useState<boolean>(false);
     useDisableScroll();
     
     const handleArchive = async () => {
+        setIsSubmitting(true);
         try {
             await useArchiveAttendance(attendanceId, setError);
             onArchived(attendanceId);
@@ -32,6 +34,9 @@ export const ArchiveAttendanceCard = ({ attendanceId, username, onArchived, setS
             console.error("Error archiving attendance:", error);
             onSetNotif({ title: "Archive Failed", message: "Failed to archive attendance." });
             setShowNotification(true);
+        }
+        finally {
+            setIsSubmitting(false);
         }
     };
     
@@ -50,8 +55,8 @@ export const ArchiveAttendanceCard = ({ attendanceId, username, onArchived, setS
                     <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded">
                         Cancel
                     </button>
-                    <button type="button" onClick={handleArchive} className="bg-red-700 hover:bg-red-800 text-white font-bold py-1.5 px-4 rounded">
-                        Yes, Archive
+                    <button type="button" onClick={handleArchive} disabled={isSubmitting} className="bg-red-700 hover:bg-red-800 w-28 text-white font-bold py-1.5 px-4 rounded">
+                        {isSubmitting ? 'Archiving...' : 'Yes, Archive'}
                     </button>
                 </div>
             </div>

@@ -48,6 +48,9 @@ export const useUpdate = () => {
         } 
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Bad request. Please check your input and try again.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Redirecting to login.");
                     await logout("/admin-login");

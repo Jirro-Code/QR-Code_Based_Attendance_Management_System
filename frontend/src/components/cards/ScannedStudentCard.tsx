@@ -70,14 +70,14 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
         if (!studentUuid || !eventId) return;
         const result = await useMarkAttendance( { uuid: studentUuid, eventId, isLate, setError } );
         
-        if (result.result.includes("invalid_data")) {
+        if (result.result?.includes("invalid_data")) {
             const errorMessage = result.result.split("|")[1] || "Invalid attendance data.";
             setNotificationMessage({ title: "Error", message: errorMessage });
             setShowNotification(true);
             onClose();
             return;
         }
-        if (result.result.includes("not_found")) {
+        if (result.result?.includes("not_found")) {
             const errorMessage = result.result.split("|")[1] || "Event or student not found.";
             setNotificationMessage({ title: "Error", message: errorMessage });
             setShowNotification(true);
@@ -94,6 +94,7 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
             setNotificationMessage({ title: "Attendance Marked", message: "The student has been successfully marked present for this event." });
             setShowNotification(true);
             onClose();
+            return;
         }
     };
     return (
@@ -101,7 +102,7 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
             <div className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-40"/>
             
             <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-full max-w-sm z-50 overflow-hidden">
-            
+                
                 <div className="p-6 flex flex-col items-center gap-5">
                     <h2 className="text-lg font-semibold text-gray-900">Student Detected</h2>
                     
@@ -138,14 +139,12 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
                     </div>
                     
                     
-                    {/* Actions */}
                     <div className="w-full flex flex-col gap-3 pt-1">
                         <button onClick={() => setIsLate((prev) => !prev)} className={`w-full flex items-center justify-center px-4 py-2.5 rounded-xl border transition-colors ${
                                 isLate
                                     ? 'bg-red-600 text-white hover:bg-red-700'
                                     : 'bg-gray-600 text-white hover:bg-gray-700'
-                            }`}
-                        >
+                            }`}>
                             <span className="text-sm font-medium">Mark as late</span>
                         </button>
                         <div className="flex justify-between gap-10 mt-5">

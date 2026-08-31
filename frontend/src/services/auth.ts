@@ -27,7 +27,7 @@ export type RegisterPayload = StudentRegisterPayload | AdminRegisterPayload;
 
 export const register = async (data: RegisterPayload) => {
     const formData = new FormData();
-
+    
     Object.entries(data).forEach(([key, value]) => {
         if (value !== null && value !== undefined) {
             if (value instanceof File) {

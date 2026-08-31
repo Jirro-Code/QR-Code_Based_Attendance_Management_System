@@ -3,7 +3,8 @@ import {apiFetch} from "./http";
 export interface User {
     role: "admin" | "user";
     id: string;
-    profilePictureUrl: string;
+    profilePictureUrl: string | null;
+    profilePicture: File | null;
     username: string;
     email: string;
     password: string;
@@ -57,12 +58,22 @@ export const searchUsers = async (query: string) => {
 }
 
 export const updateUser = async (id: string, userData: Partial<User>) => {
+    const formData = new FormData();
+    
+    Object.entries(userData).forEach(([key, value]) => {
+        if (key === "profilePicture") return; 
+        if (value !== null && value !== undefined) {
+            formData.append(key, String(value));
+        }
+    });
+    
+    if (userData.profilePicture) {
+        formData.append("profilePicture", userData.profilePicture);
+    }
+    
     const response = await apiFetch(`/users/update/${id}`, {
         method: "PUT",
-        body: JSON.stringify(userData),
-        headers: {
-            "Content-Type": "application/json"
-        },
+        body: formData,
         credentials: "include"
     });
     return response.json();

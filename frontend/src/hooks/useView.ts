@@ -13,7 +13,9 @@ export const useView = () => {
         } 
         catch (e) {
             if (e instanceof ApiError) {
-                
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -44,6 +46,9 @@ export const useView = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -75,6 +80,9 @@ export const useView = () => {
             } 
             catch (e) {
                 if (e instanceof ApiError) {
+                    if (e.status === 400) {
+                        setError(e.message || "Invalid request.");
+                    }
                     if (e.status === 401) {
                         alert("Unauthorized. Please log in.");
                         await logout("/admin-login");
@@ -108,6 +116,9 @@ export const useView = () => {
         } 
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request. Please check your input.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -139,6 +150,9 @@ export const useView = () => {
             } 
             catch (e) {
                 if (e instanceof ApiError) {
+                    if (e.status === 400) {
+                        setError(e.message || "Invalid request.");
+                    }
                     if (e.status === 401) {
                         alert("Unauthorized. Please log in.");
                         await logout("/admin-login");//TODO: Change this to /admin-login if the user is an admin, or / if the user is a student
@@ -172,6 +186,9 @@ export const useView = () => {
         } 
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request. Please check your input.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");//TODO: Change this to /admin-login if the user is an admin, or / if the user is a student
@@ -203,7 +220,7 @@ export const useView = () => {
         catch (e) {
             if (e instanceof ApiError) {
                 if (e.status === 400) {
-                    setError(e.message || "Invalid request. Please check the event ID and user ID.");
+                    setError(e.message || "Invalid request.");
                 }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
@@ -235,6 +252,9 @@ export const useView = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -265,6 +285,9 @@ export const useView = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -295,6 +318,9 @@ export const useView = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -325,6 +351,9 @@ export const useView = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");
@@ -355,6 +384,9 @@ export const useView = () => {
         }
         catch (e) {
             if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
                     await logout("/admin-login");

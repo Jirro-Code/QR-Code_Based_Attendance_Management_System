@@ -141,9 +141,9 @@ export const ManageStudents = () => {
     
     const loadUpdateCard = (user: Partial<User>) => {
         setSelectedUser(user);
+        setShowViewCard(true);
         setShowUpdateCard(true);
         setShowArchiveCard(false);
-        setShowViewCard(false);
         setShowNotification(false);
     }
     

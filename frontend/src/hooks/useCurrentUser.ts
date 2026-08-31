@@ -15,6 +15,9 @@ export const useCurrentUser = (path: string, setUserData: React.Dispatch<React.S
             }
             catch (e) {
                 if (e instanceof ApiError) {
+                    if (e.status === 400) {
+                        alert("Bad request. Please contact the administrator.");
+                    }
                     if (e.status === 401) {
                         alert("Unauthorized. Please log in.");
                         await logout(path);

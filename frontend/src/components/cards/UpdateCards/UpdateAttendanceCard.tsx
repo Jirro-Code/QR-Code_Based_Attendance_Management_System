@@ -15,11 +15,13 @@ type UpdateAttendanceCardProps = {
 export const UpdateAttendanceCard = ({ attendance, studentName, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateAttendanceCardProps) => {
     const { useUpdateAttendance } = useUpdate();
     const [error, setError] = useState<string>("");
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     
     const targetLabel = attendance.isLate ? "On Time" : "Late";
-    const targetValue = !attendance.isLate; // flip current status
+    const targetValue = !attendance.isLate;
     
     const handleToggleStatus = async () => {
+        setIsSubmitting(true);
         try {
             if (!attendance.id) return;
             
@@ -35,6 +37,9 @@ export const UpdateAttendanceCard = ({ attendance, studentName, onUpdated, setSh
         catch (error) {
             console.error("Error updating attendance:", error);
             onSetNotif({ title: "Update Failed", message: "Failed to update attendance." });
+        }
+        finally {
+            setIsSubmitting(false);
         }
     }; 
     
@@ -53,8 +58,8 @@ export const UpdateAttendanceCard = ({ attendance, studentName, onUpdated, setSh
                     <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded">
                         Cancel
                     </button>
-                    <button type="button" onClick={handleToggleStatus} className="bg-blue-800 hover:bg-blue-900 text-white py-1.5 px-4 rounded">
-                        Confirm
+                    <button type="button" onClick={handleToggleStatus} disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 w-32 text-white font-bold py-1.5 px-4 rounded">
+                        {isSubmitting ? 'Updating...' : 'Confirm'}
                     </button>
                 </div>
             </div>

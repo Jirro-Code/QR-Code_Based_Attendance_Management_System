@@ -11,6 +11,7 @@ export const CreateEvent = () => {
     }, []);
     const [error, setError] = useState<string>("");
     const [showNotification, setShowNotification] = useState<boolean>(false);
+    const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
         title: "",
         message: ""
@@ -30,7 +31,22 @@ export const CreateEvent = () => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
-        await useCreateEvent({form: eventData, setError, setShowNotification, setNotificationMessage});
+        setIsSubmitting(true);
+        try {
+            if (eventData.eventName.trim().length < 2) {
+                setError("Event name must be at least 2 characters long!");
+                window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                return;
+            }
+            if (eventData.eventLocation.trim().length < 2) {
+                setError("Event location must be at least 2 characters long!");
+                window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                return;
+            }
+            await useCreateEvent({form: eventData, setError, setShowNotification, setNotificationMessage});
+        } finally {
+            setIsSubmitting(false);
+        }
     }
     
     const reloadPage = () => {
@@ -55,11 +71,13 @@ export const CreateEvent = () => {
                         <p className="text-red-600 text-sm">{error}</p>
                         
                         <form className="flex flex-col gap-1" onSubmit={handleSubmit}>
-                            <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={eventData.eventName} onChange={handleChange} />
+                            <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={eventData.eventName} onChange={handleChange} error={error?.includes("name") ? error : undefined} />
                             <Input label="Event Description" type="text" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={eventData.eventDescription} onChange={handleChange} isRequired={false} />
                             <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={eventData.eventDate} onChange={handleChange} />
-                            <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={eventData.eventLocation} onChange={handleChange} />
-                            <button type="submit" className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">Create Event</button>
+                            <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={eventData.eventLocation} onChange={handleChange} error={error?.includes("location") ? error : undefined} />
+                            <button type="submit" disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-2">
+                                {isSubmitting ? 'Creating...' : 'Create Event'}
+                            </button>
                         </form>
                         
                         {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={reloadPage} />}

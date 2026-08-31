@@ -17,7 +17,20 @@ export const Input = ({ label, id, type, placeholder, onChange, name, isRequired
             <label className="block text-sm font-medium text-gray-700" htmlFor={id}>
                 {label}:
             </label>
-            <input className={inputClassName} id={id} type={type} placeholder={placeholder} onChange={onChange} name={name} required={isRequired ?? true} value={value} />
+            {type === "textarea" ? (
+                <textarea
+                    className={`${inputClassName} resize-none`}
+                    id={id}
+                    placeholder={placeholder}
+                    onChange={onChange as unknown as React.ChangeEventHandler<HTMLTextAreaElement>}
+                    name={name}
+                    required={isRequired ?? true}
+                    value={value}
+                    rows={4}
+                />
+            ) : (
+                <input className={inputClassName} id={id} type={type} placeholder={placeholder} onChange={onChange} name={name} required={isRequired ?? true} value={value} />
+            )}
         </div>
     );
 }
