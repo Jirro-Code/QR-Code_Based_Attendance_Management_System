@@ -134,7 +134,7 @@ export const StudentFilterOptions = ({
                     
                     <div className="mb-4 flex flex-col gap-3">
                         <h3 className="text-sm font-bold text-slate-900">Strand</h3>
-                        <SelectionField id="strand" label="Select Strand" value={selectedStrand ?? ""} onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "ICT", "HRCTO"]} />
+                        <SelectionField id="strand" label="Select Strand" value={selectedStrand ?? ""} onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "AAD", "ICT", "HRCTO"]} />
                     </div>
                     
                     <div className="mb-4 flex flex-col gap-3">

@@ -1,6 +1,6 @@
 import { type User } from "../../../services/users.ts";
 import { CancelButton } from "../../Button.tsx";
-import { UserPen } from "lucide-react";
+import { ClipboardClock, UserPen } from "lucide-react";
 import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 import { useView } from "../../../hooks/useView.ts";
 import { useEffect, useState } from "react";
@@ -55,22 +55,14 @@ export const ViewStudentCard = ({ student, onClose, onUpdate }: ViewStudentCardP
                 
                 <div className="bg-white border-2 border-black rounded-b-lg shadow-md flex flex-col w-3/4 px-6 py-6 gap-2">
                     
-                    <div className="flex justify-center items-center mb-1 relative">
+                    <div className="flex justify-center items-center mb-1">
                         {isLoadingPicture ? (
                             <div className="w-40 h-40 rounded-sm bg-gray-100 ring-4 ring-gray-50 animate-pulse" />
                         ) : profilePicture ? (
-                            <div className="relative">
-                                <img src={profilePicture} alt="Profile" className="w-40 h-40 rounded-sm object-cover ring-4 ring-gray-100" />
-                                <div>
-                                    <UserPen size={40} className="absolute -bottom-1 -right-3 bg-black/20 backdrop-blur-[2px] rounded-full outline-3 p-2 text-white" />
-                                </div>
-                            </div>
+                            <img src={profilePicture} alt="Profile" className="w-40 h-40 rounded-sm object-cover ring-4 ring-gray-100" />
                         ) : (
-                            <div className="w-40 h-40 rounded-sm bg-gray-100 ring-4 ring-gray-50 flex items-center justify-center relative">
+                            <div className="w-40 h-40 rounded-sm bg-gray-100 ring-4 ring-gray-50 flex items-center justify-center ">
                                 <span className="text-gray-400 text-sm">No Photo</span>
-                                <div>
-                                    <UserPen size={40} className="absolute -bottom-1 -right-3 bg-black/20 backdrop-blur-[2px] rounded-full outline-3 p-2 text-white" />
-                                </div>
                             </div>
                         )}
                     </div>
@@ -103,9 +95,12 @@ export const ViewStudentCard = ({ student, onClose, onUpdate }: ViewStudentCardP
                         <p className="text-gray-500 text-sm"><b>Last updated at:</b> {formatDateTime(student.updatedAt!)}</p>
                     </div>
                     
-                    <div className="flex justify-center items-center mt-4">
+                    <div className="flex justify-center gap-4 items-center mt-4">
                         <button onClick={onUpdate} className="flex items-center w-full justify-center gap-2 bg-none border border-blue-900 hover:bg-gray-100 text-blue-900 py-1 px-4 rounded transition-colors">
                             <UserPen size={16} /> Edit
+                        </button>
+                        <button onClick={onUpdate} className="flex items-center w-full justify-center gap-2 bg-none border bg-blue-800 hover:bg-blue-900 text-white py-1 px-4 rounded transition-colors">
+                            <ClipboardClock size={16} /> History
                         </button>
                     </div>
                 </div>

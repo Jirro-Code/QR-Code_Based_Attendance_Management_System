@@ -68,26 +68,28 @@ export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete
     
     const color = isOnArchive ? "gray-500" : "blue-800";
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 p-3 z-10 backdrop-blur-[2px]">
-            <div className="z-100 border-gray-400 min-h-20 w-full rounded-md overflow-hidden shadow-sm relative">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-10 backdrop-blur-[2px]">
+            <div className="z-100 bg-white w-full max-w-4xl rounded-md overflow-hidden shadow-xl relative">
                 
-                <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
-                    <CancelButton onClose={onClose} color="white" />
-                </button>
-                
-                <div className={`h-1/2 bg-${color} p-3 flex flex-col justify-center gap-1`}>
-                    <h1 className="w-80 text-white text-lg font-bold overflow-hidden text-ellipsis whitespace-nowrap">{event.eventName}</h1>
+                <div className={`bg-${color} px-5 py-4 flex flex-col gap-1.5 relative`}>
+                    <button className="absolute top-3 right-3">
+                        <CancelButton onClose={onClose} color="white" />
+                    </button>
+                    <h1 className="w-4/5 text-white text-lg font-bold overflow-hidden text-ellipsis whitespace-nowrap">
+                        {event.eventName}
+                    </h1>
                     <div className="w-full flex justify-between items-center">
-                        {strand ? <h4 className="text-white text-sm"><b>Strand:</b> {strand}</h4> : <div></div>}
-                        <h4 className="text-white text-sm">{formatDate(event.eventDate)}</h4>
+                        {strand ? (<h4 className="text-white/90 text-sm">{strand}</h4>) : <p className="text-white/90 text-sm">No strand selected</p>}
+                        <h4 className="text-white/90 text-sm">{formatDate(event.eventDate)}</h4>
                     </div>
-                    {error && <p className="text-red-600 text-sm ml-4">{error}</p>}
+                    {error && (
+                        <p className="text-red-700 px-2 py-1 text-sm w-fit mt-1">{error}</p>
+                    )}
                 </div>
                 
-                
-                <div className="scrollable-card bg-gray-200 h-100 overflow-y-auto overscroll-contain">
+                <div className="scrollable-card bg-gray-50 h-100 overflow-y-auto overscroll-contain">
                     
-                    <div className="grid grid-cols-[0.3fr_repeat(7,1fr)] border-b border-gray-300 bg-gray-400 px-5 py-3 text-sm font-semibold text-white">
+                    <div className="grid grid-cols-[0.3fr_repeat(7,1fr)] border-b border-gray-200 bg-white sticky top-0 px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide shadow-sm">
                         <div>#</div>
                         <div>Name</div>
                         <div>Strand</div>
@@ -98,7 +100,7 @@ export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete
                         <div className="flex justify-end">Actions</div>
                     </div>
                     
-                    <div className="grid grid-cols-1">
+                    <div className="grid grid-cols-1 divide-y divide-gray-100">
                         {
                             isOnArchive ? (
                                 attendanceArray.filter(isArchivedRecord).length > 0 ? (
@@ -111,7 +113,7 @@ export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete
                                         />
                                     ))
                                 ) : (
-                                    <p>No attendance records found.</p>
+                                    <p className="text-center text-gray-400 text-sm py-10">No attendance records found.</p>
                                 )
                             ) : (
                                 attendanceArray.filter((attendance) => !isArchivedRecord(attendance)).length > 0 ? (
@@ -124,7 +126,7 @@ export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete
                                         />
                                     ))
                                 ) : (
-                                    <p>No attendance records found.</p>
+                                    <p className="text-center text-gray-400 text-sm py-10">No attendance records found.</p>
                                 )
                             )
                         }
