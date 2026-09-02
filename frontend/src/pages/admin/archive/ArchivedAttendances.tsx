@@ -165,7 +165,7 @@ export const ArchivedAttendances = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
                         {eventArray.length > 0 ? (
                             eventArray.map((event: Event) => (
-                                <EventAttendanceCard key={event.id} event={event} onView={() => loadViewCard(event)} />
+                                <EventAttendanceCard color={"gray-500"} key={event.id} event={event} onView={() => loadViewCard(event)} />
                             ))
                         ) : (
                             <p>No events found.</p>

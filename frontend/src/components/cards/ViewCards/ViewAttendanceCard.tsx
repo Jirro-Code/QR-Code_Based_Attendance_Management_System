@@ -5,7 +5,7 @@ import { NotificationCard } from "./../NotificationCard.tsx";
 import { useView } from "../../../hooks/useView.ts";
 import { useEffect, useState } from "react";
 import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
-import { X } from "lucide-react";
+import { CancelButton } from "../../Button.tsx";
 
 type AttendanceCardProps = {
     event: Event;
@@ -66,15 +66,16 @@ export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete
     attendance.isArchivedByStudent === true ||
     attendance.isArchivedByEvent === true;
     
+    const color = isOnArchive ? "gray-500" : "blue-800";
     return (
         <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 p-3 z-10 backdrop-blur-[2px]">
             <div className="z-100 border-gray-400 min-h-20 w-full rounded-md overflow-hidden shadow-sm relative">
                 
-                <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
-                    <X className="w-5 h-5" />
+                <button className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
+                    <CancelButton onClose={onClose} color="white" />
                 </button>
                 
-                <div className="h-1/2 bg-blue-800 p-3 flex flex-col justify-center gap-1">
+                <div className={`h-1/2 bg-${color} p-3 flex flex-col justify-center gap-1`}>
                     <h1 className="w-80 text-white text-lg font-bold overflow-hidden text-ellipsis whitespace-nowrap">{event.eventName}</h1>
                     <div className="w-full flex justify-between items-center">
                         {strand ? <h4 className="text-white text-sm"><b>Strand:</b> {strand}</h4> : <div></div>}

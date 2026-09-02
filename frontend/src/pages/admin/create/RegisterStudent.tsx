@@ -212,13 +212,7 @@ export const RegisterStudent = () => {
                     
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
                     
-                    {pendingFile && (
-                        <ImageCropModal
-                            file={pendingFile}
-                            onConfirm={handleCropConfirm}
-                            onClose={() => setPendingFile(null)}
-                        />
-                    )}
+                    {pendingFile && <ImageCropModal file={pendingFile} onConfirm={handleCropConfirm} onClose={() => setPendingFile(null)} />}
                     
                 </div>
             </div>

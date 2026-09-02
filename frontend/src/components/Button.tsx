@@ -7,6 +7,7 @@ type BackButtonProps = {
 
 type CancelButtonProps = {
     onClose: () => void;
+    color: string;
 }
 
 export const BackButton = ({ path }: BackButtonProps) => {
@@ -18,9 +19,9 @@ export const BackButton = ({ path }: BackButtonProps) => {
     ); 
 }
 
-export const CancelButton = ({ onClose }: CancelButtonProps) => {
+export const CancelButton = ({ onClose, color }: CancelButtonProps) => {
     return (
-        <button className="bg-none text-white mr-2" onClick={onClose}>
+        <button className={`bg-none text-${color} mr-2`} onClick={onClose}>
             <X size={20} />
         </button>
     );

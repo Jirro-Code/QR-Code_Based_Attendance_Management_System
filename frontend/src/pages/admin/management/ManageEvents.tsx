@@ -17,10 +17,12 @@ export const ManageEvents = () => {
         window.scrollTo({ top: 0, left: 0 });
     }, []);
     const navigate = useNavigate();
-    const { useViewAllEvents, useSearchEvents } = useView();
+    const { useViewAllEvents, useSearchEvents, useViewAllEventsWithAttendanceRecords, useViewAllEventsWithArchivedAttendanceRecords } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
     const [eventArray, setEventArray] = useState<Event[]>([]);
+    const [eventsWithRecords, setEventsWithRecords] = useState<Event[]>([]);
+    const [eventsWithArchivedRecords, setEventsWithArchivedRecords] = useState<Event[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [isOnSearch, setIsOnSearch] = useState<boolean>(false);
     const [showUpdateCard, setShowUpdateCard] = useState<boolean>(false);
@@ -39,6 +41,8 @@ export const ManageEvents = () => {
     
     useEffect(() => {
         useViewAllEvents(setEventArray, setError);
+        useViewAllEventsWithAttendanceRecords(setEventsWithRecords, setError);
+        useViewAllEventsWithArchivedAttendanceRecords(setEventsWithArchivedRecords, setError);
     }, [setEventArray, setError]);
     
     const MONTHS = [
@@ -220,7 +224,7 @@ export const ManageEvents = () => {
                             setSelectedByTime={setSelectedByTime}
                         />
                     )}
-                    {showUpdateCard && selectedEvent && <UpdateEventCard id={selectedEvent.id} eventName={selectedEvent.eventName} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
+                    {showUpdateCard && selectedEvent && <UpdateEventCard event={selectedEvent} isDisabled={eventsWithRecords.some((e) => e.id === selectedEvent.id) || eventsWithArchivedRecords.some((e) => e.id === selectedEvent.id)} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
                     {showArchiveCard && selectedEvent && <ArchiveEventCard id={selectedEvent.id} onArchived={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowArchiveCard(false)} eventName={selectedEvent.eventName} />}
                     {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                     {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}

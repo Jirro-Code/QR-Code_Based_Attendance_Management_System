@@ -33,11 +33,12 @@ export const ViewEventCard = ({ event, onClose, onUpdate }: ViewEventCardProps) 
         });
     }
     
+    const color = event.isArchived ? "gray-500" : "blue-800";
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center flex-col justify-center z-30 p-4">
-            <div className="flex max-w-md w-full rounded-t-lg px-9 py-5 justify-between items-center bg-blue-800">
+            <div className={`flex max-w-md w-full rounded-t-lg px-9 py-5 justify-between items-center bg-${color}`}>
                 <p className="font-bold text-2xl text-white w-80 overflow-hidden text-ellipsis whitespace-nowrap">{event.eventName}</p>
-                <CancelButton onClose={onClose} />
+                <CancelButton onClose={onClose} color="white" />
             </div>
             <div className="bg-white pt-6 pb-7 px-9 rounded-b-lg shadow-md flex flex-col gap-3 max-w-md w-full">
                 <div>

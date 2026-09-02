@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { CancelButton } from "./Button.tsx";
+import { ZoomIn } from "lucide-react";
 
 type ImageCropModalProps = {
     file: File;
@@ -127,7 +128,7 @@ export const ImageCropModal = ({ file, onConfirm, onClose }: ImageCropModalProps
             <div className="bg-white rounded-lg shadow-lg max-w-sm w-full flex flex-col">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
                     <h2 className="text-base font-semibold text-gray-800">Crop Profile Picture</h2>
-                    <CancelButton onClose={onClose} />
+                    <CancelButton onClose={onClose} color="gray-500" />
                 </div>
                 
                 <div className="p-5 flex flex-col items-center gap-4">
@@ -148,7 +149,7 @@ export const ImageCropModal = ({ file, onConfirm, onClose }: ImageCropModalProps
                     </div>
                     
                     <div className="w-full flex items-center gap-3">
-                        <span className="text-xs text-gray-500">Zoom</span>
+                        <ZoomIn size={20} className="text-gray-500" />
                         <input
                             type="range"
                             min={imageRef.current ? Math.max(CANVAS_SIZE / imageRef.current.width, CANVAS_SIZE / imageRef.current.height) : 1}
@@ -159,8 +160,6 @@ export const ImageCropModal = ({ file, onConfirm, onClose }: ImageCropModalProps
                             className="flex-1"
                         />
                     </div>
-                    
-                    <p className="text-xs text-gray-400 text-center">Drag to reposition, use the slider to zoom. Output will be a square (2x2) image.</p>
                 </div>
                 
                 <div className="flex justify-between items-center px-5 py-4 border-t border-gray-200">

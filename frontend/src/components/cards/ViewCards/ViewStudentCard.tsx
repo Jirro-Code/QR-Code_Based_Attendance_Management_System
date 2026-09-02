@@ -43,29 +43,34 @@ export const ViewStudentCard = ({ student, onClose, onUpdate }: ViewStudentCardP
         });
     }
     
+    const color = student.isArchived ? "gray-500" : "blue-800";
     return (
         <div className="fixed inset-0 bg-black/40 flex items-center h-full justify-center z-30 backdrop-blur-[2px]">
             <div className="flex flex-col w-full max-w-175 items-center justify-center">
                 
-                <div className="bg-blue-800 border-t-2 border-l-2 border-r-2 border-black p-6 rounded-t-lg shadow-md flex items-center justify-between w-3/4 h-20 relative">
+                <div className={`bg-${color} border-t-2 border-l-2 border-r-2 border-black p-6 rounded-t-lg shadow-md flex items-center justify-between w-3/4 h-20 relative`}>
                     <p className="text-white text-xl overflow-hidden text-ellipsis whitespace-nowrap"><b>{student.username}</b></p>
-                    <CancelButton onClose={() => onClose()} />
+                    <CancelButton onClose={() => onClose()} color={"white"} />
                 </div>
                 
                 <div className="bg-white border-2 border-black rounded-b-lg shadow-md flex flex-col w-3/4 px-6 py-6 gap-2">
                     
-                    <div className="flex justify-center items-center mb-1">
+                    <div className="flex justify-center items-center mb-1 relative">
                         {isLoadingPicture ? (
                             <div className="w-40 h-40 rounded-sm bg-gray-100 ring-4 ring-gray-50 animate-pulse" />
                         ) : profilePicture ? (
-                            <img
-                                src={profilePicture}
-                                alt="Profile"
-                                className="w-40 h-40 rounded-sm object-cover ring-4 ring-gray-100"
-                            />
+                            <div className="relative">
+                                <img src={profilePicture} alt="Profile" className="w-40 h-40 rounded-sm object-cover ring-4 ring-gray-100" />
+                                <div>
+                                    <UserPen size={40} className="absolute -bottom-1 -right-3 bg-black/20 backdrop-blur-[2px] rounded-full outline-3 p-2 text-white" />
+                                </div>
+                            </div>
                         ) : (
-                            <div className="w-40 h-40 rounded-sm bg-gray-100 ring-4 ring-gray-50 flex items-center justify-center">
+                            <div className="w-40 h-40 rounded-sm bg-gray-100 ring-4 ring-gray-50 flex items-center justify-center relative">
                                 <span className="text-gray-400 text-sm">No Photo</span>
+                                <div>
+                                    <UserPen size={40} className="absolute -bottom-1 -right-3 bg-black/20 backdrop-blur-[2px] rounded-full outline-3 p-2 text-white" />
+                                </div>
                             </div>
                         )}
                     </div>
@@ -98,7 +103,7 @@ export const ViewStudentCard = ({ student, onClose, onUpdate }: ViewStudentCardP
                         <p className="text-gray-500 text-sm"><b>Last updated at:</b> {formatDateTime(student.updatedAt!)}</p>
                     </div>
                     
-                    <div className="flex justify-center items-center mt-5">
+                    <div className="flex justify-center items-center mt-4">
                         <button onClick={onUpdate} className="flex items-center w-full justify-center gap-2 bg-none border border-blue-900 hover:bg-gray-100 text-blue-900 py-1 px-4 rounded transition-colors">
                             <UserPen size={16} /> Edit
                         </button>

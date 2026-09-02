@@ -6,18 +6,17 @@ import { type User } from "../../../services/users.ts";
 import { SelectionField } from "../../Input/SelectionField.tsx";
 import { CancelButton } from "../../Button.tsx";
 import { ImageCropModal } from "../../../components/ImageCrop.tsx";
-import { X } from "lucide-react";
+import { ArrowLeftRight, X } from "lucide-react";
 
 type UpdateUserCardProps = {
-    userId: string;
-    userName: string;
+    student: Partial<User>;
     onUpdated: (updatedUser: User) => void;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
     onSetNotif: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
     onClose: () => void;
 };
 
-export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateUserCardProps) => {
+export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateUserCardProps) => {
     const { useUpdateUser } = useUpdate();
     const { useScrollToTopOverflow } = useScrollFunctions();
     const [formData, setFormData] = useState<User>({} as User);
@@ -112,7 +111,7 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
             Object.entries(data).filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "")
             ) as User;
             
-            const updatedUser = await useUpdateUser({ ...filteredData, id: userId }, setError);
+            const updatedUser = await useUpdateUser({ ...filteredData, id: student.id! }, setError);
             
             onUpdated(updatedUser);
             setFormData({} as User);
@@ -133,12 +132,13 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
         }
     };
     
+    const color = student.isArchived ? "gray-500" : "blue-800";
     
     return (
         <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
-            <div className="bg-blue-800 p-6 rounded-tl-lg shadow-md items-center flex justify-between max-w-md w-full h-20 relative">
-                <h1 className="text-white text-2xl font-bold">{userName}</h1>
-                <CancelButton onClose={onClose} />
+            <div className={`bg-${color} p-6 rounded-tl-lg shadow-md items-center flex justify-between max-w-md w-full h-20 relative`}>
+                <h1 className="text-white text-2xl font-bold">{student.username}</h1>
+                <CancelButton onClose={onClose} color="white"/>
             </div>
             <div ref={updateCardRef} id="update-user-card" className="scrollable-card bg-white rounded-bl-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full max-h-[80vh] overflow-y-auto overscroll-contain">
                 <p className="text-red-600 text-sm">{error}</p>
@@ -154,13 +154,13 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
                         </label>
                         
                         {previewUrl ? (
-                            <div className="mt-2 flex items-center gap-3">
-                                <img src={previewUrl} alt="Selected profile" className="w-16 h-16 rounded-md object-cover ring-1 ring-gray-200" />
+                            <div className="mt-2 flex items-center gap-5">
+                                <img src={previewUrl} alt="Selected profile" className="w-20 h-20 rounded-md object-cover ring-1 ring-gray-200" />
                                 <div className="flex flex-col gap-1">
                                     <span className="text-sm text-gray-700 truncate max-w-45">{formData.profilePicture?.name}</span>
                                     <div className="flex gap-3">
-                                        <label htmlFor="profilePicture" className="text-xs text-blue-800 hover:underline cursor-pointer">
-                                            Change
+                                        <label htmlFor="profilePicture" className="text-xs flex gap-1 items-center text-blue-800 hover:underline cursor-pointer">
+                                            <ArrowLeftRight size={12} /> Change
                                         </label>
                                         <button type="button" onClick={handleRemovePicture} className="text-xs text-red-600 hover:underline flex items-center gap-0.5">
                                             <X size={12} /> Remove
@@ -169,27 +169,11 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
                                 </div>
                             </div>
                         ) : (
-                            <input
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
-                                id="profilePicture"
-                                type="file"
-                                name="profilePicture"
-                                accept="image/png,image/jpeg,image/webp"
-                                onChange={handleFileSelected}
-                                required
-                            />
+                            <input className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} required/>
                         )}
                         
                         {previewUrl && (
-                            <input
-                                className="hidden"
-                                id="profilePicture"
-                                type="file"
-                                name="profilePicture"
-                                accept="image/png,image/jpeg,image/webp"
-                                onChange={handleFileSelected}
-                                required
-                            />
+                            <input className="hidden" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} required />
                         )}
                     </div>
                     
@@ -222,13 +206,7 @@ export const UpdateUserCard = ({ userId, userName, onUpdated, setShowNotificatio
                     </div>
                 </form>
             </div>
-            {pendingFile && (
-                <ImageCropModal
-                    file={pendingFile}
-                    onConfirm={handleCropConfirm}
-                    onClose={() => setPendingFile(null)}
-                />
-            )}
+            {pendingFile && <ImageCropModal file={pendingFile} onConfirm={handleCropConfirm} onClose={() => setPendingFile(null)}/>}
         </div>
     );
 }
