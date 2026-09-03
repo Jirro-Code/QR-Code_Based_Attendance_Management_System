@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { SelectionField } from "../Input/SelectionField.tsx";
+import { Input } from "../Input/Input.tsx";
 import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
 
 type FilterOptionsProps = {
@@ -9,6 +10,7 @@ type FilterOptionsProps = {
         month: string | null,
         year: string | null,
         strand: string | null,
+        bySection: string | null,
         byTime: "latest" | "earliest" | null
     ) => void;
     selectedOrder: "A-Z" | "Z-A" | null;
@@ -19,6 +21,8 @@ type FilterOptionsProps = {
     setSelectedYear: React.Dispatch<React.SetStateAction<string | null>>;
     selectedStrand: string | null;
     setSelectedStrand: React.Dispatch<React.SetStateAction<string | null>>;
+    selectedBySection: string | null;
+    setSelectedBySection: React.Dispatch<React.SetStateAction<string | null>>;
     selectedByTime: "latest" | "earliest" | null;
     setSelectedByTime: React.Dispatch<React.SetStateAction<"latest" | "earliest" | null>>;
 };
@@ -38,6 +42,8 @@ export const AttendanceFilterOptions = ({
         setSelectedYear,
         selectedStrand,
         setSelectedStrand,
+        selectedBySection,
+        setSelectedBySection,
         selectedByTime,
         setSelectedByTime,
     }: FilterOptionsProps) => {
@@ -61,7 +67,7 @@ export const AttendanceFilterOptions = ({
     };
     
     const handleApply = () => {
-        onApplyFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedByTime);
+        onApplyFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedBySection, selectedByTime);
         handleClose();
     };
     
@@ -132,7 +138,7 @@ export const AttendanceFilterOptions = ({
                 </div>
                 
                 <div className="px-6 py-5">
-                    <div className="mb-8 flex flex-col gap-3">
+                    <div className="mb-8 flex flex-col gap-2">
                         <h3 className="text-sm font-bold text-slate-900">Sort by</h3>
                         <div className="flex gap-2">
                             <button type="button" onClick={() => setSelectedOrder(selectedOrder === "A-Z" ? null : "A-Z")} className={toggleButtonClass(selectedOrder === "A-Z")}>
@@ -150,17 +156,14 @@ export const AttendanceFilterOptions = ({
                                 Earliest to latest
                             </button>
                         </div>
-                    </div>
-                    
-                    <div className="mb-4 flex flex-col gap-3">
-                        <h3 className="text-sm font-bold text-slate-900">Strand</h3>
-                        <SelectionField id="strand" label="Select Strand" value={selectedStrand ?? ""} onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "AAD", "ICT", "HRCTO"]} />
-                    </div>
-                    
-                    <div className="flex flex-col">
-                        <h3 className="text-sm font-bold text-slate-900 mb-2">Date</h3>
-                        <SelectionField id="month" label="Select Month" value={selectedMonth ?? ""} onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
-                        <SelectionField id="year" label="Select Year" value={selectedYear ?? ""} onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
+                        
+                        <SelectionField id="strand" label="Strand" value={selectedStrand ?? ""} onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "AAD", "ICT", "HRCTO"]} />
+                        
+                        <Input id="section" label="Section" type="text" placeholder="Enter Section" onChange={(e) => setSelectedBySection(e.target.value)} name="section" value={selectedBySection ?? ""}/>
+                        
+                        <SelectionField id="month" label="Month" value={selectedMonth ?? ""} onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
+                        
+                        <SelectionField id="year" label="Year" value={selectedYear ?? ""} onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
                     </div>
                 </div>
             </div>

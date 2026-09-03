@@ -7,11 +7,11 @@ type HeaderProps = {
 
 export const Header = ({ title, path }: HeaderProps) => {
     return(
-        <header className="top-0 z-50 flex items-center justify-between bg-white px-6 py-4 shadow-md">
+        <header className="top-0 z-50 flex items-center bg-white px-6 py-4 shadow-md">
+            <BackButton path={path ? path : "/admin-dashboard"} />
             <div className="text-3xl font-bold text-gray-800 flex items-center gap-2">
                 <h1>{title}</h1>
             </div>
-            <BackButton path={path ? path : "/admin-dashboard"} />
         </header>
     )
 }

@@ -32,6 +32,13 @@ export const markStudentPresent = async (uuid: string, eventId: string, isLate: 
     return response.json();
 };
 
+export const getAllAttendanceByStudentId = async (userId: string) => {
+    const response = await apiFetch(`/attendance/userId/${userId}`, {
+        method: "GET",
+        credentials: "include",
+    });
+    return response.json();
+}
 
 export const getAllEventAttendance = async () => {
     const response = await apiFetch(`/attendance/allEvents`, {
@@ -41,7 +48,6 @@ export const getAllEventAttendance = async () => {
     return response.json();
 }
 
-
 export const getAllArchivedEventAttendance = async () => {
     const response = await apiFetch(`/attendance/allArchivedEvents`, {
         method: "GET",
@@ -49,7 +55,6 @@ export const getAllArchivedEventAttendance = async () => {
     });
     return response.json();
 }
-
 
 export const getAttendanceByEventId = async (eventId: string) => {
     const response = await apiFetch(`/attendance/eventId/${eventId}`, {
@@ -59,8 +64,6 @@ export const getAttendanceByEventId = async (eventId: string) => {
     return response.json();
 }
 
-
-
 export const getEventAttendanceByStrand = async ( strand: string, archived: boolean) => {
     const response = await apiFetch(`/attendance/strand/${strand}?archived=${archived}`, {
         method: "GET",
@@ -68,7 +71,6 @@ export const getEventAttendanceByStrand = async ( strand: string, archived: bool
     });
     return response.json();
 };
-
 
 export const getAttendanceByStrand= async (eventId: string, strand: string) => {
     const response = await apiFetch(`/attendance/groupStrand/${strand}/eventId/${eventId}`, {

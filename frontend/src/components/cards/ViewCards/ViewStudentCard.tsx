@@ -9,9 +9,10 @@ type ViewStudentCardProps = {
     student: Partial<User>;
     onClose: () => void;
     onUpdate: () => void;
+    onLoadHistory: () => void;
 };
 
-export const ViewStudentCard = ({ student, onClose, onUpdate }: ViewStudentCardProps) => {
+export const ViewStudentCard = ({ student, onClose, onUpdate, onLoadHistory }: ViewStudentCardProps) => {
     const { useDisableScroll } = useScrollFunctions();
     useDisableScroll();
     
@@ -99,7 +100,7 @@ export const ViewStudentCard = ({ student, onClose, onUpdate }: ViewStudentCardP
                         <button onClick={onUpdate} className="flex items-center w-full justify-center gap-2 bg-none border border-blue-900 hover:bg-gray-100 text-blue-900 py-1 px-4 rounded transition-colors">
                             <UserPen size={16} /> Edit
                         </button>
-                        <button onClick={onUpdate} className="flex items-center w-full justify-center gap-2 bg-none border bg-blue-800 hover:bg-blue-900 text-white py-1 px-4 rounded transition-colors">
+                        <button onClick={onLoadHistory} className="flex items-center w-full justify-center gap-2 bg-none border bg-blue-800 hover:bg-blue-900 text-white py-1 px-4 rounded transition-colors">
                             <ClipboardClock size={16} /> History
                         </button>
                     </div>

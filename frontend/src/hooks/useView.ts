@@ -1,8 +1,8 @@
 import { logout } from "../services/auth.ts";
-import { getAllEvents, searchEvents, type Event } from "../services/events.ts";
+import { getAllEvents, getEventById, searchEvents, type Event } from "../services/events.ts";
 import { getProfilePictureById, getUserById, getUsersByRole, searchUsers, type User } from "../services/users.ts";
 import { ApiError } from "../services/error.ts";
-import { getAllEventAttendance, getAllArchivedEventAttendance, getAttendanceByEventId, getAttendanceByStrand, getEventAttendanceByStrand, checkAttendance } from "../services/attendance.ts";
+import { getAllAttendanceByStudentId, getAllEventAttendance, getAllArchivedEventAttendance, getAttendanceByEventId, getAttendanceByStrand, getEventAttendanceByStrand, checkAttendance } from "../services/attendance.ts";
 import { type Attendance } from "../services/attendance.ts";
 
 export const useView = () => {
@@ -178,6 +178,39 @@ export const useView = () => {
         return fetchEvents();
     }
     
+    const useViewEventById = async (eventId: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event> => {
+        try {
+            const data = await getEventById(eventId);
+            return data.event as Event;
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout("/admin-login");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "Event not found.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");             
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("An error occurred while fetching the event. Please try again.");
+            console.error("Error fetching event:", e);
+            throw e;
+        }
+    }
+    
     const useSearchEvents = async (query: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event[]> => {
         try {
             const data = await searchEvents(query);
@@ -241,6 +274,39 @@ export const useView = () => {
             alert("Something went wrong. Please try again later.");
             setError("An error occurred while checking attendance. Please try again.");
             console.error("Error checking attendance:", e);
+            throw e;
+        }
+    }
+    
+    const useViewAttendanceByStudentId = async (userId: string, path: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Attendance[]> => {
+        try{
+            const data = await getAllAttendanceByStudentId(userId);
+            return data.attendance as Attendance[];
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Invalid request.");
+                }
+                if (e.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                    await logout(path);
+                }
+                if (e.status === 404) {
+                    return [];
+                }
+                if (e.status === 403) {
+                    setError(e.message || "Access denied. You do not have permission to perform this action.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("An error occurred while fetching attendance records. Please try again.");
+            console.error("Error fetching attendance records:", e);
             throw e;
         }
     }
@@ -410,5 +476,5 @@ export const useView = () => {
         }
     }
     
-    return { useViewUser, useViewProfilePicture, useViewAllUsers, useSearchUsers, useCheckAttendance, useViewAllEventsWithArchivedAttendanceRecords, useViewAllEvents, useSearchEvents, useViewAttendanceByEventId, useViewEventAttendanceByStrand, useViewAttendanceByStrand, useViewAllEventsWithAttendanceRecords };
+    return { useViewUser, useViewProfilePicture, useViewAllUsers, useSearchUsers, useCheckAttendance, useViewAttendanceByStudentId, useViewAllEventsWithArchivedAttendanceRecords, useViewAllEvents, useViewEventById, useSearchEvents, useViewAttendanceByEventId, useViewEventAttendanceByStrand, useViewAttendanceByStrand, useViewAllEventsWithAttendanceRecords };
 }

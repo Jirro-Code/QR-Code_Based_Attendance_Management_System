@@ -38,6 +38,14 @@ export const getAllEvents = async () => {
     return response.json();
 }
 
+export const getEventById = async (eventId: string) => {
+    const response = await apiFetch(`/events/eventId/${eventId}`, {
+        method: "GET",
+        credentials: "include"
+    });
+    return response.json();
+}
+
 export const searchEvents = async (query: string) => {
     const response = await apiFetch(`/events/search?search=${encodeURIComponent(query)}`, {
         method: "GET",

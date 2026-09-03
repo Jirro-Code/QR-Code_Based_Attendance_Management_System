@@ -127,7 +127,7 @@ export const EventFilterOptions = ({
                 </div>
                 
                 <div className="px-6 py-5">
-                    <div className="mb-8 flex flex-col gap-3">
+                    <div className="mb-8 flex flex-col gap-2">
                         <h3 className="text-sm font-bold text-slate-900">Sort by</h3>
                         <div className="flex gap-2">
                             <button type="button" onClick={() => setSelectedOrder(selectedOrder === "A-Z" ? null : "A-Z")} className={toggleButtonClass(selectedOrder === "A-Z")}>
@@ -137,7 +137,7 @@ export const EventFilterOptions = ({
                                 Z-A
                             </button>
                         </div>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 mb-10">
                             <button type="button" onClick={() => setSelectedByTime(selectedByTime === "latest" ? null : "latest")} className={toggleButtonClass(selectedByTime === "latest")}>
                                 Latest to earliest
                             </button>
@@ -145,12 +145,9 @@ export const EventFilterOptions = ({
                                 Earliest to latest
                             </button>
                         </div>
-                    </div>
-                    
-                    <div className="flex flex-col">
-                        <h3 className="text-sm font-bold text-slate-900 mb-2">Date</h3>
-                        <SelectionField id="month" label="Select Month" value={selectedMonth ?? ""} onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
-                        <SelectionField id="year" label="Select Year" value={selectedYear ?? ""} onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
+                        
+                        <SelectionField id="month" label="Month" value={selectedMonth ?? ""} onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
+                        <SelectionField id="year" label="Year" value={selectedYear ?? ""} onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
                     </div>
                 </div>
             </div>
