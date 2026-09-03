@@ -32,14 +32,13 @@ const doubleUuidSchema = z.object({
 });
 
 router.use(authToken);
-router.get("/myAttendance", getUserAttendance);
+router.get("/userId/:id", validateParams(uuidSchema), getUserAttendance);
 
 router.use(authAdminToken);
 router.get("/checkAttendance/:eventId/:userId", validateParams(doubleUuidSchema), checkAttendance);
 router.post("/mark", validateBody(insertAttendanceSchema), markAttendance);
 router.get("/allEvents", getAllEventAttendance);
 router.get("/allArchivedEvents", getAllArchivedEventAttendance);
-router.get("/userId/:id", validateParams(uuidSchema), getUserAttendance);
 router.get("/eventId/:id", validateParams(uuidSchema), getEventAttendanceByEventId);
 router.get("/strand/:strand", validateParams(strandSchema), getEventAttendanceByStrand);
 router.get("/groupStrand/:groupStrand/eventId/:eventId", validateParams(groupStrandSchema), getAttendanceByStrand);
