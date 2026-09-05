@@ -122,7 +122,8 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
 }
 
 
-export const getAllEventAttendance = async (_req: AuthenticatedRequest, res: Response) => {
+
+export const getAllEventWithAttendance = async (_req: AuthenticatedRequest, res: Response) => {
     try {
         const attendanceList = await db.query.attendance.findMany({
             where: and(eq(attendance.isArchived, false), eq(attendance.isArchivedByEvent, false), eq(attendance.isArchivedByStudent, false)),
@@ -154,7 +155,8 @@ export const getAllEventAttendance = async (_req: AuthenticatedRequest, res: Res
 };
 
 
-export const getAllArchivedEventAttendance = async (_req: AuthenticatedRequest, res: Response) => {
+
+export const getAllArchivedEventWithAttendance = async (_req: AuthenticatedRequest, res: Response) => {
     try {
         const archivedAttendanceList = await db.query.attendance.findMany({
             where: or(eq(attendance.isArchivedByEvent, true), eq(attendance.isArchivedByStudent, true), eq(attendance.isArchived, true)),
@@ -215,18 +217,31 @@ export const getUserAttendance = async (req: AuthenticatedRequest, res: Response
 
 
 
-export const getEventAttendanceByEventId = async (req: AuthenticatedRequest, res: Response) => {
+export const getAttendanceByEventId = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const eventId = z.uuid().parse(req.params.id);
-        const event = await db.query.attendance.findMany({
-            where: eq(attendance.eventId, eventId)
-        })
+        const attendances = await 
+            db.select({
+                id: attendance.id, 
+                userId: attendance.userId, 
+                eventId: attendance.eventId,
+                strand: users.studentStrand,
+                section: users.studentSection,
+                isLate: attendance.isLate, 
+                attendedAt: attendance.attendedAt,
+                isArchived: attendance.isArchived,
+                isArchivedByEvent: attendance.isArchivedByEvent,
+                isArchivedByStudent: attendance.isArchivedByStudent,
+            }).
+            from(attendance).
+            innerJoin(users, eq(attendance.userId, users.id)).
+            where(eq(attendance.eventId, eventId));
         
-        if (!event) {
+        if (attendances.length === 0) {
             return res.status(404).json({message: "Attendance not found for this event"});
         }
         
-        res.status(200).json({message: "Attendance fetched successfully", attendance: event});
+        res.status(200).json({message: "Attendance fetched successfully", attendance: attendances});
     }
     catch(e){
         if(e instanceof z.ZodError){
@@ -240,78 +255,43 @@ export const getEventAttendanceByEventId = async (req: AuthenticatedRequest, res
 }
 
 
-export const getAttendanceByStrand = async (req: AuthenticatedRequest, res: Response) => {
-    try{
-        const eventId = z.uuid().parse(req.params.eventId);
-        const groupStrand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.groupStrand);
-        
-        const eventExist = await db.query.events.findFirst({
-            where: eq(events.id, eventId)
-        });
-        
-        if (!eventExist) {
-            return res.status(404).json({message: "Event not found"});
-        }
-        
-        const groupAttendance = await 
-            db.select({
-                id: attendance.id, 
-                userId: attendance.userId, 
-                eventId: attendance.eventId, 
-                isLate: attendance.isLate, 
-                attendedAt: attendance.attendedAt,
-                isArchived: attendance.isArchived,
-                isArchivedByEvent: attendance.isArchivedByEvent,
-                isArchivedByStudent: attendance.isArchivedByStudent,
-            }).
-            from(attendance).
-            innerJoin(users, eq(attendance.userId, users.id)).
-            where(and(eq(attendance.eventId, eventId), eq(users.studentStrand, groupStrand)));
-        
-        if (groupAttendance.length === 0) {
-            return res.status(404).json({message: "Attendance not found for this group"});
-        }
-        
-        res.status(200).json({message: "Attendance fetched successfully", attendance: groupAttendance});
-    }
-    catch(e){
-        if(e instanceof z.ZodError){
-            console.error("Invalid group parameters:", e.issues);
-            return res.status(400).json({message: "Invalid group parameters", errors: e.issues});
-        }
-        res.status(500).json({message: "Error fetching attendance by group", error: e});
-    }
-}
 
-
-export const getEventAttendanceByStrand = async (req: AuthenticatedRequest, res: Response) => {
-    try{
-        const strand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).parse(req.params.strand);
+export const getEventWithAttendanceByStrandAndSection = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const strand = z.enum(["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]).optional().parse(req.query.strand);
+        const section = z.string().optional().parse(req.query.section);
         const archived = req.query.archived === "true";
         
-        const archivedCondition = archived ? or(eq(attendance.isArchivedByEvent, true), eq(attendance.isArchivedByStudent, true), eq(attendance.isArchived, true)) : and(eq(attendance.isArchived, false), eq(attendance.isArchivedByEvent, false));
+        const archivedCondition = archived
+            ? or(eq(attendance.isArchivedByEvent, true), eq(attendance.isArchivedByStudent, true), eq(attendance.isArchived, true))
+            : and(eq(attendance.isArchived, false), eq(attendance.isArchivedByEvent, false));
         
-        const eventsByStrand = await db
-            .selectDistinct({id: events.id, eventName: events.eventName, eventDate: events.eventDate})
+        const conditions = [archivedCondition];
+        if (strand) conditions.push(eq(users.studentStrand, strand));
+        if (section) conditions.push(eq(users.studentSection, section));
+        
+        const eventsWithAttendance = await db
+            .selectDistinct({ id: events.id, eventName: events.eventName, eventDate: events.eventDate })
             .from(events)
             .innerJoin(attendance, eq(attendance.eventId, events.id))
             .innerJoin(users, eq(users.id, attendance.userId))
-            .where(and(archivedCondition, eq(users.studentStrand, strand)));
+            .where(and(...conditions))
+            .orderBy(desc(events.eventDate));
         
-        if (eventsByStrand.length === 0) {
-            return res.status(404).json({message: "No events found for this strand"});
+        if (eventsWithAttendance.length === 0) {
+            return res.status(404).json({ message: "No events found for this filter" });
         }
         
-        res.status(200).json({message: "Events fetched successfully", events: eventsByStrand});
+        res.status(200).json({ message: "Events fetched successfully", events: eventsWithAttendance });
     }
-    catch(e){
-        if(e instanceof z.ZodError){
+    catch (e) {
+        if (e instanceof z.ZodError) {
             console.error("Invalid group parameters:", e.issues);
-            return res.status(400).json({message: "Invalid group parameters", errors: e.issues});
+            return res.status(400).json({ message: "Invalid group parameters", errors: e.issues });
         }
-        res.status(500).json({message: "Error fetching events by group", error: e});
+        res.status(500).json({ message: "Error fetching events by group", error: e });
     }
-}
+};
 
 
 export const updateAttendance = async (req: AuthenticatedRequest, res: Response) => {
