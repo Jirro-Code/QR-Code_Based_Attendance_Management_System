@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { SelectionField } from "../Input/SelectionField.tsx";
-import { Input } from "../Input/Input.tsx";
 import { useScrollFunctions } from "../../hooks/useScrollFunctions.ts";
 
 type FilterOptionsProps = {
@@ -10,7 +9,6 @@ type FilterOptionsProps = {
         month: string | null,
         year: string | null,
         strand: string | null,
-        bySection: string | null,
         byTime: "latest" | "earliest" | null
     ) => void;
     selectedOrder: "A-Z" | "Z-A" | null;
@@ -21,8 +19,6 @@ type FilterOptionsProps = {
     setSelectedYear: React.Dispatch<React.SetStateAction<string | null>>;
     selectedStrand: string | null;
     setSelectedStrand: React.Dispatch<React.SetStateAction<string | null>>;
-    selectedBySection: string | null;
-    setSelectedBySection: React.Dispatch<React.SetStateAction<string | null>>;
     selectedByTime: "latest" | "earliest" | null;
     setSelectedByTime: React.Dispatch<React.SetStateAction<"latest" | "earliest" | null>>;
 };
@@ -42,8 +38,6 @@ export const AttendanceFilterOptions = ({
         setSelectedYear,
         selectedStrand,
         setSelectedStrand,
-        selectedBySection,
-        setSelectedBySection,
         selectedByTime,
         setSelectedByTime,
     }: FilterOptionsProps) => {
@@ -67,7 +61,7 @@ export const AttendanceFilterOptions = ({
     };
     
     const handleApply = () => {
-        onApplyFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedBySection, selectedByTime);
+        onApplyFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedByTime);
         handleClose();
     };
     
@@ -158,8 +152,6 @@ export const AttendanceFilterOptions = ({
                         </div>
                         
                         <SelectionField id="strand" label="Strand" value={selectedStrand ?? ""} onChangeValue={setSelectedStrand} options={["STEM", "ABM", "HUMSS", "GAS", "AAD", "ICT", "HRCTO"]} />
-                        
-                        <Input id="section" label="Section" type="text" placeholder="Enter Section" onChange={(e) => setSelectedBySection(e.target.value)} name="section" value={selectedBySection ?? ""}/>
                         
                         <SelectionField id="month" label="Month" value={selectedMonth ?? ""} onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
                         
