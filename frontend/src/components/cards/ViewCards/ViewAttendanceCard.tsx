@@ -10,15 +10,16 @@ import { CancelButton } from "../../Button.tsx";
 type AttendanceCardProps = {
     event: Event;
     strand: string | null;
+    section: string | null;
     isOnArchive: boolean;
     onComplete: () => void;
     onClose: () => void;
 };
 
-export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete }: AttendanceCardProps) => {
+export const AttendanceCard = ({ event, strand, section, isOnArchive, onClose, onComplete }: AttendanceCardProps) => {
     const { useDisableScroll } = useScrollFunctions();
     useDisableScroll();
-    const { useViewAttendanceByEventId, useViewAttendanceByStrand } = useView();
+    const { useViewAttendanceByEventId } = useView();
     const [attendanceArray, setAttendanceArray] = useState<Attendance[]>([]);
     const [error, setError] = useState<string>("");
     const [showNotification, setShowNotification] = useState<boolean>(false);
@@ -39,15 +40,16 @@ export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete
         [...data].sort((a, b) => new Date(a.attendedAt).getTime() - new Date(b.attendedAt).getTime());
     
     useEffect(() => {
-        if (strand) {
-            useViewAttendanceByStrand(event.id, strand, setError).then((data) => {
-                setAttendanceArray(sortByAttendedAt(data));
-            });
-        } else {
-            useViewAttendanceByEventId(event.id, setError).then((data) => {
-                setAttendanceArray(sortByAttendedAt(data));
-            });
-        }
+        useViewAttendanceByEventId(event.id, setError).then((data) => {
+            if (strand) {
+                data = data.filter((attendance) => attendance.strand === strand);
+            }
+            if (section) {
+                data = data.filter((attendance) => attendance.section === section);
+            }
+            setAttendanceArray(sortByAttendedAt(data));
+        });
+        
     }, [event.id, strand, setError]);
     
     const onUpdatedAttendance = (updated: Attendance) => {
@@ -75,16 +77,17 @@ export const AttendanceCard = ({ event, strand, isOnArchive, onClose, onComplete
                     <button className="absolute top-3 right-3">
                         <CancelButton onClose={onClose} color="white" />
                     </button>
+                    
                     <h1 className="w-4/5 text-white text-lg font-bold overflow-hidden text-ellipsis whitespace-nowrap">
                         {event.eventName}
                     </h1>
+                    
                     <div className="w-full flex justify-between items-center">
                         {strand ? (<h4 className="text-white/90 text-sm">{strand}</h4>) : <p className="text-white/90 text-sm">No strand selected</p>}
+                        {section ? (<h4 className="text-white/90 text-sm">{section}</h4>) : <p className="text-white/90 text-sm">No section selected</p>}
                         <h4 className="text-white/90 text-sm">{formatDate(event.eventDate)}</h4>
                     </div>
-                    {error && (
-                        <p className="text-red-700 px-2 py-1 text-sm w-fit mt-1">{error}</p>
-                    )}
+                    {error && (<p className="text-red-700 px-2 py-1 text-sm w-fit mt-1">{error}</p>)}
                 </div>
                 
                 <div className="scrollable-card bg-gray-50 h-100 overflow-y-auto overscroll-contain">

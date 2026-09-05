@@ -136,11 +136,11 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     
     return (
         <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
-            <div className={`bg-${color} p-6 rounded-tl-lg shadow-md items-center flex justify-between max-w-md w-full h-20 relative`}>
+            <div className={`bg-${color} p-6 rounded-tl-lg shadow-md items-center flex justify-between max-w-lg w-full h-20 relative`}>
                 <h1 className="text-white text-2xl font-bold">{student.username}</h1>
                 <CancelButton onClose={onClose} color="white"/>
             </div>
-            <div ref={updateCardRef} id="update-user-card" className="scrollable-card bg-white rounded-bl-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-md w-full max-h-[80vh] overflow-y-auto overscroll-contain">
+            <div ref={updateCardRef} id="update-user-card" className="scrollable-card bg-white rounded-bl-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-lg w-full max-h-[80vh] overflow-y-auto overscroll-contain">
                 <p className="text-red-600 text-sm">{error}</p>
                 
                 <form className="flex flex-col gap-1">

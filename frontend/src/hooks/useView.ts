@@ -2,7 +2,7 @@ import { logout } from "../services/auth.ts";
 import { getAllEvents, getEventById, searchEvents, type Event } from "../services/events.ts";
 import { getProfilePictureById, getUserById, getUsersByRole, searchUsers, type User } from "../services/users.ts";
 import { ApiError } from "../services/error.ts";
-import { getAllAttendanceByStudentId, getAllEventAttendance, getAllArchivedEventAttendance, getAttendanceByEventId, getAttendanceByStrand, getEventAttendanceByStrand, checkAttendance } from "../services/attendance.ts";
+import { getAllAttendanceByStudentId, getAllEventWithAttendance, getAllArchivedEventWithAttendance, getAttendanceByEventId, getEventWithAttendanceByStrandAndSection, checkAttendance } from "../services/attendance.ts";
 import { type Attendance } from "../services/attendance.ts";
 
 export const useView = () => {
@@ -344,42 +344,9 @@ export const useView = () => {
         }
     }
     
-    const useViewAttendanceByStrand = async (eventId: string, strand: string, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Attendance[]> => {
-        try{
-            const data = await getAttendanceByStrand(eventId, strand);
-            return data.attendance as Attendance[];
-        }
-        catch (e) {
-            if (e instanceof ApiError) {
-                if (e.status === 400) {
-                    setError(e.message || "Invalid request.");
-                }
-                if (e.status === 401) {
-                    alert("Unauthorized. Please log in.");
-                    await logout("/admin-login");
-                }
-                if (e.status === 404) {
-                    return [];
-                }
-                if (e.status === 403) {
-                    setError(e.message || "Access denied. You do not have permission to perform this action.");
-                }
-                if (e.status >= 500) {
-                    alert("Server error. Please try again later.");
-                    setError("Server error. Please try again later.");
-                }
-                throw e;
-            }
-            alert("Something went wrong. Please try again later.");
-            setError("An error occurred while fetching attendance records. Please try again.");
-            console.error("Error fetching attendance records:", e);
-            throw e;
-        }
-    }
-    
-    const useViewEventAttendanceByStrand = async (strand: string,  archived: boolean, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event[]> => {
+    const useViewEventWithAttendanceByStrandAndSection = async (strand: string | null, section: string | null,  archived: boolean, setError: React.Dispatch<React.SetStateAction<string>>): Promise<Event[]> => {
         try {
-            const data = await getEventAttendanceByStrand(strand, archived);
+            const data = await getEventWithAttendanceByStrandAndSection(strand, section, archived);
             return data.events as Event[];
         }
         catch (e) {
@@ -412,7 +379,7 @@ export const useView = () => {
     
     const useViewAllEventsWithAttendanceRecords = async (setEventArray: (events: Event[]) => void, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
-            const data = await getAllEventAttendance();
+            const data = await getAllEventWithAttendance();
             setEventArray(data.events as Event[]);
         }
         catch (e) {
@@ -445,7 +412,7 @@ export const useView = () => {
     
     const useViewAllEventsWithArchivedAttendanceRecords = async (setEventArray: (events: Event[]) => void, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
-            const data = await getAllArchivedEventAttendance();
+            const data = await getAllArchivedEventWithAttendance();
             setEventArray(data.events as Event[]);
         }
         catch (e) {
@@ -476,5 +443,5 @@ export const useView = () => {
         }
     }
     
-    return { useViewUser, useViewProfilePicture, useViewAllUsers, useSearchUsers, useCheckAttendance, useViewAttendanceByStudentId, useViewAllEventsWithArchivedAttendanceRecords, useViewAllEvents, useViewEventById, useSearchEvents, useViewAttendanceByEventId, useViewEventAttendanceByStrand, useViewAttendanceByStrand, useViewAllEventsWithAttendanceRecords };
+    return { useViewUser, useViewProfilePicture, useViewAllUsers, useSearchUsers, useCheckAttendance, useViewAttendanceByStudentId, useViewAllEventsWithArchivedAttendanceRecords, useViewAllEvents, useViewEventById, useSearchEvents, useViewAttendanceByEventId, useViewEventWithAttendanceByStrandAndSection, useViewAllEventsWithAttendanceRecords };
 }

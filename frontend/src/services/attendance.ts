@@ -5,6 +5,8 @@ export interface Attendance {
     eventId: string;
     userId: string;
     isLate: boolean;
+    section: string | null;
+    strand: string | null;
     attendedAt: string;
     isArchived: boolean;
     isArchivedByStudent: boolean;
@@ -40,7 +42,7 @@ export const getAllAttendanceByStudentId = async (userId: string) => {
     return response.json();
 }
 
-export const getAllEventAttendance = async () => {
+export const getAllEventWithAttendance = async () => {
     const response = await apiFetch(`/attendance/allEvents`, {
         method: "GET",
         credentials: "include",
@@ -48,7 +50,7 @@ export const getAllEventAttendance = async () => {
     return response.json();
 }
 
-export const getAllArchivedEventAttendance = async () => {
+export const getAllArchivedEventWithAttendance = async () => {
     const response = await apiFetch(`/attendance/allArchivedEvents`, {
         method: "GET",
         credentials: "include",
@@ -64,21 +66,18 @@ export const getAttendanceByEventId = async (eventId: string) => {
     return response.json();
 }
 
-export const getEventAttendanceByStrand = async ( strand: string, archived: boolean) => {
-    const response = await apiFetch(`/attendance/strand/${strand}?archived=${archived}`, {
+export const getEventWithAttendanceByStrandAndSection = async ( strand: string | null, section: string | null, archived: boolean) => {
+    const params = new URLSearchParams();
+    if (strand) params.append("strand", strand);
+    if (section) params.append("section", section);
+    params.append("archived", String(archived));
+    
+    const response = await apiFetch(`/attendance/filter?${params.toString()}`, {
         method: "GET",
         credentials: "include",
     });
     return response.json();
 };
-
-export const getAttendanceByStrand= async (eventId: string, strand: string) => {
-    const response = await apiFetch(`/attendance/groupStrand/${strand}/eventId/${eventId}`, {
-        method: "GET",
-        credentials: "include",
-    });
-    return response.json();
-}
 
 export const updateAttendance = async (attendanceId: string, isLate: boolean) => {
     const response = await apiFetch(`/attendance/update/${attendanceId}`, {

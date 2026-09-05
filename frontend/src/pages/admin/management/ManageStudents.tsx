@@ -168,9 +168,9 @@ export const ManageStudents = () => {
     const loadAttendanceHistoryCard = (user: Partial<User>) => {
         setSelectedUser(user);
         setShowAttendanceHistoryCard(true);
+        setShowViewCard(true);
         setShowUpdateCard(false);
         setShowArchiveCard(false);
-        setShowViewCard(false);
         setShowNotification(false);
     }
     

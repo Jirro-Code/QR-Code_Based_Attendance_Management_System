@@ -7,6 +7,7 @@ import { AttendanceHistoryListCell } from "../../ListCells/AttendanceHistoryList
 import { CancelButton } from "../../Button.tsx";
 import { SelectionField } from "../../Input/SelectionField.tsx";
 import { Input } from "../../Input/Input.tsx";
+import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
 
 type AttendanceHistoryCardProps = {
     student: Partial<User>;
@@ -21,6 +22,8 @@ export const AttendanceHistoryCard = ({ student, onClose }: AttendanceHistoryCar
     const [day, setDay] = useState<string>("");
     const [year, setYear] = useState<string>("");
     const { useViewAttendanceByStudentId, useViewEventById } = useView();
+    const { useDisableScroll } = useScrollFunctions();
+    useDisableScroll();
     
     useEffect(() => {
         const fetchAttendanceHistory = async () => {
@@ -85,7 +88,7 @@ export const AttendanceHistoryCard = ({ student, onClose }: AttendanceHistoryCar
     const selectionClassName = "mt-1 bg-white block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-slate-400 focus:border-slate-400 text-gray-500";
     
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-10 backdrop-blur-[2px]">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-50 backdrop-blur-[2px]">
             <div className="w-full max-w-4xl rounded-md overflow-hidden shadow-xl relative">
                 <div className={`bg-${color} p-4`}>
                     <div className="flex justify-between items-center">
