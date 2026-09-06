@@ -192,8 +192,6 @@ export const RegisterStudent = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-1">
                             <Input label="Student Name" id="studentName" type="text" placeholder="Student Name" onChange={handleChange} name="username" value={studentData.username} error={error?.includes("name") ? error : undefined} />
                             <Input label="Email" id="studentEmail" type="email" placeholder="Email" onChange={handleChange} name="email" value={studentData.email} error={error?.includes("email") ? error : undefined} />
-                            <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={studentData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
-                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
                             <Input label="Student LRN" id="studentLRN" type="number" placeholder="Student LRN" onChange={handleChange} name="studentLRN" value={studentData.studentLRN} error={error?.includes("LRN") || error?.includes("studentLRN") ? error : undefined} />
                             <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleChange} name="studentId" value={studentData.studentId} error={error?.includes("studentId") || error?.includes("Student ID") ? error : undefined} />
                             <SelectionField label="Student Strand" id="studentStrand" value={studentData.studentStrand} onChange={handleChange} isRequired={true}
@@ -201,6 +199,8 @@ export const RegisterStudent = () => {
                                 options={["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]}
                             />
                             <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleChange} name="studentSection" value={studentData.studentSection} />
+                            <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={studentData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
                         </div>
                         
                         <button  type="submit" disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-4 w-full sm:w-auto sm:min-w-40 self-center sm:self-end" >
