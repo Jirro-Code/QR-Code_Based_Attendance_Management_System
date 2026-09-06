@@ -18,6 +18,7 @@ export type StudentRegisterPayload = {
 
 export type AdminRegisterPayload = {
     role: "admin";
+    profilePicture: File | null;
     username: string;
     email: string;
     password: string;

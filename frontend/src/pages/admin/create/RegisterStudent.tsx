@@ -10,6 +10,7 @@ import { X } from "lucide-react";
 
 export const RegisterStudent = () => {
     window.scrollTo({ top: 0, left: 0 });
+    const {useRegister} = useCreate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,7 +32,7 @@ export const RegisterStudent = () => {
         studentStrand: "",
         studentSection: ""
     });
-    const {useRegister} = useCreate();
+    
     const fileInputRef = useRef<HTMLInputElement>(null);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -144,10 +145,7 @@ export const RegisterStudent = () => {
                     <form className="flex flex-col gap-1" onSubmit={handleSubmit}>
                         
                         <div className="flex flex-col mb-4">
-                            <label
-                                className="block text-sm font-medium text-gray-700"
-                                htmlFor="profilePicture"
-                            >
+                            <label className="block text-sm font-medium text-gray-700" htmlFor="profilePicture">
                                 Profile Picture:
                             </label>
                             
@@ -205,19 +203,14 @@ export const RegisterStudent = () => {
                             <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleChange} name="studentSection" value={studentData.studentSection} />
                         </div>
                         
-                        <button 
-                            type="submit" 
-                            disabled={isSubmitting} 
-                            className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-4 w-full sm:w-auto sm:min-w-40 self-center sm:self-end"
-                        >
+                        <button  type="submit" disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-4 w-full sm:w-auto sm:min-w-40 self-center sm:self-end" >
                             {isSubmitting ? 'Registering...' : 'Register Student'}
                         </button>
                     </form>
                 </div>
-                
-                {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
-                {pendingFile && <ImageCropModal file={pendingFile} onConfirm={handleCropConfirm} onClose={() => setPendingFile(null)} />}
             </div>
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
+            {pendingFile && <ImageCropModal file={pendingFile} onConfirm={handleCropConfirm} onClose={() => setPendingFile(null)} />}
         </>
     );
 }
