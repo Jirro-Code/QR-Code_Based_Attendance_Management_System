@@ -195,7 +195,7 @@ export const ManageStudents = () => {
                 </div>
                 
                 
-                <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-300 bg-gray-400 px-5 py-3 text-sm font-semibold text-white">
+                <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
                     <div>#</div>
                     <div>Name</div>
                     <div>Strand</div>

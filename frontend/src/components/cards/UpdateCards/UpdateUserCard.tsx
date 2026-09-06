@@ -27,13 +27,13 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     const hasContent = Object.values(formData).some((value) => String(value ?? "").trim() !== "") || confirmPassword.trim() !== "";
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+    
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
         if (e.target.name === "confirmPassword") {
             setConfirmPassword(e.target.value);
         }
     }
-    
     
     const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0] ?? null;
@@ -121,7 +121,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                 message: "Data updated successfully!"
             });
             setShowNotification(true);
-        } 
+        }
         catch (error) {
             useScrollToTopOverflow(updateCardRef);
             console.error("Error updating data:", error);
@@ -135,76 +135,77 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     const color = student.isArchived ? "gray-500" : "blue-800";
     
     return (
-        <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
-            <div className={`bg-${color} p-6 rounded-tl-lg shadow-md items-center flex justify-between max-w-lg w-full h-20 relative`}>
-                <h1 className="text-white text-2xl font-bold">{student.username}</h1>
-                <CancelButton onClose={onClose} color="white"/>
-            </div>
-            <div ref={updateCardRef} id="update-user-card" className="scrollable-card bg-white rounded-bl-lg shadow-lg p-6 relative flex flex-col gap-3 max-w-lg w-full max-h-[80vh] overflow-y-auto overscroll-contain">
-                <p className="text-red-600 text-sm">{error}</p>
+        <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-3 sm:p-4">
+            <div className="w-full max-w-250 h-160 sm:h-140 lg:h-125 max-h-[90vh] flex flex-col rounded-lg shadow-lg overflow-hidden">
                 
-                <form className="flex flex-col gap-1">
+                <div className={`bg-${color} px-4 py-5 sm:px-6 flex items-center justify-between gap-3 shrink-0`}>
+                    <h1 className="text-white text-xl font-bold wrap-break-words">{student.username}</h1>
+                    <CancelButton onClose={onClose} color="white"/>
+                </div>
+                
+                <div ref={updateCardRef} id="update-user-card" className="scrollable-card bg-white px-4 py-4 sm:px-6 sm:py-5 flex-1 overflow-y-auto overscroll-contain">
+                    {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
                     
-                    <div className="flex flex-col mb-4">
-                        <label
-                            className="block text-sm font-medium text-gray-700"
-                            htmlFor="profilePicture"
-                        >
-                            Profile Picture:
-                        </label>
-                        
-                        {previewUrl ? (
-                            <div className="mt-2 flex items-center gap-5">
-                                <img src={previewUrl} alt="Selected profile" className="w-20 h-20 rounded-md object-cover ring-1 ring-gray-200" />
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-sm text-gray-700 truncate max-w-45">{formData.profilePicture?.name}</span>
-                                    <div className="flex gap-3">
-                                        <label htmlFor="profilePicture" className="text-xs flex gap-1 items-center text-blue-800 hover:underline cursor-pointer">
-                                            <ArrowLeftRight size={12} /> Change
-                                        </label>
-                                        <button type="button" onClick={handleRemovePicture} className="text-xs text-red-600 hover:underline flex items-center gap-0.5">
-                                            <X size={12} /> Remove
-                                        </button>
+                    <form className="flex flex-col gap-3">
+                        <div className="flex flex-col mb-2 sm:col-span-2 lg:col-span-1">
+                            <label className="block text-sm font-medium text-gray-700" htmlFor="profilePicture">
+                                Profile Picture:
+                            </label>
+                            
+                            {previewUrl ? (
+                                <div className="mt-2 flex items-center gap-4 sm:gap-5">
+                                    <img src={previewUrl} alt="Selected profile" className="w-16 h-16 sm:w-20 sm:h-20 rounded-md object-cover ring-1 ring-gray-200 shrink-0" />
+                                    <div className="flex flex-col gap-1 min-w-0">
+                                        <span className="text-sm text-gray-700 truncate">{formData.profilePicture?.name}</span>
+                                        <div className="flex gap-3">
+                                            <label htmlFor="profilePicture" className="text-xs flex gap-1 items-center text-blue-800 hover:underline cursor-pointer">
+                                                <ArrowLeftRight size={12} /> Change
+                                            </label>
+                                            <button type="button" onClick={handleRemovePicture} className="text-xs text-red-600 hover:underline flex items-center gap-0.5">
+                                                <X size={12} /> Remove
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ) : (
-                            <input className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} required/>
-                        )}
-                        
-                        {previewUrl && (
-                            <input className="hidden" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} required />
-                        )}
-                    </div>
-                    
-                    <Input label="Student Name" id="studentName" type="text" placeholder="John Doe" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} error={error?.includes("name") ? error : undefined} />
-                    <Input label="Email" id="studentEmail" type="email" placeholder="example09@gmail.com" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} error={error?.includes("email") ? error : undefined} />
-                    <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
-                    <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} error={error?.includes("Password") || error?.includes("Passwords") ? error : undefined} />
-                    <Input label="Student LRN" id="studentLRN" type="number" placeholder="XXXXXXXXXXXX" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} error={error?.includes("LRN") || error?.includes("studentLRN") ? error : undefined} />
-                    <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} error={error?.includes("ID") || error?.includes("studentId") ? error : undefined} />
-                    <SelectionField label="Student Strand" id="studentStrand" value={formData.studentStrand ?? ""} onChange={handleFormChange} isRequired={false} 
-                        placeholder="Select strand"
-                        options={[
-                            "ICT",
-                            "HRCTO",
-                            "GAS",
-                            "HUMSS",
-                            "ABM",
-                            "STEM",
-                            "AAD"
-                        ]}
-                    />
-                    <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
-                    <div className="flex justify-between items-center">
-                        <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded mt-2">
-                            Cancel
-                        </button>
-                        <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 w-33 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 w-33 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent || isSubmitting}>
-                            {isSubmitting ? "Saving..." : "Save Changes"}
-                        </button>
-                    </div>
-                </form>
+                            ) : (
+                                <input className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} required/>
+                            )}
+                            
+                            {previewUrl && ( <input className="hidden" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} required />)}
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
+                            
+                            <Input label="Student Name" id="studentName" type="text" placeholder="John Doe" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} error={error?.includes("name") ? error : undefined} />
+                            <Input label="Email" id="studentEmail" type="email" placeholder="example09@gmail.com" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} error={error?.includes("email") ? error : undefined} />
+                            <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} error={error?.includes("Password") || error?.includes("Passwords") ? error : undefined} />
+                            <Input label="Student LRN" id="studentLRN" type="number" placeholder="XXXXXXXXXXXX" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} error={error?.includes("LRN") || error?.includes("studentLRN") ? error : undefined} />
+                            <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} error={error?.includes("ID") || error?.includes("studentId") ? error : undefined} />
+                            <SelectionField label="Student Strand" id="studentStrand" value={formData.studentStrand ?? ""} onChange={handleFormChange} isRequired={false}
+                                placeholder="Select strand"
+                                options={[
+                                    "ICT",
+                                    "HRCTO",
+                                    "GAS",
+                                    "HUMSS",
+                                    "ABM",
+                                    "STEM",
+                                    "AAD"
+                                ]}
+                            />
+                            <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
+                        </div>
+                    </form>
+                </div>
+                
+                <div className="bg-white border-t border-gray-200 px-4 py-3 sm:px-6 sm:py-4 shrink-0 flex flex-row justify-between items-center gap-2 sm:gap-3">
+                    <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded">
+                        Cancel
+                    </button>
+                    <button type="button" onClick={() => handleUpdate(formData)} className={`w-33 text-white py-1.5 px-4 rounded ${hasContent ? "bg-blue-800 hover:bg-blue-900" : "bg-gray-500"}`} disabled={!hasContent || isSubmitting}>
+                        {isSubmitting ? "Saving..." : "Save Changes"}
+                    </button>
+                </div>
             </div>
             {pendingFile && <ImageCropModal file={pendingFile} onConfirm={handleCropConfirm} onClose={() => setPendingFile(null)}/>}
         </div>

@@ -7,6 +7,7 @@ import icp from "../../assets/icp.png";
 export const StudentLoginPage = () => {
     const [form, setForm] = useState({studentId: "", password: ""});
     const [error, setError] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
     const { useLoginUser } = useLogin("/student-dashboard", setError);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -15,16 +16,26 @@ export const StudentLoginPage = () => {
     
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if(/^\d{4}-\d{4}-ICP$/.test(form.studentId) === false) {
-            setError("Invalid Student ID format.");
-            return;
-        }
-        if(form.password.length < 6){
-            setError("Password must be at least 6 characters long.");
-            return;
+        setIsLoading(true);
+        try {
+            if(/^\d{4}-\d{4}-ICP$/.test(form.studentId) === false) {
+                setError("Invalid Student ID format.");
+                return;
+            }
+            if(form.password.length < 6){
+                setError("Password must be at least 6 characters long.");
+                return;
+            }
+            await useLoginUser({role: "user", studentId: form.studentId, password: form.password});
+        } 
+        catch (error) {
+            console.error("Error logging in:", error);
+            setError("An error occurred during login. Please try again.");
+        } 
+        finally {
+            setIsLoading(false);
         }
         
-        await useLoginUser({role: "user", studentId: form.studentId, password: form.password});
     }
     
     
@@ -55,7 +66,7 @@ export const StudentLoginPage = () => {
                             <Input label="Password" id="password" type="password" placeholder="Password" onChange={handleChange} name="password" value={form.password} error={error?.includes("Credentials") || error?.includes("Password") || error?.includes("archived") ? error : undefined} />
                             {error && (<span className="absolute w-[110%] -bottom-8 left-0 flex items-center gap-1 text-red-600 text-[10px]"><CircleAlert size={12} /><u>{error}</u></span>)}
                         </div>
-                        <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors">Log In</button>
+                        <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={isLoading}> {isLoading ? "Logging in..." : "Log In"}</button>
                     </form>
                 </div>
             </div>

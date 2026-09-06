@@ -156,7 +156,7 @@ export const ManageAttendances = () => {
         <>
             <Header title="Manage Attendances" />
             <div className="min-h-screen bg-slate-100">
-                <div className="max-w-5xl mx-auto p-6">
+                <div className="max-w-full mx-auto p-6">
                     <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)}/>
                     <p className="text-red-600 text-sm">{error}</p>
                     
@@ -171,10 +171,10 @@ export const ManageAttendances = () => {
                         </div>
                     }
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                         {eventArray.length > 0 ? (
                             eventArray.map((event: Event) => (
-                                <EventAttendanceCard color={"blue-800"} key={event.id} event={event} onView={() => loadViewCard(event)}  />
+                                <EventAttendanceCard isArchived={false} key={event.id} event={event} onView={() => loadViewCard(event)}  />
                             ))
                         ) : (
                             <p>No events found.</p>

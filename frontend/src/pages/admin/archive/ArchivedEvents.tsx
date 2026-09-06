@@ -185,7 +185,7 @@ export const ArchivedEvents = () => {
         <>
             <Header title="Archived Events" path="/manage-events" />
             <div className="min-h-screen bg-slate-100">
-                <div className="max-w-5xl mx-auto p-6">
+                <div className="max-w-full mx-auto p-6">
                     <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
                     <p className="text-red-600 text-sm">{error}</p>
                     
@@ -197,7 +197,7 @@ export const ArchivedEvents = () => {
                         </div>
                     }
                     
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 mt-4">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                         {eventArray.filter((event) => event.isArchived === true).length > 0 ? (
                             eventArray.filter((event) => event.isArchived === true).map((event: Event) => (
                                 <EventCard key={event.id} event={event} isOnArchivedPage={true} onRestore={() => loadUnarchiveCard(event)} onLoadView={() => loadViewCard(event)} />

@@ -31,7 +31,7 @@ export const AdminDashboard = () => {
         <Navbar dashPath="/admin-dashboard" profilePath="/admin/profile" />
         
         <div className="min-h-screen bg-slate-100 px-6 py-10">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-full">
                 <div className="h-2"></div>
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Admin Dashboard</h1>

@@ -2,11 +2,11 @@ import { type Event } from "../../services/events.ts";
 
 type EventAttendanceCardProps = {
     event: Event;
-    color: string;
+    isArchived: boolean;
     onView: (event: Event) => void;
 };
 
-export const EventAttendanceCard = ({ event, color, onView }: EventAttendanceCardProps) => {
+export const EventAttendanceCard = ({ event, isArchived, onView }: EventAttendanceCardProps) => {
     
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString("en-US", {
@@ -16,23 +16,20 @@ export const EventAttendanceCard = ({ event, color, onView }: EventAttendanceCar
         });
     };
     
+    
     return(
         <div onClick={() => onView(event)} className="group relative w-full pt-3 cursor-pointer transition duration-200">
             
-            <div className={`absolute left-0 top-0 h-5 w-25 rounded-t-md bg-${color} transition-colors duration-200 group-hover:bg-${color.replace('500', '800')}`}
-                style={{ clipPath: "polygon(0 0, 81% 0, 100% 100%, 0 100%)" }}
-            />
-            <div className={`absolute z-2 left-0 top-3 h-3 w-23 rounded-tl-sm bg-${color} transition-colors duration-200 group-hover:bg-${color.replace('500', '800')}`} 
-                style={{ clipPath: "polygon(10% 0, 100% 0, 100% 100%, 0 100%)" }}
-            />
+            <div className={`absolute left-0 z-2 -top-1 h-8 w-23 ${isArchived ? 'bg-gray-600' : 'bg-blue-900'} transition-colors duration-200 ${isArchived ? 'group-hover:bg-gray-700' : 'group-hover:bg-blue-950'}`}
+                style={{ clipPath: ` polygon( 0 0, 81% 0, 100% 50%, 81% 100%, 0 100% )`,}}/>
             
-            <div className="relative w-[95%] overflow-hidden rounded-md rounded-tl-none bg-white shadow-sm transition duration-200 group-hover:shadow-xl">
+            <div className="relative max-w-62 overflow-hidden rounded-md rounded-tl-none bg-white shadow-sm transition duration-200 group-hover:shadow-xl">
                 
-                <div className={`flex min-h-12 items-center bg-${color} p-3 transition-colors duration-200 group-hover:bg-${color.replace('500', '800')}`}>
+                <div className={`flex min-h-15 items-center ${isArchived ? 'bg-gray-500' : 'bg-blue-800'} p-3 transition-colors duration-200 ${isArchived ? 'group-hover:bg-gray-600' : 'group-hover:bg-blue-900'}`}>
                     <h3 className="text-[16px] font-bold mt-1 text-white overflow-hidden text-ellipsis whitespace-nowrap">{event.eventName}</h3>
                 </div>
                 
-                <div className="flex items-center gap-1 p-3 mb-5">
+                <div className="flex items-center gap-1 p-3 mb-6">
                     <p className="text-sm text-gray-600">{formatDate(event.eventDate)}</p>
                 </div>
             </div>

@@ -18,6 +18,7 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [isLate, setIsLate] = useState<boolean>(false);
     const [student, setStudent] = useState<Partial<User>>();
+    const [ loading, setLoading ] = useState<boolean>(false);
     
     useEffect(() => {
         const fetchStudentData = async () => {
@@ -67,34 +68,46 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
     }, [studentUuid, eventId, setError]);
     
     const handleMarkPresent = async () => {
-        if (!studentUuid || !eventId) return;
-        const result = await useMarkAttendance( { uuid: studentUuid, eventId, isLate, setError } );
-        
-        if (result.result?.includes("invalid_data")) {
-            const errorMessage = result.result.split("|")[1] || "Invalid attendance data.";
-            setNotificationMessage({ title: "Error", message: errorMessage });
+        setLoading(true);
+        try {
+            if (!studentUuid || !eventId) return;
+            const result = await useMarkAttendance( { uuid: studentUuid, eventId, isLate, setError } );
+            
+            if (result.result?.includes("invalid_data")) {
+                const errorMessage = result.result.split("|")[1] || "Invalid attendance data.";
+                setNotificationMessage({ title: "Error", message: errorMessage });
+                setShowNotification(true);
+                onClose();
+                return;
+            }
+            if (result.result?.includes("not_found")) {
+                const errorMessage = result.result.split("|")[1] || "Event or student not found.";
+                setNotificationMessage({ title: "Error", message: errorMessage });
+                setShowNotification(true);
+                onClose();
+                return;
+            }        
+            if (result.result === "already_marked") {
+                setNotificationMessage({ title: "Attendance Already Marked", message: "This student has already been marked present for this event." });
+                setShowNotification(true);
+                onClose();
+                return;
+            }        
+            if (result) {
+                setNotificationMessage({ title: "Attendance Marked", message: "The student has been successfully marked present for this event." });
+                setShowNotification(true);
+                onClose();
+                return;
+            }
+        } 
+        catch (error) {
+            setNotificationMessage({ title: "Error", message: `${error instanceof Error ? error.message : "An unknown error occurred"}` });
             setShowNotification(true);
             onClose();
             return;
         }
-        if (result.result?.includes("not_found")) {
-            const errorMessage = result.result.split("|")[1] || "Event or student not found.";
-            setNotificationMessage({ title: "Error", message: errorMessage });
-            setShowNotification(true);
-            onClose();
-            return;
-        }        
-        if (result.result === "already_marked") {
-            setNotificationMessage({ title: "Attendance Already Marked", message: "This student has already been marked present for this event." });
-            setShowNotification(true);
-            onClose();
-            return;
-        }        
-        if (result) {
-            setNotificationMessage({ title: "Attendance Marked", message: "The student has been successfully marked present for this event." });
-            setShowNotification(true);
-            onClose();
-            return;
+        finally {
+            setLoading(false);
         }
     };
     return (
@@ -151,8 +164,8 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
                             <button onClick={onClose} className="w-full text-gray-500 py-2 border border-gray-500 hover:bg-gray-50 rounded-xl font-medium text-sm transition-colors" >
                                 Cancel
                             </button>
-                            <button onClick={handleMarkPresent} className="w-full border border-blue-800 text-white bg-blue-800 py-2.5 rounded-xl font-medium text-sm hover:border-blue-900 hover:text-blue-900 transition-colors">
-                                Mark as {isLate ? 'Late' : 'Present'}
+                            <button onClick={handleMarkPresent} className="w-full border border-blue-800 text-white bg-blue-800 py-2.5 rounded-xl font-medium text-sm hover:border-blue-900 hover:bg-blue-900 transition-colors" disabled={loading}>
+                                {loading ? 'Processing...' : `Mark as ${isLate ? 'Late' : 'Present'}`}
                             </button>
                             
                         </div>

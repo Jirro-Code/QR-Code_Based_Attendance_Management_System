@@ -65,7 +65,9 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                         
                         setScannedStudent(uuid.trim());
                         
+                        setShowNotification(false);
                         setShowIsDetected(true);
+                        
                     },
                     () => {
                         // SPAM AREA
@@ -111,7 +113,7 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
             {error && <p className="text-red-700">{error}</p>}
             <button onClick={() => setOrderedCameras((prev) => [...prev.slice(1), prev[0]])} disabled={orderedCameras.length <= 1}> Flip Camera </button>
             <button onClick={onClose}> Cancel </button>
-            {showIsDetected && <ScannedStudentCard studentUuid={scannedStudent || ""} setNotificationMessage={setNotificationMessage} setShowNotification={setShowNotification} eventId={eventId} setError={setError} onClose={onCloseScannedStudentCard}/>}
+            {showIsDetected && <ScannedStudentCard studentUuid={scannedStudent || ""} setNotificationMessage={setNotificationMessage} setShowNotification={setShowNotification} eventId={eventId} setError={setError} onClose={onCloseScannedStudentCard}/> }
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </>
     );

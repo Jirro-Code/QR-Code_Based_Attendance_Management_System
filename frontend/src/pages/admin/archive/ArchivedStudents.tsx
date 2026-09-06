@@ -10,6 +10,7 @@ import { ViewStudentCard } from "../../../components/Cards/ViewCards/ViewStudent
 import { Header } from "../../../components/Header.tsx";
 import { StudentFilterOptions } from "../../../components/Filters/StudentFilter.tsx";
 import { Ellipsis } from "lucide-react";
+import { AttendanceHistoryCard } from "../../../components/Cards/ViewCards/ViewAttendanceHistoryCard.tsx";
 
 export const ArchivedStudents = () => {
     useEffect(() => {
@@ -26,6 +27,7 @@ export const ArchivedStudents = () => {
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [showViewCard, setShowViewCard] = useState<boolean>(false);
     const [showFilter, setShowFilter] = useState<boolean>(false);
+    const [showAttendanceHistoryCard, setShowAttendanceHistoryCard] = useState<boolean>(false);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
         title: "",
         message: ""
@@ -155,6 +157,15 @@ export const ArchivedStudents = () => {
         await applyAllFilters(selectedOrder, selectedStrand, selectedBySection, isOnSearch ? searchQuery : "");
     }
     
+    const loadAttendanceHistoryCard = (user: Partial<User>) => {
+        setSelectedUser(user);
+        setShowAttendanceHistoryCard(true);
+        setShowViewCard(true);
+        setShowUpdateCard(false);
+        setShowUnarchiveCard(false);
+        setShowNotification(false);
+    }
+    
     return (
         <>
             <Header title={ "Archived Students"} path="/manage-students" />
@@ -173,7 +184,7 @@ export const ArchivedStudents = () => {
                 </div>
                 
                 
-                <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-300 bg-gray-400 px-5 py-3 text-sm font-semibold text-white">
+                <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
                     <div>#</div>
                     <div>Name</div>
                     <div>Strand</div>
@@ -200,7 +211,8 @@ export const ArchivedStudents = () => {
                 {showFilter && (<StudentFilterOptions onApplyFilters={handleApplyFilters} onClose={() => setShowFilter(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} selectedStrand={selectedStrand} setSelectedStrand={setSelectedStrand} selectedBySection={selectedBySection} setSelectedBySection={setSelectedBySection} /> )}
                 {showUpdateCard && selectedUser && <UpdateUserCard student={selectedUser} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
                 {showUnarchiveCard && selectedUser && <UnarchiveUserCard userId={selectedUser.id!} username={selectedUser.username!} onRestored={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUnarchiveCard(false)}  />}
-                {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
+                {showAttendanceHistoryCard && selectedUser && <AttendanceHistoryCard student={selectedUser} onClose={() => setShowAttendanceHistoryCard(false)} />}
+                {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onLoadHistory={() => loadAttendanceHistoryCard(selectedUser)} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
                 {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
             </div>
         </>

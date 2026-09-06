@@ -38,12 +38,12 @@ export const EventCard = ({ event, onArchive, onRestore, onLoadView, isOnArchive
                     View
                 </button>
                 {isOnArchivedPage ? 
-                    <button onClick={onRestore} className="flex items-center justify-center bg-gray-50 hover:bg-gray-100 text-gray-700 py-2 px-3 rounded-lg transition-colors" >
+                    <button onClick={onRestore} className="flex items-center justify-center hover:bg-green-50 text-green-800 py-2 px-3 rounded-lg transition-colors" >
                         <ArchiveRestore className="w-4 h-4" />
                     </button>
                     : 
                     (
-                        <button onClick={onArchive} className="flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-700 py-2 px-3 rounded-lg transition-colors">
+                        <button onClick={onArchive} className="flex items-center justify-center hover:bg-red-50 text-red-700 py-2 px-3 rounded-lg transition-colors">
                             <Archive className="w-4 h-4" />
                         </button>
                     )
