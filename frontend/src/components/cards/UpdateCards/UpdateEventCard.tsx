@@ -51,6 +51,7 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
     
     const color = event.isArchived ? "gray-500" : "blue-800";
     
+    const descriptionClassName = "mt-1 flex-1 w-full h-100 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-slate-400 focus:border-slate-400";
     
     return (
         <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
@@ -61,13 +62,23 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
             <div className="bg-white max-w-200 w-full rounded-b-lg shadow-lg p-6 relative flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
                 <p className="text-red-600 text-sm">{error}</p>
                 
-                <form className="flex flex-col gap-1">
-                    <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={formData.eventName} onChange={handleFormChange} />
-                    <Input label="Event Description" type="textarea" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={formData.eventDescription} onChange={handleFormChange} isRequired={false} />
-                    { !isDisabled && (
-                        <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate} onChange={handleFormChange} />
-                    )}
-                    <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={formData.eventLocation} onChange={handleFormChange} />
+                <form className="flex flex-col gap-3 sm:gap-6">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
+                        
+                        <div className="flex flex-col gap-3 sm:w-1/2">
+                            <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={formData.eventName} onChange={handleFormChange} />
+                            <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={formData.eventLocation} onChange={handleFormChange} />
+                            
+                            { !isDisabled && (
+                                <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate} onChange={handleFormChange} />
+                            )}
+                        </div>
+                        
+                        <div className="flex flex-col sm:w-1/2 [&>div]:flex-1 [&>div]:flex [&>div]:flex-col [&>div]:mb-0">
+                            <Input label="Event Description" type="textarea" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={formData.eventDescription} onChange={handleFormChange} isRequired={false} className={descriptionClassName} />
+                        </div>
+                    </div>
+                    
                     <div className="flex justify-between items-center">
                         <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded mt-2">
                             Cancel
