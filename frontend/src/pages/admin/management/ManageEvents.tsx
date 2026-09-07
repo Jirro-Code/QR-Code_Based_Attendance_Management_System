@@ -9,7 +9,8 @@ import { ArchiveEventCard } from "../../../components/Cards/ArchiveCards/Archive
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 import { ViewEventCard } from "../../../components/Cards/ViewCards/ViewEventCard.tsx";
 import { EventFilterOptions } from "../../../components/Filters/EventFilter.tsx";
-import { Ellipsis, Archive } from "lucide-react";
+import { Calendar } from "../../../components/Calendar.tsx";
+import { Ellipsis, Archive, CalendarDays } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const ManageEvents = () => {
@@ -30,6 +31,7 @@ export const ManageEvents = () => {
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [showViewCard, setShowViewCard] = useState<boolean>(false);
     const [showFilter, setShowFilter] = useState<boolean>(false);
+    const [showCalendar, setShowCalendar] = useState<boolean>(false);
     const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
@@ -188,18 +190,26 @@ export const ManageEvents = () => {
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-full mx-auto p-6">
                     <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
+                    {showCalendar && <Calendar isAdmin={true} onClose={() => setShowCalendar(false)} />}
                     <p className="text-red-600 text-sm">{error}</p>
                     
-                    {!isOnSearch &&
-                        <div className="mt-3 mb-3 flex items-center justify-between">
+                    
+                    <div className="mt-3 mb-3 flex items-center justify-between">
+                        <div className="flex justify-center items-center gap-2">
                             <button onClick={() => navigate("/archived-events")}>
                                 <Archive className="w-5 h-5" />
                             </button>
+                            <button onClick={() => setShowCalendar(true)}>
+                                <CalendarDays className="w-5 h-5" />
+                            </button>
+                        </div>
+                        {!isOnSearch &&
                             <button onClick={() => setShowFilter(true)}>
                                 <Ellipsis className="w-5 h-5" />
                             </button>
-                        </div>
-                    }
+                        }
+                    </div>
+                    
                     
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                         {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
