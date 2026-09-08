@@ -30,14 +30,13 @@ export const StudentLoginPage = () => {
         } 
         catch (error) {
             console.error("Error logging in:", error);
-            setError("An error occurred during login. Please try again.");
+            setError(error instanceof Error ? error.message : "An unexpected error occurred.");
         } 
         finally {
             setIsLoading(false);
         }
         
     }
-    
     
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-100">

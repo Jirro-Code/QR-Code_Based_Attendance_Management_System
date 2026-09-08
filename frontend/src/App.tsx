@@ -2,7 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import { AdminLoginPage } from "./pages/admin/AdminLogin.tsx";
 import { StudentLoginPage } from "./pages/student/StudentLogin.tsx";
 import { AdminDashboard } from "./pages/admin/AdminDashboard.tsx";
-import { StudentDashboard } from "./pages/student/Dashboard.tsx";
+import { StudentDashboard } from "./pages/student/StudentDashboard.tsx";
 import { RegisterStudent } from "./pages/admin/create/RegisterStudent.tsx";
 import { RegisterAdmin } from "./pages/admin/create/RegisterAdmin.tsx";
 import { ManageStudents } from "./pages/admin/management/ManageStudents.tsx";

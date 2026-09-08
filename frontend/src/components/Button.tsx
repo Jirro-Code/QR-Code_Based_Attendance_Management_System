@@ -1,5 +1,5 @@
 import {useNavigate } from "react-router-dom";
-import { ArrowLeftToLine, X } from "lucide-react";
+import { ArrowLeft, X } from "lucide-react";
 
 type BackButtonProps = {
     path: string;
@@ -14,7 +14,7 @@ export const BackButton = ({ path }: BackButtonProps) => {
     const navigate = useNavigate();
     return (
         <button className="bg-none text-blue-800 mr-2" onClick={() => { navigate(path); }}>
-            <ArrowLeftToLine size={20} />
+            <ArrowLeft size={20} />
         </button>
     ); 
 }

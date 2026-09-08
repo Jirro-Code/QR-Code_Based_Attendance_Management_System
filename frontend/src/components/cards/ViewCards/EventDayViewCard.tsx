@@ -19,7 +19,7 @@ export const EventDayViewCard = ({ setSelectedDay, isArchived, monthNames, curre
     
     return (
         <div onClick={() => setSelectedDay(null)} className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-lg w-full max-w-sm max-h-[80vh] flex flex-col">
+            <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-lg w-full max-w-200 max-h-[80vh] flex flex-col">
                 
                 <div className={`flex items-center ${isArchived ? "bg-gray-500" : "bg-blue-800"} rounded-t-lg justify-between p-4 border-b border-slate-200`}>
                     <h3 className="font-semibold text-base text-white">
