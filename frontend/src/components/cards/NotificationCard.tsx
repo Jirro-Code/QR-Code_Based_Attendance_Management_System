@@ -14,7 +14,7 @@ export const NotificationCard = ({ title, message, onClose }: NotificationProps)
                 <h3 className="font-semibold text-gray-800">{title}</h3>
                 <CancelButton onClose={onClose} color="gray-800" />
             </div>
-            <p className="text-gray-600 text-sm">{message}</p>
+            <p className="text-gray-600 text-sm truncate">{message}</p>
         </div>
     );
 }

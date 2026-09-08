@@ -135,8 +135,8 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     const color = student.isArchived ? "gray-500" : "blue-800";
     
     return (
-        <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-3 sm:p-4">
-            <div className="w-full max-w-250 h-160 sm:h-140 lg:h-125 max-h-[90vh] flex flex-col rounded-lg shadow-lg overflow-hidden">
+        <div onClick={onClose} className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-3 sm:p-4">
+            <div onClick={(e) => e.stopPropagation()} className="w-full max-w-250 h-160 sm:h-140 lg:h-125 max-h-[90vh] flex flex-col rounded-lg shadow-lg overflow-hidden">
                 
                 <div className={`bg-${color} px-4 py-5 sm:px-6 flex items-center justify-between gap-3 shrink-0`}>
                     <h1 className="text-white text-xl font-bold wrap-break-words">{student.username}</h1>

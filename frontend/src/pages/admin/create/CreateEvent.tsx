@@ -44,20 +44,27 @@ export const CreateEvent = () => {
                 return;
             }
             await useCreateEvent({form: eventData, setError, setShowNotification, setNotificationMessage});
-        } finally {
-            setIsSubmitting(false);
+        } 
+        catch (error) {
+            console.error("Error creating event:", error);
+            setNotificationMessage({
+                title: "Event Creation Failed",
+                message: "Failed to create event.",
+            });
+            setShowNotification(true);
         }
-    }
-    
-    const reloadPage = () => {
-        setEventData({
-            eventName: "",
-            eventDescription: "",
-            eventDate: "",
-            eventLocation: "",
-        });
-        setError("");
-        setShowNotification(false);
+        finally {
+            setIsSubmitting(false);
+            if (notificationMessage.title === "Event Created Successfully") {
+                setEventData({
+                    eventName: "",
+                    eventDescription: "",
+                    eventDate: "",
+                    eventLocation: "",
+                });
+                setError("");
+            }
+        }
     }
     
     const descriptionClassName = "mt-1 flex-1 w-full h-100 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-slate-400 focus:border-slate-400";
@@ -90,7 +97,7 @@ export const CreateEvent = () => {
                     </form>
                 </div>
             </div>
-            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={reloadPage} />}
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </>
     )
 }

@@ -41,8 +41,8 @@ export const ArchiveAttendanceCard = ({ attendanceId, username, onArchived, setS
     };
     
     return (
-        <div className="not-scrollable-card fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-lg p-5 flex flex-col gap-3 max-w-xs w-full">
+        <div onClick={onClose} className="not-scrollable-card fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+            <div onClick={(e) => e.stopPropagation()} className="bg-white rounded-lg shadow-lg p-5 flex flex-col gap-3 max-w-xs w-full">
                 <h1 className="text-red-800 text-base font-bold flex gap-1"><TriangleAlert/> Archive Attendance</h1>
                 
                 <p className="text-red-600 text-sm">{error}</p>

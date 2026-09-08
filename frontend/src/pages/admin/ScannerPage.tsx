@@ -18,21 +18,21 @@ export const ScannerPage = () => {
     const [eventId, setEventId] = useState<string | null>(null);
     const [showScanner, setShowScanner] = useState<boolean>(false);
     const [cameras, setCameras] = useState<CameraDevice[]>([]);
-
+    
     useEffect(() => {
         useViewAllEvents(setEvents, setError);
     }, []);
-
+    
     const availableEvents = events.filter((event) => {
         const localDateToday = Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Manila", year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
         return event.eventDate === localDateToday;
     });
-
+    
     const handleStartScanner = async () => {
         try {
             setError("");
             const devices = await Html5Qrcode.getCameras();
-
+            
             if (devices.length === 0) {
                 setError("No camera was found.");
                 return;
@@ -45,9 +45,9 @@ export const ScannerPage = () => {
             setError("Unable to access the camera. Please allow camera permission.");
         }
     };
-
+    
     const selectedEvent = events.find((event) => event.id === eventId);
-
+    
     if (!eventId) {
         return (
             <>
@@ -59,23 +59,20 @@ export const ScannerPage = () => {
                                 <h2 className="text-lg font-semibold text-gray-800">Select Event</h2>
                                 <p className="text-sm text-gray-500">Choose today's event to start scanning attendees.</p>
                             </div>
-
+                            
                             {error && <p className="text-red-600 text-sm">{error}</p>}
-
+                            
                             {availableEvents.length === 0 && (
                                 <div className="flex flex-col items-center gap-2 py-8 text-center">
                                     <Calendar className="text-gray-300" size={36} />
                                     <p className="text-gray-500 text-sm">No events available for today.</p>
                                 </div>
                             )}
-
+                            
                             <div className="flex flex-col gap-2">
                                 {availableEvents?.filter((event) => !event.isArchived).map((event) => (
-                                    <button
-                                        key={event.id}
-                                        onClick={() => { setEventId(event.id); setError(""); }}
-                                        className="group flex items-center gap-3 text-left border border-gray-200 hover:bg-gray-100 rounded-md py-3 px-4 transition-colors duration-200"
-                                    >
+                                    <button key={event.id} onClick={() => { setEventId(event.id); setError(""); }}
+                                        className="group flex items-center gap-3 text-left border border-gray-200 hover:bg-gray-100 rounded-md py-3 px-4 transition-colors duration-200">
                                         <Calendar className="text-blue-800 shrink-0" size={18} />
                                         <span className="min-w-0 flex-1">
                                             <span className="block font-semibold text-gray-800 truncate">{event.eventName}</span>
@@ -84,7 +81,7 @@ export const ScannerPage = () => {
                                     </button>
                                 ))}
                             </div>
-
+                            
                             <button onClick={() => navigate("/admin-dashboard")} className="bg-gray-100 hover:bg-gray-200 border border-gray-300 text-gray-700 font-bold py-2 px-4 rounded transition-colors duration-200">
                                 Cancel
                             </button>

@@ -85,33 +85,31 @@ export const RegisterAdmin = () => {
                 return;
             }
             await useRegister({form: adminData, setError, setShowNotification, setNotificationMessage});
-        } catch (error) {
+        } 
+        catch (error) {
             window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
             console.error("Error registering admin:", error);
             setError(error instanceof Error ? error.message : "An unexpected error occurred.");
         }
         finally {
             setIsSubmitting(false);
+            if (notificationMessage.title === "Registration Successful") {
+                setAdminData({
+                    role: "admin",
+                    profilePicture: null,
+                    username: "",
+                    email: "",
+                    password: ""
+                });
+                setConfirmPassword("");
+                setPreviewUrl((prev) => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return null;
+                });
+                setError("");
+            }
         }
     };
-    
-    const reloadPage = () => {
-        setAdminData({
-            role: "admin",
-            profilePicture: null,
-            username: "",
-            email: "",
-            password: ""
-        });
-        setError("");
-        setConfirmPassword("");
-        setShowNotification(false);
-        
-        setPreviewUrl((prev) => {
-            if (prev) URL.revokeObjectURL(prev);
-            return null;
-        });
-    }
     
     return (
         <>
@@ -179,7 +177,7 @@ export const RegisterAdmin = () => {
                     </form>
                 </div>
             </div>
-            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
             {pendingFile && <ImageCropModal file={pendingFile} onConfirm={handleCropConfirm} onClose={() => setPendingFile(null)} />}
         </>
     );

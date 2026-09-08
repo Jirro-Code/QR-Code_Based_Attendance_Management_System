@@ -70,8 +70,8 @@ export const AttendanceCard = ({ event, strand, section, isOnArchive, onClose, o
     
     const color = isOnArchive ? "gray-500" : "blue-800";
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-10 backdrop-blur-[2px]">
-            <div className="z-100 bg-white w-full max-w-4xl rounded-md overflow-hidden shadow-xl relative">
+        <div onClick={onClose} className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-10 backdrop-blur-[2px]">
+            <div onClick={(e) => e.stopPropagation()} className="z-100 bg-white w-full max-w-4xl rounded-md overflow-hidden shadow-xl relative">
                 
                 <div className={`bg-${color} px-5 py-4 flex flex-col gap-1.5 relative`}>
                     <button className="absolute top-3 right-3">

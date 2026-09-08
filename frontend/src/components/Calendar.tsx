@@ -1,8 +1,9 @@
-import { ChevronRight, ChevronLeft, X } from "lucide-react";
+import { ChevronRight, ChevronLeft} from "lucide-react";
 import { useState, useEffect } from "react";
 import { CancelButton } from "./Button";
 import { useView } from "../hooks/useView.ts";
 import { type Event } from "../services/events.ts";
+import { EventDayViewCard } from "./Cards/ViewCards/EventDayViewCard.tsx";
 
 type CalendarProps = {
     isAdmin: boolean;
@@ -72,7 +73,7 @@ export const Calendar = ({ isAdmin, onClose, refreshEvents }: CalendarProps) => 
             days.push(
                 <div
                     key={`empty-start-${i}`}
-                    className="h-10 sm:h-12 lg:h-14 xl:h-16 flex items-center justify-center text-sm rounded-lg border border-slate-200 bg-white p-6 text-left shadow-sm"
+                    className="h-10 sm:h-12 lg:h-14 xl:h-16 flex items-center justify-center text-sm rounded-lg border border-slate-200 bg-white hover:bg-gray-100 p-6 text-left shadow-sm"
                 />
             );
         }
@@ -84,15 +85,15 @@ export const Calendar = ({ isAdmin, onClose, refreshEvents }: CalendarProps) => 
             
             days.push(
                 <div key={`day-${i}`} onClick={() => setSelectedDay(i)}
-                    className={`relative h-10 sm:h-12 lg:h-14 xl:h-16 flex items-center justify-center text-sm rounded-lg border p-6 text-left shadow-sm cursor-pointer  ${
-                        today ? "bg-gray-400 hover:bg-gray-500 font-semibold" : "border-slate-200 bg-white hover:bg-gray-100"
+                    className={`relative flex h-10 sm:h-12 lg:h-14 xl:h-16 items-center justify-center text-sm rounded-lg border p-6 text-left shadow-sm ${
+                        today ? "border-slate-400 bg-blue-100 hover:bg-blue-200 font-semibold underline" : "border-slate-200 bg-white hover:bg-gray-100" } ${
+                        eventCount > 0 ? "cursor-pointer" : "cursor-default" }
                     }`} >
                     {i}
-                    
                     {eventCount > 0 && (
-                        <div className="absolute top-0 right-0 w-7 h-7 overflow-hidden rounded-tr-lg pointer-events-none">
-                            <div className="absolute top-0 right-0 w-0 h-0 border-t-27 border-t-blue-600 border-l-27 border-l-transparent" />
-                            <span className="absolute top-0.5 right-1 text-white text-[11px] font-semibold leading-none">
+                        <div className="absolute top-0 right-0 w-7 h-7 lg:h-10 lg:w-10 xl:h-13 xl:w-13 overflow-hidden rounded-tr-lg pointer-events-none">
+                            <div className="absolute top-0 right-0 w-0 h-0 border-t-27 border-l-27 lg:border-t-32 lg:border-l-32 xl:border-t-35 xl:border-l-35 border-t-blue-600 border-l-transparent" />
+                            <span className={`absolute top-0.5 right-0.5 text-white text-[10px] lg:text-[12px] xl:text-[14px] font-semibold leading-none`}>
                                 {eventCount > 9 ? "9+" : eventCount}
                             </span>
                         </div>
@@ -161,47 +162,7 @@ export const Calendar = ({ isAdmin, onClose, refreshEvents }: CalendarProps) => 
                 </div>
             </div>
             
-            {selectedDay !== null && selectedDayEvents.length > 0 && (
-                <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4" onClick={() => setSelectedDay(null)}
-                >
-                    <div
-                        className="bg-white rounded-lg shadow-lg w-full max-w-sm max-h-[80vh] flex flex-col"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <div className="flex items-center justify-between p-4 border-b border-slate-200">
-                            <h3 className="font-semibold text-base">
-                                {monthNames[currentMonth - 1]} {selectedDay}, {currentYear}
-                            </h3>
-                            <button
-                                onClick={() => setSelectedDay(null)}
-                                className="p-1 rounded hover:bg-gray-100"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        </div>
-                        
-                        <div className="overflow-y-auto p-4 flex flex-col gap-3">
-                            {selectedDayEvents.length === 0 ? (
-                                <p className="text-sm text-gray-500">No events for this day.</p>
-                            ) : (
-                                selectedDayEvents.map((event, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="border border-slate-200 rounded-lg p-3 shadow-sm"
-                                    >
-                                        <p className="font-medium text-sm">
-                                            {(event as Event).eventName ?? "Untitled event"}
-                                        </p>
-                                        <p className="text-xs text-slate-400 mt-1">
-                                            {event.eventLocation}
-                                        </p>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                    </div>
-                </div>
-            )}
+            {selectedDay !== null && selectedDayEvents.length > 0 && <EventDayViewCard {...{ setSelectedDay, monthNames, currentMonth, selectedDay, currentYear, selectedDayEvents }} />}
         </div>
     );
 };

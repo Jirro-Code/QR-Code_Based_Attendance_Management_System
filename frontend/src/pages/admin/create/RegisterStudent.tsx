@@ -109,29 +109,28 @@ export const RegisterStudent = () => {
         }
         finally {
             setIsSubmitting(false);
+            if (notificationMessage.title === "Registration Successful") {
+                setStudentData({
+                    role: "user",
+                    profilePicture: null,
+                    username: "",
+                    email: "",
+                    password: "",
+                    studentId: "",
+                    studentLRN: "",
+                    studentStrand: "",
+                    studentSection: ""
+                });
+                setError("");
+                setConfirmPassword("");
+                setPreviewUrl((prev) => {
+                    if (prev) URL.revokeObjectURL(prev);
+                    return null;
+                }
+                );
+            }
         }
     };
-    
-    const reloadPage = () => {
-        setStudentData({
-            role: "user",
-            profilePicture: null,
-            username: "",
-            email: "",
-            password: "",
-            studentId: "",
-            studentLRN: "",
-            studentStrand: "",
-            studentSection: ""
-        });
-        setError("");
-        setConfirmPassword("");
-        setShowNotification(false);
-        setPreviewUrl((prev) => {
-            if (prev) URL.revokeObjectURL(prev);
-            return null;
-        });
-    }
     
     return (
         <>
@@ -209,7 +208,7 @@ export const RegisterStudent = () => {
                     </form>
                 </div>
             </div>
-            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => reloadPage()} />}
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
             {pendingFile && <ImageCropModal file={pendingFile} onConfirm={handleCropConfirm} onClose={() => setPendingFile(null)} />}
         </>
     );

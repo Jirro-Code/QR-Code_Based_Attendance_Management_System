@@ -88,8 +88,8 @@ export const AttendanceHistoryCard = ({ student, onClose }: AttendanceHistoryCar
     const selectionClassName = "mt-1 bg-white block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-slate-400 focus:border-slate-400 text-gray-500";
     
     return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-50 backdrop-blur-[2px]">
-            <div className="w-full max-w-4xl rounded-md overflow-hidden shadow-xl relative">
+        <div onClick={onClose} className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-50 backdrop-blur-[2px]">
+            <div onClick={(e) => e.stopPropagation()} className="w-full max-w-4xl rounded-md overflow-hidden shadow-xl relative">
                 <div className={`bg-${color} p-4`}>
                     <div className="flex justify-between items-center">
                         <h2 className="text-xl font-bold text-white">{student.username}</h2>

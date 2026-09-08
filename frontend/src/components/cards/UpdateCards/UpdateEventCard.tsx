@@ -23,7 +23,6 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
     }
     
-    
     const handleUpdate = async (data: Event) => {
         setIsSubmitting(true);
         try {
@@ -54,12 +53,14 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
     const descriptionClassName = "mt-1 flex-1 w-full h-100 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-slate-400 focus:border-slate-400";
     
     return (
-        <div className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
-            <div className={`flex max-w-200 w-full rounded-t-lg px-6 py-5 justify-between items-center bg-${color}`}>
+        <div onClick={onClose} className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
+            
+            <div  onClick={(e) => e.stopPropagation()} className={`flex max-w-200 w-full rounded-t-lg px-6 py-5 justify-between items-center bg-${color}`}>
                 <h1 className="text-xl font-bold w-80 text-white overflow-hidden text-ellipsis">{event.eventName}</h1>
                 <CancelButton onClose={onClose} color="white" />
             </div>
-            <div className="bg-white max-w-200 w-full rounded-b-lg shadow-lg p-6 relative flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
+            
+            <div onClick={(e) => e.stopPropagation()} className="bg-white max-w-200 w-full rounded-b-lg shadow-lg p-6 relative flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
                 <p className="text-red-600 text-sm">{error}</p>
                 
                 <form className="flex flex-col gap-3 sm:gap-6">
