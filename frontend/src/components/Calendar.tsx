@@ -7,11 +7,12 @@ import { EventDayViewCard } from "./Cards/ViewCards/EventDayViewCard.tsx";
 
 type CalendarProps = {
     isAdmin: boolean;
-    refreshEvents: number;
+    isArchived?: boolean;
+    refreshEvents: Event[];
     onClose?: () => void;
 };
 
-export const Calendar = ({ isAdmin, onClose, refreshEvents }: CalendarProps) => {
+export const Calendar = ({ isAdmin, isArchived, onClose, refreshEvents }: CalendarProps) => {
     const { useViewAllEvents } = useView();
     const [events, setEvents] = useState<Event[]>([]);
     const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1);
@@ -47,10 +48,17 @@ export const Calendar = ({ isAdmin, onClose, refreshEvents }: CalendarProps) => 
         return events.filter((event) => {
             const eventDate = new Date(event.eventDate);
             return (
+                !isArchived ? (
                 eventDate.getDate() === day &&
                 eventDate.getMonth() + 1 === month &&
                 eventDate.getFullYear() === year &&
                 !event.isArchived
+                ) : (
+                eventDate.getDate() === day &&
+                eventDate.getMonth() + 1 === month &&
+                eventDate.getFullYear() === year &&
+                event.isArchived
+                )
             );
         });
     };
@@ -86,13 +94,13 @@ export const Calendar = ({ isAdmin, onClose, refreshEvents }: CalendarProps) => 
             days.push(
                 <div key={`day-${i}`} onClick={() => setSelectedDay(i)}
                     className={`relative flex h-10 sm:h-12 lg:h-14 xl:h-16 items-center justify-center text-sm rounded-lg border p-6 text-left shadow-sm ${
-                        today ? "border-slate-400 bg-blue-100 hover:bg-blue-200 font-semibold underline" : "border-slate-200 bg-white hover:bg-gray-100" } ${
+                        today ? `border-slate-400 ${isArchived ? "bg-gray-200 hover:bg-gray-300" : "bg-blue-100 hover:bg-blue-200"} font-semibold underline` : "border-slate-200 bg-white hover:bg-gray-100" } ${
                         eventCount > 0 ? "cursor-pointer" : "cursor-default" }
                     }`} >
                     {i}
                     {eventCount > 0 && (
                         <div className="absolute top-0 right-0 w-7 h-7 lg:h-10 lg:w-10 xl:h-13 xl:w-13 overflow-hidden rounded-tr-lg pointer-events-none">
-                            <div className="absolute top-0 right-0 w-0 h-0 border-t-27 border-l-27 lg:border-t-32 lg:border-l-32 xl:border-t-35 xl:border-l-35 border-t-blue-600 border-l-transparent" />
+                            <div className={`absolute ${ isArchived ? "border-t-gray-500" : "border-t-blue-700" } top-0 right-0 w-0 h-0 border-t-27 border-l-27 lg:border-t-32 lg:border-l-32 xl:border-t-35 xl:border-l-35 border-l-transparent`} />
                             <span className={`absolute top-0.5 right-0.5 text-white text-[10px] lg:text-[12px] xl:text-[14px] font-semibold leading-none`}>
                                 {eventCount > 9 ? "9+" : eventCount}
                             </span>
@@ -129,7 +137,7 @@ export const Calendar = ({ isAdmin, onClose, refreshEvents }: CalendarProps) => 
     
     return (
         <div className="flex justify-center flex-col items-center mt-5 mb-5">
-            <div className="bg-blue-800 rounded-t-lg shadow-md pt-4 pr-4 pl-4 w-full flex justify-between items-center relative">
+            <div className={`${isArchived ? "bg-gray-500" : "bg-blue-800"} rounded-t-lg shadow-md pt-4 pr-4 pl-4 w-full flex justify-between items-center relative`}>
                 <div className="absolute top-4 right-2 flex justify-end">
                     {isAdmin && <CancelButton onClose={onClose!} color="white" />}
                 </div>
@@ -162,7 +170,7 @@ export const Calendar = ({ isAdmin, onClose, refreshEvents }: CalendarProps) => 
                 </div>
             </div>
             
-            {selectedDay !== null && selectedDayEvents.length > 0 && <EventDayViewCard {...{ setSelectedDay, monthNames, currentMonth, selectedDay, currentYear, selectedDayEvents }} />}
+            {selectedDay !== null && selectedDayEvents.length > 0 && <EventDayViewCard {...{  isArchived, setSelectedDay, monthNames, currentMonth, selectedDay, currentYear, selectedDayEvents }} />}
         </div>
     );
 };

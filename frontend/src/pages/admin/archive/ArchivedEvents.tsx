@@ -9,7 +9,8 @@ import { UnarchiveEventCard } from "../../../components/Cards/UnarchiveCards/Una
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 import { ViewEventCard } from "../../../components/Cards/ViewCards/ViewEventCard.tsx";
 import { EventFilterOptions } from "../../../components/Filters/EventFilter.tsx";
-import { Ellipsis } from "lucide-react";
+import { Calendar } from "../../../components/Calendar.tsx";
+import { Ellipsis, CalendarDays } from "lucide-react";
 
 
 export const ArchivedEvents = () => {
@@ -29,6 +30,7 @@ export const ArchivedEvents = () => {
     const [showNotification, setShowNotification] = useState<boolean>(false);
     const [showViewCard, setShowViewCard] = useState<boolean>(false);
     const [showFilter, setShowFilter] = useState<boolean>(false);
+    const [showCalendar, setShowCalendar] = useState<boolean>(false);
     const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
@@ -187,15 +189,21 @@ export const ArchivedEvents = () => {
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-full mx-auto p-6">
                     <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
+                    {showCalendar && <Calendar isAdmin={true} isArchived={true} onClose={() => setShowCalendar(false)}  refreshEvents={eventArray} />}
                     <p className="text-red-600 text-sm">{error}</p>
                     
-                    {!isOnSearch &&
-                        <div className="mt-3 mb-3 flex items-center justify-end">
+                    <div className="mt-3 mb-3 flex items-center justify-between">
+                        <div className="flex justify-center items-center gap-4">
+                            <button onClick={() => {showCalendar ? setShowCalendar(false) : setShowCalendar(true)}}>
+                                <CalendarDays className="w-5 h-5" />
+                            </button>
+                        </div>
+                        {!isOnSearch &&
                             <button onClick={() => setShowFilter(true)}>
                                 <Ellipsis className="w-5 h-5" />
                             </button>
-                        </div>
-                    }
+                        }
+                    </div>
                     
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                         {eventArray.filter((event) => event.isArchived === true).length > 0 ? (
@@ -220,12 +228,12 @@ export const ArchivedEvents = () => {
                             setSelectedByTime={setSelectedByTime}
                         />
                     )}
-                    {showUpdateCard && selectedEvent && <UpdateEventCard event={selectedEvent} isDisabled={eventsWithRecords.some((e) => e.id === selectedEvent.id) || eventsWithArchivedRecords.some((e) => e.id === selectedEvent.id)} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
-                    {showUnarchiveCard && selectedEvent && <UnarchiveEventCard id={selectedEvent.id} onRestored={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUnarchiveCard(false)} eventName={selectedEvent.eventName} />}
-                    {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
-                    {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
                 </div>
             </div>
+            {showUpdateCard && selectedEvent && <UpdateEventCard event={selectedEvent} isDisabled={eventsWithRecords.some((e) => e.id === selectedEvent.id) || eventsWithArchivedRecords.some((e) => e.id === selectedEvent.id)} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
+            {showUnarchiveCard && selectedEvent && <UnarchiveEventCard id={selectedEvent.id} onRestored={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUnarchiveCard(false)} eventName={selectedEvent.eventName} />}
+            {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </>
     )
 }

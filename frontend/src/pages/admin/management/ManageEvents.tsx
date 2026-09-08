@@ -35,7 +35,6 @@ export const ManageEvents = () => {
     const [selectedOrder, setSelectedOrder] = useState<"A-Z" | "Z-A" | null>(null);
     const [selectedMonth, setSelectedMonth] = useState<string | null>(null);
     const [selectedYear, setSelectedYear] = useState<string | null>(null);
-    const [refreshEvents, setRefreshEvents] = useState<number>(0);
     const [selectedByTime, setSelectedByTime] = useState<"latest" | "earliest" | null>(null);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string}>({
         title: "",
@@ -43,7 +42,6 @@ export const ManageEvents = () => {
     });
     
     useEffect(() => {
-        setRefreshEvents((prev) => prev + 1);
         useViewAllEvents(setEventArray, setError);
         useViewAllEventsWithAttendanceRecords(setEventsWithRecords, setError);
         useViewAllEventsWithArchivedAttendanceRecords(setEventsWithArchivedRecords, setError);
@@ -104,7 +102,6 @@ export const ManageEvents = () => {
                 );
             }
             
-            setRefreshEvents((prev) => prev + 1);
             setEventArray(result);
         }, setError);
     };
@@ -179,7 +176,6 @@ export const ManageEvents = () => {
     
     const updateNotification = async (updatedEvent: Event) => {
         setSelectedEvent(updatedEvent);
-        setRefreshEvents((prev) => prev + 1);
         setEventArray((prevEvents) => prevEvents.map((event) => event.id === updatedEvent.id ? updatedEvent : event));
         setShowUpdateCard(false);
         setShowArchiveCard(false);
@@ -194,7 +190,7 @@ export const ManageEvents = () => {
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-full mx-auto p-6">
                     <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
-                    {showCalendar && <Calendar isAdmin={true} onClose={() => setShowCalendar(false)}  refreshEvents={refreshEvents} />}
+                    {showCalendar && <Calendar isAdmin={true} onClose={() => setShowCalendar(false)}  refreshEvents={eventArray} />}
                     <p className="text-red-600 text-sm">{error}</p>
                     
                     
