@@ -1,5 +1,5 @@
 import Router from "express";
-import { authAdminToken } from "../middlewares/authToken.ts";
+import { authAdminToken, authToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
 import z from "zod";
 import { createEvent, archiveEvent, unarchiveEvent, getAllEvents, getEventById, searchEvents, updateEvent } from "../controllers/eventsController.ts";
@@ -32,12 +32,13 @@ const uuidSchema = z.object({
     id: z.uuid("Invalid UUID format")
 });
 
+router.use(authToken);
+router.get("/eventId/:id", validateParams(uuidSchema), getEventById);
 
 router.use( authAdminToken );
 router.post("/create", validateBody(createEventSchema), createEvent);
 router.get("/all", getAllEvents);
 router.get("/search", validateQuery(searchSchema), searchEvents);
-router.get("/eventId/:id", validateParams(uuidSchema), getEventById);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateEventSchema), updateEvent);
 router.patch("/archive/:id", validateParams(uuidSchema), archiveEvent);
 router.patch("/unarchive/:id", validateParams(uuidSchema), unarchiveEvent);
