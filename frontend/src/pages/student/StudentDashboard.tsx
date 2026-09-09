@@ -74,7 +74,6 @@ export const StudentDashboard = () => {
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Student Dashboard</h1>
                     <p className="mt-2 text-slate-500"> Welcome back,{" "} <span className="font-semibold text-blue-800">{studentData.username}</span>!</p>
                 </div>
-                <div className="h-5"></div>
                 
                 <div className="items-center justify-center grid grid-cols-1 gap-5 lg:grid-cols-2">
                     <div className="flex justify-center items-center gap-4">

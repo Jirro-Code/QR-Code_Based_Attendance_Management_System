@@ -91,9 +91,9 @@ export const AttendanceHistoryPage = () => {
     });
     
     
-    const inputClassName = "mt-1 bg-white block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-slate-400 focus:border-slate-400";
+    const inputClassName = "mt-1 bg-gray-100 block w-full border border-blue-800 placeholder-blue-800 text-blue-800 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-blue-900 focus:border-blue-800";
     
-    const selectionClassName = "mt-1 bg-white block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-slate-400 focus:border-slate-400 text-gray-500";
+    const selectionClassName = "mt-1 bg-gray-100 block w-full border border-blue-800 text-blue-800 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-blue-900 focus:border-blue-800";
     
     return (
         <>  
@@ -122,7 +122,7 @@ export const AttendanceHistoryPage = () => {
                                     <div className="w-16">
                                         <Input 
                                             className={inputClassName}
-                                            type="text" 
+                                            type="number" 
                                             id="day" 
                                             placeholder="Day" 
                                             name="day" 
@@ -151,8 +151,8 @@ export const AttendanceHistoryPage = () => {
                         {error && <p className="text-red-700">{error}</p>}
                     </div>
                     <div>
-                        <div className="bg-gray-50">
-                            <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-white sticky top-0 px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide shadow-sm">
+                        <div className="bg-gray-100">
+                            <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
                                 <div>#</div>
                                 <div>Event</div>
                                 <div>Date</div>
