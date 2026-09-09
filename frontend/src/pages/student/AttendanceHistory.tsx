@@ -11,6 +11,9 @@ import { Header } from "../../components/Header.tsx";
 
 
 export const AttendanceHistoryPage = () => {
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const [attendanceHistory, setAttendanceHistory] = useState<Attendance[]>([]);
     const [error, setError] = useState<string>("");
     const [events, setEvents] = useState<Map<string, Partial<Event>>>(new Map());
@@ -87,7 +90,6 @@ export const AttendanceHistoryPage = () => {
                 return new Date(event.eventDate).getDate() === parseInt(day, 10);
     });
     
-    const color = student.isArchived ? "gray-500" : "blue-800";
     
     const inputClassName = "mt-1 bg-white block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-slate-400 focus:border-slate-400";
     
@@ -96,11 +98,11 @@ export const AttendanceHistoryPage = () => {
     return (
         <>  
             <Header title="Attendance History" path="/student-dashboard" />
-            <div >
-                <div className="w-full max-w-4xl rounded-md overflow-hidden shadow-xl relative">
-                    <div className={`bg-${color} p-4`}>
+            <div className="inset-0 min-h-screen bg-slate-100">
+                <div className="w-full h-screen relative">
+                    <div className={"bg-slate-100 p-2 pr-4"}>
                         <div className="flex justify-end">
-                            <div className="flex justify-between items-center mt-2">
+                            <div className="flex justify-between items-center">
                                 <div className="flex h-9 max-h-9 gap-2">
                                     <div className="w-28">
                                         <SelectionField 
@@ -149,7 +151,7 @@ export const AttendanceHistoryPage = () => {
                         {error && <p className="text-red-700">{error}</p>}
                     </div>
                     <div>
-                        <div className="scrollable-card bg-gray-50 h-100 overflow-y-auto overscroll-contain">
+                        <div className="bg-gray-50">
                             <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-white sticky top-0 px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide shadow-sm">
                                 <div>#</div>
                                 <div>Event</div>
@@ -170,7 +172,7 @@ export const AttendanceHistoryPage = () => {
                                         />
                                     ))
                                 ) : (
-                                    <p className="text-center text-gray-400 text-sm py-10">No attendance records found.</p>
+                                    <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No attendance records found.</p>
                                 )}
                             </div>
                         </div>

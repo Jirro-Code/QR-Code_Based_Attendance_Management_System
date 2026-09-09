@@ -27,7 +27,7 @@ export const AttendanceHistoryListCell = ({ attendance, event, number }: ListCel
     return (
         <div className={`${number % 2 === 0 ? "bg-white" : "bg-gray-50"} grid grid-cols-[0.3fr_repeat(5,1fr)] items-center px-5 py-3.5 text-sm hover:bg-blue-50/50 transition-colors`}>
             <div className="text-gray-400 font-medium">{number}</div>
-            <div className="font-semibold text-gray-800 px-0.5 overflow-hidden text-ellipsis whitespace-nowrap">{event?.eventName ?? "Loading..."}</div>
+            <div className="font-semibold text-gray-800 px-0.5">{event?.eventName ?? "Loading..."}</div>
             <div className="text-gray-600 px-0.5">{dateFormatter.format(new Date(event?.eventDate ?? new Date())) ?? "Loading..."}</div>
             <div className="text-gray-600 px-0.5">{event?.eventLocation ?? "Loading..."}</div>
             <div className="px-0.5">

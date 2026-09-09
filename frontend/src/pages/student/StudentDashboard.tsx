@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 
 export const StudentDashboard = () => {
     const [qrCode, setQrCode] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     //const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [studentData, setStudentData] = useState<Partial<User>>({
         id: "",
@@ -41,14 +42,22 @@ export const StudentDashboard = () => {
         fetchProfilePicture();
         */
         if (studentData.id && studentData.username) {
-            
-            QRCode.toDataURL(qrURl, (err, url) => {
-                if (err) {
-                    console.error("Error generating QR code:", err);
-                    return;
-                }
-                setQrCode(url);
-            });
+            setIsLoading(true);
+            try {
+                QRCode.toDataURL(qrURl, (err, url) => {
+                    if (err) {
+                        console.error("Error generating QR code:", err);
+                        return;
+                    }
+                    setQrCode(url);
+                });
+            } 
+            catch (error) {
+                console.error("Error generating QR code:", error);
+            }
+            finally {
+                setIsLoading(false);
+            }
         }
         
     }, [studentData.id, studentData.username]);
@@ -69,7 +78,11 @@ export const StudentDashboard = () => {
                 
                 <div className="items-center justify-center grid grid-cols-1 gap-5 lg:grid-cols-2">
                     <div className="flex justify-center items-center gap-4">
-                        {qrCode && <img className="max-w-115 max-h-115 w-full h-auto border border-slate-200 shadow-sm rounded-xl" src={qrCode} alt="QR Code" />}
+                        {isLoading ? (
+                            <div className="animate-pulse max-h-115 w-full h-auto rounded-sm bg-gray-100 ring-4 ring-gray-50"></div>
+                        ) : qrCode ? (
+                            <img className="max-w-115 max-h-115 w-full h-auto border border-slate-200 shadow-sm rounded-xl" src={qrCode} alt="QR Code" />
+                        ) : null}
                     </div>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-5">
@@ -119,7 +132,7 @@ export const StudentDashboard = () => {
                 
                 <div className="mt-8">
                     <button
-                        onClick={() => logout("/admin-login")}
+                        onClick={() => logout("/student-login")}
                         className="rounded-xl border border-red-200 bg-white px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50"
                     >
                         Logout
