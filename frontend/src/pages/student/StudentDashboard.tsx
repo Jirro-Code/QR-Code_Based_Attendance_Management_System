@@ -1,12 +1,12 @@
+import QRCode from "qrcode";
 import { type User } from "../../services/users.ts";
 import { useCurrentUser } from "../../hooks/useCurrentUser.ts"
 import { useEffect, useState } from "react";
 import { Navbar } from "../../components/Navbar.tsx";
 //import { useView } from "../../hooks/useView.ts";
-import QRCode from "qrcode";
 import { logout } from "../../services/auth.ts";
-import { Folders, ScanSquare, SquareArrowOutUpRight } from "lucide-react";
-
+import { ClipboardClock, Calendar, SquareArrowOutUpRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const StudentDashboard = () => {
     const [qrCode, setQrCode] = useState<string | null>(null);
@@ -20,6 +20,7 @@ export const StudentDashboard = () => {
         role: "user",
     });
     const qrURl = `ICP|icpsantamaria|${studentData.id}|icpsantamaria|SantaMaria`;
+    const navigate = useNavigate();
     useCurrentUser("/student-login", setStudentData);
     //const { useViewProfilePicture } = useView();
     
@@ -73,18 +74,18 @@ export const StudentDashboard = () => {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-5">
                         <button
-                            onClick={() => {}}
+                            onClick={() => navigate("/attendance-history")}
                             className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
                             <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
-                                <Folders size={20} />
+                                <ClipboardClock size={20} />
                             </div>
                             
                             <h2 className="text-lg font-bold text-slate-900">
-                                Manage Attendances
+                                Attendance History
                             </h2>
                             
                             <p className="mt-2 text-sm leading-6 text-slate-500">
-                                Manage attendance records of each event.
+                                View your attendance history and records.
                             </p>
                             
                             <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">
@@ -97,15 +98,15 @@ export const StudentDashboard = () => {
                             onClick={() => {}}
                             className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl" >
                             <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
-                                <ScanSquare size={20} />
+                                <Calendar size={20} />
                             </div>
                             
                             <h2 className="text-lg font-bold text-slate-900">
-                                Scanner
+                                Upcoming Events
                             </h2>
                             
                             <p className="mt-2 text-sm leading-6 text-slate-500">
-                                Scan student QR codes for attendance.
+                                View upcoming events.
                             </p>
                             
                             <div className="mt-5 text-sm font-semibold text-blue-800 transition group-hover:text-blue-900 flex items-center gap-1">

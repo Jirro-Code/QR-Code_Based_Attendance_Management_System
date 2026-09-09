@@ -13,6 +13,7 @@ import { ManageAttendances } from "./pages/admin/management/ManageAttendances.ts
 import { ArchivedStudents } from "./pages/admin/archive/ArchivedStudents.tsx";
 import { ArchivedEvents } from "./pages/admin/archive/ArchivedEvents.tsx";
 import { ArchivedAttendances } from "./pages/admin/archive/ArchivedAttendances.tsx";
+import { AttendanceHistoryPage } from "./pages/student/AttendanceHistory.tsx";
 
 export const App = () => {
     return (
@@ -22,6 +23,7 @@ export const App = () => {
                 <Route path="/student-login" element={<StudentLoginPage />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/student-dashboard" element={<StudentDashboard />} />
+                <Route path="/attendance-history" element={<AttendanceHistoryPage />} />
                 <Route path="/create-student" element={<RegisterStudent />} />
                 <Route path="/create-admin" element={<RegisterAdmin />} />
                 <Route path="/manage-students" element={<ManageStudents />} />
