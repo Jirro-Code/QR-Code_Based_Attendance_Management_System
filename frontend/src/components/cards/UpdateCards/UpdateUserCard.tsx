@@ -6,7 +6,7 @@ import { type User } from "../../../services/users.ts";
 import { SelectionField } from "../../Input/SelectionField.tsx";
 import { CancelButton } from "../../Button.tsx";
 import { ImageCropModal } from "../../../components/ImageCrop.tsx";
-import { ArrowLeftRight, X } from "lucide-react";
+import { ArrowLeftRight, X, Eye, EyeOff } from "lucide-react";
 
 type UpdateUserCardProps = {
     student: Partial<User>;
@@ -27,7 +27,9 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     const hasContent = Object.values(formData).some((value) => String(value ?? "").trim() !== "") || confirmPassword.trim() !== "";
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-    
+    const [isHidden, setIsHidden] = useState(true);
+    const [isHidden2, setIsHidden2] = useState(true);
+
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
         if (e.target.name === "confirmPassword") {
@@ -177,8 +179,18 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                             
                             <Input label="Student Name" id="studentName" type="text" placeholder="John Doe" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} error={error?.includes("name") ? error : undefined} />
                             <Input label="Email" id="studentEmail" type="email" placeholder="example09@gmail.com" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} error={error?.includes("email") ? error : undefined} />
-                            <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
-                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} error={error?.includes("Password") || error?.includes("Passwords") ? error : undefined} />
+                            <div className="relative">
+                                <Input label="Password" id="studentPassword" type={isHidden ? "password" : "text" } placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                                <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                    {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <Input label="Confirm Password" id="confirmPassword" type={isHidden2 ? "password" : "text" } placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} error={error?.includes("Password") || error?.includes("Passwords") ? error : undefined} />
+                                <button type="button" onClick={() => setIsHidden2(!isHidden2)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                    {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                                </button>
+                            </div>
                             <Input label="Student LRN" id="studentLRN" type="number" placeholder="XXXXXXXXXXXX" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} error={error?.includes("LRN") || error?.includes("studentLRN") ? error : undefined} />
                             <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} error={error?.includes("ID") || error?.includes("studentId") ? error : undefined} />
                             <SelectionField label="Student Strand" id="studentStrand" value={formData.studentStrand ?? ""} onChange={handleFormChange} isRequired={false}

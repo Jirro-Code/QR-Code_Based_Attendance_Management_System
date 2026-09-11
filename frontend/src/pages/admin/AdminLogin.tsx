@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Input } from "../../components/Input/Input.tsx";
 import { useLogin } from "../../hooks/useLogin";
-import { CircleAlert} from "lucide-react";
+import { CircleAlert, Eye, EyeOff} from "lucide-react";
 import icp from "../../assets/icp.png";
 
 export const AdminLoginPage = () => {
     const [form, setForm] = useState({email: "", password: ""});
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    const [isHidden, setIsHidden] = useState(true);
     const { useLoginUser } = useLogin("/admin-dashboard", setError);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,7 +61,10 @@ export const AdminLoginPage = () => {
                         </div>
                         
                         <div className="mb-2 relative">
-                            <Input label="Password" id="password" type="password" placeholder="Password" onChange={handleChange} name="password" value={form.password} error={error?.includes("Credentials") || error?.includes("Password") ? error : undefined} />
+                            <Input label="Password" id="password" type={isHidden ? "password" : "text"} placeholder="Password" onChange={handleChange} name="password" value={form.password} error={error?.includes("Credentials") || error?.includes("Password") ? error : undefined} />
+                            <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                            </button>
                             {error && (<span className="absolute w-[110%] -bottom-8 left-0 flex items-center gap-1 text-red-600 text-[10px]"><CircleAlert size={12} /><u>{error}</u></span>)}
                         </div>
                         <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={isLoading}> {isLoading ? "Logging in..." : "Log In"}</button>

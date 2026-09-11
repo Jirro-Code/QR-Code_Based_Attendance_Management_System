@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Header } from "../../../components/Header.tsx";
 import { Input } from "../../../components/Input/Input.tsx";
 import { SelectionField } from "../../../components/Input/SelectionField.tsx";
@@ -6,14 +6,15 @@ import { type StudentRegisterPayload } from "../../../services/auth.ts";
 import { useCreate } from "../../../hooks/useCreate.ts";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 import { ImageCropModal } from "../../../components/ImageCrop.tsx";
-import { X } from "lucide-react";
+import { X, Eye, EyeOff } from "lucide-react";
 
 export const RegisterStudent = () => {
-    window.scrollTo({ top: 0, left: 0 });
     const {useRegister} = useCreate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
+    const [isHidden, setIsHidden] = useState(true);
+    const [isHidden2, setIsHidden2] = useState(true);
     const [showNotification, setShowNotification] = useState(false);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -32,6 +33,10 @@ export const RegisterStudent = () => {
         studentStrand: "",
         studentSection: ""
     });
+    
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     
     const fileInputRef = useRef<HTMLInputElement>(null);
     
@@ -198,8 +203,18 @@ export const RegisterStudent = () => {
                                 options={["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"]}
                             />
                             <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleChange} name="studentSection" value={studentData.studentSection} />
-                            <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={studentData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
-                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                            <div className="relative">
+                                <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={studentData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                                <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                    {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                                <button type="button" onClick={() => setIsHidden2(!isHidden2)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                    {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                                </button>
+                            </div>
                         </div>
                         
                         <button  type="submit" disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-4 w-full sm:w-auto sm:min-w-40 self-center sm:self-end" >

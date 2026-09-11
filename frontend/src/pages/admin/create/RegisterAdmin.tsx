@@ -1,18 +1,19 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Header } from "../../../components/Header.tsx";
 import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
 import { Input } from "../../../components/Input/Input.tsx";
 import { useCreate } from "../../../hooks/useCreate.ts";
 import { type AdminRegisterPayload } from "../../../services/auth.ts";
 import { ImageCropModal } from "../../../components/ImageCrop.tsx";
-import { X } from "lucide-react";
+import { Eye, EyeOff, X } from "lucide-react";
 
 export const RegisterAdmin = () => {  
-    window.scrollTo({ top: 0, left: 0 });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [showNotification, setShowNotification] = useState(false);
+    const [isHidden, setIsHidden] = useState(true);
+    const [isHidden2, setIsHidden2] = useState(true);
     const [pendingFile, setPendingFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [notificationMessage, setNotificationMessage] = useState<{ title: string; message: string; result?: { [key: string]: any } }>({
@@ -27,6 +28,10 @@ export const RegisterAdmin = () => {
         password: ""
     });
     const {useRegister} = useCreate();
+    
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setConfirmPassword(e.target.name === "confirmPassword" ? e.target.value : confirmPassword);
@@ -168,8 +173,18 @@ export const RegisterAdmin = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1">
                             <Input label="Admin Name" id="adminName" type="text" placeholder="Admin Name" onChange={handleChange} name="username" value={adminData.username} error={error?.includes("name") ? error : undefined} />
                             <Input label="Email" id="adminEmail" type="email" placeholder="Email" onChange={handleChange} name="email" value={adminData.email} error={error?.includes("email") ? error : undefined}/>
-                            <Input label="Password" id="adminPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={adminData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined}/>
-                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                            <div className="relative">
+                                <Input label="Password" id="adminPassword" type={isHidden ? "password" : "text"} placeholder="Password" onChange={handleChange} name="password" value={adminData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined}/>
+                                <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                    {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <Input label="Confirm Password" id="confirmPassword" type={isHidden2 ? "password" : "text"} placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                                <button type="button" onClick={() => setIsHidden2(!isHidden2)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                    {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                                </button>
+                            </div>
                         </div>
                         <button  type="submit" disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 text-white font-bold py-2 px-4 rounded mt-4 w-full sm:w-auto sm:min-w-40 self-center sm:self-end" >
                             {isSubmitting ? 'Registering...' : 'Register Admin'}

@@ -33,11 +33,14 @@ export const Input = ({ label, id, type, placeholder, onChange, name, isRequired
                     rows={4}
                 />
                 ) : (
-                <input className={`${inputClassName} ${type === "number" ? "appearance:textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" : ""}`} onKeyDown={type === "number" ? (event) => {
-                    if (event.key === 'e' || event.key === 'E' || event.key === '+') {
-                        event.preventDefault();
-                    }} : undefined
-                } id={id} type={type} placeholder={placeholder} onChange={onChange} name={name} required={isRequired ?? true} value={value} />
+                <input className={`${inputClassName} ${type === "number" ? "appearance:textfield [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" : ""} ${id === "password" ? "pr-9" : ""}`} 
+                    onKeyDown={type === "number" ? (event) => {
+                        if (event.key === 'e' || event.key === 'E' || event.key === '+') {
+                            event.preventDefault();
+                        }} 
+                        : undefined
+                    } 
+                    id={id} type={type} placeholder={placeholder} onChange={onChange} name={name} required={isRequired ?? true} value={value} />
             )}
         </div>
     );
