@@ -28,6 +28,13 @@ export const CreateEvent = () => {
         setEventData((current) => ({...current, [e.target.name]: e.target.value}))
     }
     
+    const localDateString = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+    
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setError("");
@@ -40,6 +47,11 @@ export const CreateEvent = () => {
             }
             if (eventData.eventLocation.trim().length < 2) {
                 setError("Event location must be at least 2 characters long!");
+                window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+                return;
+            }
+            if (eventData.eventDate < localDateString(new Date())) {
+                setError("Event date must be today or in the future!");
                 window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
                 return;
             }
@@ -83,7 +95,7 @@ export const CreateEvent = () => {
                             <div className="flex flex-col gap-3 sm:w-1/2">
                                 <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={eventData.eventName} onChange={handleChange} error={error?.includes("name") ? error : undefined} />
                                 <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={eventData.eventLocation} onChange={handleChange} error={error?.includes("location") ? error : undefined} />
-                                <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={eventData.eventDate} onChange={handleChange} />
+                                <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={eventData.eventDate} onChange={handleChange} error={error?.includes("date") ? error : undefined} />
                             </div>
                             
                             <div className="flex flex-col sm:w-1/2 [&>div]:flex-1 [&>div]:flex [&>div]:flex-col [&>div]:mb-0">

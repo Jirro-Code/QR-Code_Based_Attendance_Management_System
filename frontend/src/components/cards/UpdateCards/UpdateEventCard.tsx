@@ -23,9 +23,20 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
     }
     
+    const localDateString = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+    
     const handleUpdate = async (data: Event) => {
         setIsSubmitting(true);
         try {
+            if (data.eventDate < localDateString(new Date())) {
+                setError("Date must be today or in the future");
+                return;
+            }
             const updatedEvent = await useUpdateEvent({ ...data, id: event.id! }, setError);
             onUpdated(updatedEvent);
             setFormData({} as Event);
@@ -71,7 +82,7 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
                             <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={formData.eventLocation} onChange={handleFormChange} />
                             
                             { !isDisabled && (
-                                <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate} onChange={handleFormChange} />
+                                <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate} onChange={handleFormChange} error={error?.includes("Date") ? error : undefined} />
                             )}
                         </div>
                         
