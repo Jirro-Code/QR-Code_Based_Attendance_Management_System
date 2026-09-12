@@ -34,11 +34,11 @@ const uuidSchema = z.object({
 
 router.use(authToken);
 router.get("/eventId/:id", validateParams(uuidSchema), getEventById);
+router.get("/all", getAllEvents);
+router.get("/search", validateQuery(searchSchema), searchEvents);
 
 router.use( authAdminToken );
 router.post("/create", validateBody(createEventSchema), createEvent);
-router.get("/all", getAllEvents);
-router.get("/search", validateQuery(searchSchema), searchEvents);
 router.put("/update/:id", validateParams(uuidSchema), validateBody(updateEventSchema), updateEvent);
 router.patch("/archive/:id", validateParams(uuidSchema), archiveEvent);
 router.patch("/unarchive/:id", validateParams(uuidSchema), unarchiveEvent);
