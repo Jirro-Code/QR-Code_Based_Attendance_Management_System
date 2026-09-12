@@ -106,6 +106,8 @@ export const AttendanceFilterOptions = ({
                 : "bg-slate-100 text-slate-600 hover:bg-slate-200"
         }`;
     
+    const years = new Array(5).fill(0).map((_, index) => (2026 + index).toString());
+    
     return (
         <div
             className={`fixed inset-0 z-120 flex justify-center transition-colors duration-200 ${
@@ -163,7 +165,7 @@ export const AttendanceFilterOptions = ({
                         
                         <SelectionField id="month" label="Month" value={selectedMonth ?? ""} onChangeValue={setSelectedMonth} options={["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]} />
                         
-                        <SelectionField id="year" label="Year" value={selectedYear ?? ""} onChangeValue={setSelectedYear} options={["2020", "2021", "2022", "2023", "2024", "2025", "2026"]} />
+                        <SelectionField id="year" label="Year" value={selectedYear ?? ""} onChangeValue={setSelectedYear} options={years} />
                     </div>
                 </div>
             </div>

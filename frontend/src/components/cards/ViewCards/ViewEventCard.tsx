@@ -6,7 +6,7 @@ import { SquarePen } from "lucide-react";
 type ViewEventCardProps = {
     event: Partial<Event>;
     onClose: () => void;
-    onUpdate: () => void;
+    onUpdate?: () => void;
 };
 
 export const ViewEventCard = ({ event, onClose, onUpdate }: ViewEventCardProps) => {
@@ -43,7 +43,7 @@ export const ViewEventCard = ({ event, onClose, onUpdate }: ViewEventCardProps) 
             <div onClick={(e) => e.stopPropagation()} className="bg-white pt-6 pb-7 px-9 rounded-b-lg shadow-md flex flex-col gap-3 max-w-md w-full">
                 <div>
                     <p className="text-gray-700 font-bold mb-1">Description</p>
-                    <p className="scrollable-card bg-gray-100 border border-gray-300 rounded-md p-3 w-full h-20 overflow-y-auto overscroll-contain whitespace-normal wrap-break-word text-sm text-gray-600 leading-relaxed">
+                    <p className={`scrollable-card bg-gray-100 border border-gray-300 rounded-md p-3 w-full ${onUpdate ? "h-20" : "h-40"} overflow-y-auto overscroll-contain whitespace-normal wrap-break-word text-sm text-gray-600 leading-relaxed`}>
                         {event.eventDescription}
                     </p>
                 </div>
@@ -58,17 +58,20 @@ export const ViewEventCard = ({ event, onClose, onUpdate }: ViewEventCardProps) 
                     </div>
                 </div>
                 
-                <div className="border-t border-gray-200 pt-2 mt-1 flex flex-col gap-1">
-                    <p className="text-gray-500 text-sm"><b>Created by:</b> {event.creator}</p>
-                    <p className="text-gray-500 text-sm"><b>Created at:</b> {formatDateTime(event.createdAt!)}</p>
-                    <p className="text-gray-500 text-sm"><b>Last updated at:</b> {formatDateTime(event.updatedAt!)}</p>
-                </div>
-                
-                <div className="flex justify-end items-center mt-2">
-                    <button onClick={onUpdate} className="flex items-center justify-center gap-2 bg-none border border-blue-900 hover:bg-gray-100 text-blue-900 py-1 px-8 rounded transition-colors">
-                        <SquarePen size={16} /> Edit
-                    </button>
-                </div>
+                {onUpdate && (
+                    <>
+                        <div className="border-t border-gray-200 pt-2 mt-1 flex flex-col gap-1">
+                            <p className="text-gray-500 text-sm"><b>Created by:</b> {event.creator}</p>
+                            <p className="text-gray-500 text-sm"><b>Created at:</b> {formatDateTime(event.createdAt!)}</p>
+                            <p className="text-gray-500 text-sm"><b>Last updated at:</b> {formatDateTime(event.updatedAt!)}</p>
+                        </div>
+                        <div className="flex justify-end items-center mt-2">
+                            <button onClick={onUpdate} className="flex items-center justify-center gap-2 bg-none border border-blue-900 hover:bg-gray-100 text-blue-900 py-1 px-8 rounded transition-colors">
+                                <SquarePen size={16} /> Edit
+                            </button>
+                        </div>
+                    </>
+                )}
             </div>
         </div>
     );

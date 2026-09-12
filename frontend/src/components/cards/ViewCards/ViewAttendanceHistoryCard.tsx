@@ -81,6 +81,8 @@ export const AttendanceHistoryCard = ({ student, onClose }: AttendanceHistoryCar
                 return new Date(event.eventDate).getDate() === parseInt(day, 10);
     });
     
+    const years = new Array(5).fill(0).map((_, index) => (2026 + index).toString());
+    
     const color = student.isArchived ? "gray-500" : "blue-800";
     
     const inputClassName = "mt-1 bg-white block w-full border border-gray-300 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-slate-400 focus:border-slate-400";
@@ -126,17 +128,9 @@ export const AttendanceHistoryCard = ({ student, onClose }: AttendanceHistoryCar
                                 </div>
                                 
                                 <div className="w-24">
-                                    <SelectionField 
-                                        className={selectionClassName}
-                                        id="year-filter" 
-                                        value={year} 
-                                        onChange={handleYearChange} 
-                                        isRequired={false} 
+                                    <SelectionField className={selectionClassName} id="year-filter" value={year} onChange={handleYearChange} isRequired={false} 
                                         placeholder="Year"
-                                        options={[
-                                            "2020", "2021", "2022", "2023", "2024", "2025",
-                                            "2026", "2027", "2028", "2029", "2030"
-                                        ]}
+                                        options={years}
                                     />
                                 </div>
                             </div>

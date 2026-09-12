@@ -31,6 +31,13 @@ export const Calendar = ({ isAdmin, isArchived, onClose, refreshEvents }: Calend
         fetchEvents();
     }, [refreshEvents]);
     
+    const localDateString = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+        return `${year}-${month}-${day}`;
+    }
+    
     const monthNames = [
         "January", "February", "March", "April", "May", "June",
         "July", "August", "September", "October", "November", "December"
@@ -48,16 +55,28 @@ export const Calendar = ({ isAdmin, isArchived, onClose, refreshEvents }: Calend
         return events.filter((event) => {
             const eventDate = new Date(event.eventDate);
             return (
-                !isArchived ? (
-                eventDate.getDate() === day &&
-                eventDate.getMonth() + 1 === month &&
-                eventDate.getFullYear() === year &&
-                !event.isArchived
-                ) : (
-                eventDate.getDate() === day &&
-                eventDate.getMonth() + 1 === month &&
-                eventDate.getFullYear() === year &&
-                event.isArchived
+                !isArchived ? ( 
+                    isAdmin ?(
+                        eventDate.getDate() === day &&
+                        eventDate.getMonth() + 1 === month &&
+                        eventDate.getFullYear() === year &&
+                        !event.isArchived
+                    ) 
+                    : 
+                    (
+                        eventDate.getDate() === day &&
+                        eventDate.getMonth() + 1 === month &&
+                        eventDate.getFullYear() === year &&
+                        eventDate >= new Date(localDateString(new Date())) &&
+                        !event.isArchived
+                    ) 
+                )
+                :                
+                (
+                    eventDate.getDate() === day &&
+                    eventDate.getMonth() + 1 === month &&
+                    eventDate.getFullYear() === year &&
+                    event.isArchived
                 )
             );
         });
@@ -139,7 +158,7 @@ export const Calendar = ({ isAdmin, isArchived, onClose, refreshEvents }: Calend
         <div className="flex justify-center flex-col items-center mt-5 mb-5">
             <div className={`${isArchived ? "bg-gray-500" : "bg-blue-800"} rounded-t-lg shadow-md pt-4 pr-4 pl-4 w-full flex justify-between items-center relative`}>
                 <div className="absolute top-4 right-2 flex justify-end">
-                    {isAdmin && <CancelButton onClose={onClose!} color="white" />}
+                    <CancelButton onClose={onClose!} color="white" />
                 </div>
                 <h2 className="text-xl font-semibold mb-4 text-white">
                     {monthNames[currentMonth - 1]} {currentYear}

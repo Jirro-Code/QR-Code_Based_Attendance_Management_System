@@ -90,6 +90,7 @@ export const AttendanceHistoryPage = () => {
                 return new Date(event.eventDate).getDate() === parseInt(day, 10);
     });
     
+    const years = new Array(5).fill(0).map((_, index) => (2026 + index).toString());
     
     const inputClassName = "mt-1 bg-gray-100 block w-full border border-blue-800 placeholder-blue-800 text-blue-800 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-blue-900 focus:border-blue-800";
     
@@ -105,12 +106,7 @@ export const AttendanceHistoryPage = () => {
                             <div className="flex justify-between items-center">
                                 <div className="flex h-9 max-h-9 gap-2">
                                     <div className="w-28">
-                                        <SelectionField 
-                                            id="month-filter" 
-                                            className={selectionClassName}
-                                            value={month} 
-                                            onChange={handleMonthChange} 
-                                            isRequired={false} 
+                                        <SelectionField id="month-filter" className={selectionClassName} value={month} onChange={handleMonthChange} isRequired={false} 
                                             placeholder="Month"
                                             options={[
                                                 "January", "February", "March", "April", "May", "June",
@@ -120,29 +116,13 @@ export const AttendanceHistoryPage = () => {
                                     </div>
                                     
                                     <div className="w-16">
-                                        <Input 
-                                            className={inputClassName}
-                                            type="number" 
-                                            id="day" 
-                                            placeholder="Day" 
-                                            name="day" 
-                                            value={day} 
-                                            onChange={handleDayChange} 
-                                        />
+                                        <Input className={inputClassName} type="number" id="day" placeholder="Day" name="day" value={day} onChange={handleDayChange} />
                                     </div>
                                     
                                     <div className="w-24">
-                                        <SelectionField 
-                                            className={selectionClassName}
-                                            id="year-filter" 
-                                            value={year} 
-                                            onChange={handleYearChange} 
-                                            isRequired={false} 
+                                        <SelectionField className={selectionClassName} id="year-filter" value={year} onChange={handleYearChange} isRequired={false} 
                                             placeholder="Year"
-                                            options={[
-                                                "2020", "2021", "2022", "2023", "2024", "2025",
-                                                "2026", "2027", "2028", "2029", "2030"
-                                            ]}
+                                            options={years}
                                         />
                                     </div>
                                 </div>
