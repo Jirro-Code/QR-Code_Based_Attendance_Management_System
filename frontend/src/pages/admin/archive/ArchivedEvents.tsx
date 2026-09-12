@@ -10,7 +10,8 @@ import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx
 import { ViewEventCard } from "../../../components/Cards/ViewCards/ViewEventCard.tsx";
 import { EventFilterOptions } from "../../../components/Filters/EventFilter.tsx";
 import { Calendar } from "../../../components/Calendar.tsx";
-import { Ellipsis, CalendarDays } from "lucide-react";
+import { Ellipsis, CalendarDays, ArchiveRestoreIcon } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 
 export const ArchivedEvents = () => {
@@ -39,6 +40,8 @@ export const ArchivedEvents = () => {
         title: "",
         message: ""
     });
+    
+    const navigate = useNavigate();
     
     useEffect(() => {
         useViewAllEvents(setEventArray, setError);
@@ -194,6 +197,9 @@ export const ArchivedEvents = () => {
                     
                     <div className="mt-3 mb-3 flex items-center justify-between">
                         <div className="flex justify-center items-center gap-4">
+                            <button onClick={() => navigate("/manage-events")}>
+                                <ArchiveRestoreIcon className="w-5 h-5" />
+                            </button>
                             <button onClick={() => {showCalendar ? setShowCalendar(false) : setShowCalendar(true)}}>
                                 <CalendarDays className="w-5 h-5" />
                             </button>
@@ -208,7 +214,7 @@ export const ArchivedEvents = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                         {eventArray.filter((event) => event.isArchived === true).length > 0 ? (
                             eventArray.filter((event) => event.isArchived === true).map((event: Event) => (
-                                <EventCard key={event.id} event={event} isOnArchivedPage={true} onRestore={() => loadUnarchiveCard(event)} onLoadView={() => loadViewCard(event)} />
+                                <EventCard key={event.id} event={event} isOnArchivedPage={true} onRestore={() => loadUnarchiveCard(event)} onLoadView={() => loadViewCard(event)} isAdmin={true} />
                             ))
                         ) : (
                             <p>No events found.</p>

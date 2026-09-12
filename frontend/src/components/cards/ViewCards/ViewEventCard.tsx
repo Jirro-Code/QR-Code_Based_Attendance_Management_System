@@ -43,7 +43,7 @@ export const ViewEventCard = ({ event, onClose, onUpdate }: ViewEventCardProps) 
             <div onClick={(e) => e.stopPropagation()} className="bg-white pt-6 pb-7 px-9 rounded-b-lg shadow-md flex flex-col gap-3 max-w-md w-full">
                 <div>
                     <p className="text-gray-700 font-bold mb-1">Description</p>
-                    <p className={`scrollable-card bg-gray-100 border border-gray-300 rounded-md p-3 w-full ${onUpdate ? "h-20" : "h-40"} overflow-y-auto overscroll-contain whitespace-normal wrap-break-word text-sm text-gray-600 leading-relaxed`}>
+                    <p className={`scrollable-card bg-gray-100 border border-gray-300 rounded-md p-3 w-full ${onUpdate ? "h-30" : "h-40"} overflow-y-auto overscroll-contain whitespace-pre-wrap wrap-break-word text-sm text-gray-600 leading-relaxed`}>
                         {event.eventDescription}
                     </p>
                 </div>

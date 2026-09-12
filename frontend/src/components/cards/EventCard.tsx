@@ -5,11 +5,12 @@ type EventListCellProps = {
     event: Partial<Event>;
     onLoadView: () => void;
     isOnArchivedPage: boolean;
+    isAdmin: boolean;
     onArchive?: () => void;
     onRestore?: () => void;
 };
 
-export const EventCard = ({ event, onArchive, onRestore, onLoadView, isOnArchivedPage }: EventListCellProps) => {
+export const EventCard = ({ event, onArchive, onRestore, onLoadView, isOnArchivedPage, isAdmin }: EventListCellProps) => {
     const formatDate = (dateString: string) => {
         const [year, month, day] = dateString.split("-").map(Number);
         return new Date(year, month - 1, day).toLocaleDateString("en-US", {
@@ -33,11 +34,11 @@ export const EventCard = ({ event, onArchive, onRestore, onLoadView, isOnArchive
             </div>
             
             <div className="flex gap-2 mt-5">
-                <button onClick={onLoadView} className={`flex-1 flex items-center justify-center gap-1.5 ${color} text-white text-sm font-semibold py-2 px-3 rounded-lg transition-colors`}>
+                <button onClick={onLoadView} className={`flex-1 flex items-center justify-center gap-1.5  ${!isAdmin && "mt-2"}  ${color} text-white text-sm font-semibold py-2 px-3 rounded-lg transition-colors`}>
                     <Eye className="w-4 h-4" />
                     View
                 </button>
-                {isOnArchivedPage ? 
+                {isAdmin && (isOnArchivedPage ? 
                     <button onClick={onRestore} className="flex items-center justify-center hover:bg-green-50 text-green-800 py-2 px-3 rounded-lg transition-colors" >
                         <ArchiveRestore className="w-4 h-4" />
                     </button>
@@ -46,7 +47,7 @@ export const EventCard = ({ event, onArchive, onRestore, onLoadView, isOnArchive
                         <button onClick={onArchive} className="flex items-center justify-center hover:bg-red-50 text-red-700 py-2 px-3 rounded-lg transition-colors">
                             <Archive className="w-4 h-4" />
                         </button>
-                    )
+                    ))
                 }
             </div>
         </div>

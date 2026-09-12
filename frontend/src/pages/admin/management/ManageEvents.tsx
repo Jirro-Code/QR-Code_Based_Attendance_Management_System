@@ -193,7 +193,6 @@ export const ManageEvents = () => {
                     {showCalendar && <Calendar isAdmin={true} onClose={() => setShowCalendar(false)}  refreshEvents={eventArray} />}
                     <p className="text-red-600 text-sm">{error}</p>
                     
-                    
                     <div className="mt-3 mb-3 flex items-center justify-between">
                         <div className="flex justify-center items-center gap-4">
                             <button onClick={() => navigate("/archived-events")}>
@@ -214,7 +213,7 @@ export const ManageEvents = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                         {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
                             eventArray.filter((event) => event.isArchived === false).map((event: Event) => (
-                                <EventCard key={event.id} event={event} isOnArchivedPage={false} onArchive={() => loadArchiveCard(event)} onLoadView={() => loadViewCard(event)} />
+                                <EventCard key={event.id} event={event} isOnArchivedPage={false} onArchive={() => loadArchiveCard(event)} onLoadView={() => loadViewCard(event)} isAdmin={true} />
                             ))
                         ) : (
                             <p>No events found.</p>

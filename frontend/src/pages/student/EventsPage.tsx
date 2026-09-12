@@ -4,10 +4,11 @@ import { useView } from "../../hooks/useView.ts";
 import { useEffect, useState } from "react";
 import { type Event } from "../../services/events.ts";
 import { ViewEventCard } from "../../components/Cards/ViewCards/ViewEventCard.tsx";
-import { EventPageCard } from "../../components/Cards/EventPageCard.tsx";
+import { EventCard } from "../../components/Cards/EventCard.tsx";
 import { EventFilterOptions } from "../../components/Filters/EventFilter.tsx";
 import { Calendar } from "../../components/Calendar.tsx";
 import { Ellipsis, CalendarDays } from "lucide-react";
+import { Navbar } from "../../components/Navbar.tsx";
 
 export const EventsPage = () => {
     useEffect(() => {
@@ -151,7 +152,8 @@ export const EventsPage = () => {
     
     return(
         <>
-            <Header title="Manage Events" path="/student-dashboard" />
+            <Navbar dashPath="/student-dashboard" profilePath="/student/profile" />
+            <Header title="Upcoming Events" path="/student-dashboard" />
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-full mx-auto p-6">
                     <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
@@ -175,7 +177,7 @@ export const EventsPage = () => {
                     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                         {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
                             eventArray.filter((event) => event.isArchived === false).map((event: Event) => (
-                                <EventPageCard key={event.id} event={event} onLoadView={() => {setSelectedEvent(event), setShowViewCard(true)}} />
+                                <EventCard key={event.id} event={event} onLoadView={() => {setSelectedEvent(event), setShowViewCard(true)}} isOnArchivedPage={false} isAdmin={false} />
                             ))
                         ) : (
                             <p>No events found.</p>
