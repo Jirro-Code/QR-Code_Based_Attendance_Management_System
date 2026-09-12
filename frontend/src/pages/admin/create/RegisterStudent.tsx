@@ -9,6 +9,9 @@ import { ImageCropModal } from "../../../components/ImageCrop.tsx";
 import { X, Eye, EyeOff } from "lucide-react";
 
 export const RegisterStudent = () => {
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const {useRegister} = useCreate();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
@@ -34,9 +37,6 @@ export const RegisterStudent = () => {
         studentSection: ""
     });
     
-    useEffect(() => {
-        window.scrollTo({ top: 0, left: 0 });
-    }, []);
     
     const fileInputRef = useRef<HTMLInputElement>(null);
     

@@ -39,19 +39,19 @@ export const AdminLoginPage = () => {
     }
     
     return (
-        <div className="min-h-screen flex items-center justify-center bg-slate-100">
-            <div className="max-h-100 relative bg-white shadow-md flex rounded-2xl overflow-hidden">
+        <div className="min-h-screen flex items-center justify-center bg-slate-100 p-15">
+            <div className="grid grid-cols-1 md:grid-cols-2 w-full max-w-170 relative bg-white shadow-md rounded-2xl overflow-hidden">
                 
-                <div className="bg-blue-800 p-6 flex items-center justify-center">
-                    <div className="flex flex-col gap-1 items-center justify-center m-5">
-                        <img src={icp} alt="Logo" className="h-25 w-25" />
-                        <h1 className="text-2xl font-bold text-white ml-2">AttendScan</h1>
+                <div className="bg-blue-800 p-6 flex items-center justify-center md:max-w-76 md:min-h-80">
+                    <div className="flex flex-col gap-1 items-center justify-center py-1 md:py-5">
+                        <img src={icp} alt="Logo" className="w-16 h-16 sm:w-20 sm:h-20 md:w-27 md:h-27" />
+                        <h1 className="text-xl sm:text-2xl font-bold text-white text-center">AttendScan</h1>
                     </div>
                 </div>
                 
-                <div className="w-2/3 flex flex-col justify-center p-6">                    
+                <div className="flex flex-col w-full justify-center p-6 sm:p-8 md:pl-0">                    
                     <div className="mb-5">
-                        <h2 className="text-3xl font-bold text-gray-800">Login</h2>
+                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Login</h2>
                         <p className="text-gray-500 mt-2">Welcome back, Admin!</p>
                     </div>
                     

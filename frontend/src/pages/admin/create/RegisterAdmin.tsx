@@ -8,6 +8,9 @@ import { ImageCropModal } from "../../../components/ImageCrop.tsx";
 import { Eye, EyeOff, X } from "lucide-react";
 
 export const RegisterAdmin = () => {  
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -28,10 +31,6 @@ export const RegisterAdmin = () => {
         password: ""
     });
     const {useRegister} = useCreate();
-    
-    useEffect(() => {
-        window.scrollTo({ top: 0, left: 0 });
-    }, []);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setConfirmPassword(e.target.name === "confirmPassword" ? e.target.value : confirmPassword);
