@@ -1,13 +1,16 @@
-import {users, } from "../db/schema.ts";
-import type {Request, Response} from "express";
+import {users, passwordResetOTP} from "../db/schema.ts";
 import {db} from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
+import { sendPasswordResetOTP } from "../services/email.ts";
+import { generatePasswordResetOTP, hashPasswordResetOTP } from "../utils/otp.ts";
 import { generateToken } from "../utils/jwt.ts";
+import { uploadProfilePicture } from "../services/azureBlob.ts";
+import { type Request, type Response} from "express";
+import { type AuthenticatedRequest } from "../middlewares/authToken.ts";
 import { and, eq } from "drizzle-orm";
 import { env } from "../../env.ts";
+import { z } from "zod";
 import ms from "ms";
-import type { AuthenticatedRequest } from "../middlewares/authToken.ts";
-import { uploadProfilePicture } from "../services/azureBlob.ts";
 
 const cookieOptions = {
     httpOnly: true,
@@ -140,6 +143,36 @@ export const logoutUser = async (_req: AuthenticatedRequest, res: Response) => {
     }
     catch (e) {
         console.error("Error logging out:", e);
+        res.status(500).json({message: "Internal server error"});
+    }
+}
+
+export const forgotPassword = async (req: Request, res: Response) => {
+    try{
+        const email = z.string().email().parse(req.body.email);
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, email)
+        });
+        
+        if(!user){
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        const token = generatePasswordResetOTP();
+        const hashedToken = hashPasswordResetOTP(token);
+        
+        await db.insert(passwordResetOTP).values({
+            userEmail: user.email,
+            tokenHash: hashedToken,
+            expiresAt: new Date(Date.now() + 5 * 60 * 1000)
+        });
+        
+        await sendPasswordResetOTP(user.email, token);
+        
+        res.status(200).json({message: "Password reset OTP sent to email"});
+    }
+    catch (e) {
+        console.error("Error in forgot password:", e);
         res.status(500).json({message: "Internal server error"});
     }
 }

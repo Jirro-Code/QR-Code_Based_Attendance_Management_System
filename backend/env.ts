@@ -12,7 +12,7 @@ if (isDevelopment) {
     loadEnv("test");
 }
 
-const SENSITIVE_KEYS = [`DATABASE_URL`, `JWT_SECRET`, "AZURE_STORAGE_CONNECTION_STRING", "AZURE_STORAGE_ACCOUNT_KEY"];
+const SENSITIVE_KEYS = [`DATABASE_URL`, `JWT_SECRET`, "AZURE_STORAGE_CONNECTION_STRING", "AZURE_STORAGE_ACCOUNT_KEY", "SMTP_API_KEY"];
 
 const envSchema = z.object({
     NODE_ENV: z.enum([`production`, `development`, `test`]).default(`development`),
@@ -28,6 +28,12 @@ const envSchema = z.object({
     AZURE_STORAGE_CONTAINER_NAME: z.string().min(1),
     AZURE_STORAGE_ACCOUNT_NAME: z.string().min(1),
     AZURE_STORAGE_ACCOUNT_KEY: z.string().min(1),
+    
+    SMTP_HOST: z.string().min(1),
+    SMTP_PORT: z.coerce.number().positive().default(465),
+    SMTP_USER: z.string().min(1),
+    SMTP_API_KEY: z.string().min(1),
+    SMTP_FROM: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;

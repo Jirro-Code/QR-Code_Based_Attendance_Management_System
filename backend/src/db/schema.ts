@@ -29,6 +29,18 @@ export const users = pgTable("users", {
 });
 
 
+
+export const passwordResetOTP = pgTable("password_reset_otp", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userEmail: varchar("user_email", { length: 255 }).notNull().references(() => users.email, {
+        onDelete: "cascade",
+    }),
+    tokenHash: varchar("token", { length: 255 }).notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+});
+
+
 export const events = pgTable("events", {
     id: uuid("id").primaryKey().defaultRandom(),
     createdBy: uuid("created_by").references(() => users.id, {
@@ -67,7 +79,16 @@ export const attendance = pgTable("attendance", {
 
 export const userRelations = relations(users, ({ many }) => ({
     events: many(events),
-    attendance: many(attendance)
+    attendance: many(attendance),
+    passwordResetOTP: many(passwordResetOTP),
+}));
+
+
+export const passwordResetOTPRelations = relations(passwordResetOTP, ({ one }) => ({
+    user: one(users, {
+        fields: [passwordResetOTP.userEmail],
+        references: [users.email],
+    }),
 }));
 
 
@@ -94,6 +115,8 @@ export const attendanceRelations = relations(attendance, ({ one }) => ({
 
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
+export type PasswordResetToken = typeof passwordResetOTP.$inferSelect;
+export type NewPasswordResetToken = typeof passwordResetOTP.$inferInsert;
 export type Event = typeof events.$inferSelect;
 export type NewEvent = typeof events.$inferInsert;
 export type Attendance = typeof attendance.$inferSelect;
@@ -104,6 +127,10 @@ export const insertUserSchema = createInsertSchema(users).omit({
     id: true, createdAt: true, updatedAt: true 
 });
 export const selectUserSchema = createSelectSchema(users);
+export const insertPasswordResetTokenSchema = createInsertSchema(passwordResetOTP).omit({
+    id: true, createdAt: true
+});
+export const selectPasswordResetTokenSchema = createSelectSchema(passwordResetOTP);
 export const insertEventSchema = createInsertSchema(events).omit({
     id: true, createdAt: true, updatedAt: true 
 });
