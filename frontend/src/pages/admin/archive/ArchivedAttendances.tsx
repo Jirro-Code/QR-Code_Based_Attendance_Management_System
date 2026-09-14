@@ -6,12 +6,14 @@ import { type Event } from "../../../services/events.ts";
 import { EventAttendanceCard } from "../../../components/Cards/EventAttendanceCard.tsx";
 import { AttendanceCard } from "../../../components/Cards/ViewCards/ViewAttendanceCard.tsx";
 import { AttendanceFilterOptions } from "../../../components/Filters/AttendanceFilter.tsx";
-import { Ellipsis } from "lucide-react";
+import { ArchiveRestoreIcon, Ellipsis } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 export const ArchivedAttendances = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0 });
     }, []);
+    const navigate = useNavigate();
     const { useViewAllEventsWithArchivedAttendanceRecords, useSearchEvents, useViewEventWithAttendanceByStrandAndSection } = useView();
     const [error, setError] = useState<string>("");
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -151,52 +153,54 @@ export const ArchivedAttendances = () => {
     
     
     return(
-        <>
+        <div className="min-h-screen bg-slate-100">
             <Header title="Archived Attendances" path="/manage-attendances" />
-            <div className="min-h-screen bg-slate-100">
-                <div className="max-w-full mx-auto p-6">
-                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)}/>
-                    <p className="text-red-600 text-sm">{error}</p>
-                    
+            
+            <div className="max-w-full mx-auto p-6">
+                <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)}/>
+                <p className="text-red-600 text-sm">{error}</p>
+                
+                <div className="mt-3 mb-3 flex items-center justify-between">
+                    <button onClick={() => navigate("/manage-attendances")}>
+                        <ArchiveRestoreIcon className="w-5 h-5" />
+                    </button>
                     {!isOnSearch && 
-                        <div className="mt-3 mb-3 flex items-center justify-end">
-                            <button onClick={() => setShowFilter(true)}>
-                                <Ellipsis className="w-5 h-5" />
-                            </button>
-                        </div>
+                        <button onClick={() => setShowFilter(true)}>
+                            <Ellipsis className="w-5 h-5" />
+                        </button>
                     }
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
-                        {eventArray.length > 0 ? (
-                            eventArray.map((event: Event) => (
-                                <EventAttendanceCard isArchived={true} key={event.id} event={event} onView={() => loadViewCard(event)}  />
-                            ))
-                        ) : (
-                            <p>No events found.</p>
-                        )}
-                    </div>
-                    
-                    {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} isOnArchive={true} section={selectedBySection} strand={selectedStrand} onClose={() => setShowViewCard(false)} onComplete={() => {applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedBySection, selectedByTime,  searchQuery);}} />}
-                    {showFilter && (
-                        <AttendanceFilterOptions
-                            onClose={() => setShowFilter(false)}
-                            onApplyFilters={handleApplyFilters}
-                            selectedOrder={selectedOrder}
-                            setSelectedOrder={setSelectedOrder}
-                            selectedMonth={selectedMonth}
-                            setSelectedMonth={setSelectedMonth}
-                            selectedYear={selectedYear}
-                            setSelectedYear={setSelectedYear}
-                            selectedStrand={selectedStrand}
-                            setSelectedStrand={setSelectedStrand}
-                            selectedBySection={selectedBySection}
-                            setSelectedBySection={setSelectedBySection}
-                            selectedByTime={selectedByTime}
-                            setSelectedByTime={setSelectedByTime}
-                        />
-                    )}
                 </div>
+                
+                {eventArray.length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
+                        {eventArray.map((event: Event) => (
+                            <EventAttendanceCard isArchived={true} key={event.id} event={event} onView={() => loadViewCard(event)}  />
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No attendance records found.</p>
+                )}
+                
             </div>
-        </>
+            {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} isOnArchive={true} section={selectedBySection} strand={selectedStrand} onClose={() => setShowViewCard(false)} onComplete={() => {applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedBySection, selectedByTime,  searchQuery);}} />}
+            {showFilter && (
+                <AttendanceFilterOptions
+                    onClose={() => setShowFilter(false)}
+                    onApplyFilters={handleApplyFilters}
+                    selectedOrder={selectedOrder}
+                    setSelectedOrder={setSelectedOrder}
+                    selectedMonth={selectedMonth}
+                    setSelectedMonth={setSelectedMonth}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    selectedStrand={selectedStrand}
+                    setSelectedStrand={setSelectedStrand}
+                    selectedBySection={selectedBySection}
+                    setSelectedBySection={setSelectedBySection}
+                    selectedByTime={selectedByTime}
+                    setSelectedByTime={setSelectedByTime}
+                />
+            )}
+        </div>
     )
 }

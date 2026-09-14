@@ -67,7 +67,7 @@ export const StudentDashboard = () => {
     return (
         <>
             <Navbar dashPath="/student-dashboard" profilePath="/student/profile" />
-            <div className="min-h-screen bg-slate-100 px-6 py-10">
+        <div className="bg-slate-100 px-6 py-10">
             <div className="mx-auto max-w-full">
                 <div className="h-2"></div>
                 <div className="mb-8">

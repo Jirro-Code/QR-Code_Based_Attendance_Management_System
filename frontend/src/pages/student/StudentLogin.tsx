@@ -70,6 +70,7 @@ export const StudentLoginPage = () => {
                             {error && (<span className="absolute w-full -bottom-8 left-0 flex items-center gap-1 text-red-600 text-[10px]"><CircleAlert size={12} /><u>{error}</u></span>)}
                         </div>
                         <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={isLoading}> {isLoading ? "Logging in..." : "Log In"}</button>
+                        <p className="text-sm text-gray-500 mt-4">Forgot your password? <a href="/forgot-password" className="text-blue-500 hover:underline">Click here</a></p>
                     </form>
                 </div>
             </div>

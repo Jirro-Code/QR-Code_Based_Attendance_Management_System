@@ -175,57 +175,53 @@ export const ManageStudents = () => {
     }
     
     return (
-        <>
-            <Header title="Manage Students" />
-            <div className="inset-0 min-h-screen bg-slate-100">
-                <div className="px-5 py-4">
-                    <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)} />
-                    <p>{error}</p>
-                    
-                    {!isOnSearch &&
-                        <div className="mt-3 flex items-center justify-between">
-                            <button onClick={() => navigate("/archived-students")} className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors">
-                                <Archive className="w-5 h-5" />
-                            </button>
+        <div className="inset-0 min-h-screen bg-slate-100">
+            <Header title="Manage Students" path="/admin-dashboard" />
+            <div className="px-5 py-4">
+                <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)} />
+                <p>{error}</p>
+                
+                    <div className="mt-3 flex items-center justify-between">
+                        <button onClick={() => navigate("/archived-students")} className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors">
+                            <Archive className="w-5 h-5" />
+                        </button>
+                        {!isOnSearch &&
                             <button onClick={() => setShowFilter(true)}>
                                 <Ellipsis className="w-5 h-5" />
                             </button>
-                        </div>
-                    }
-                </div>
-                
-                
-                <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
-                    <div>#</div>
-                    <div>Name</div>
-                    <div>Strand</div>
-                    <div>Section</div>
-                    <div>Student ID</div>
-                    <div className="ml-8">Actions</div>
-                </div>
-                
-                {userArray.filter((user) => user.isArchived === false).length > 0 ? (
-                    userArray.filter((user) => user.isArchived === false).map((user: Partial<User>, index) => (
-                        <UserListCell
-                            key={user.id}
-                            user={user}
-                            number={index + 1}
-                            onLoadView={() => loadViewCard(user)}
-                            onArchive={() => loadArchiveCard(user)}
-                        />
-                    ))
-                ) : (
-                    <p className="p-5 text-gray-500">
-                        No users found.
-                    </p>
-                )}
-                {showFilter && (<StudentFilterOptions onApplyFilters={handleApplyFilters} onClose={() => setShowFilter(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} selectedStrand={selectedStrand} setSelectedStrand={setSelectedStrand} selectedBySection={selectedBySection} setSelectedBySection={setSelectedBySection} /> )}
-                {showUpdateCard && selectedUser && <UpdateUserCard student={selectedUser} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
-                {showAttendanceHistoryCard && selectedUser && <AttendanceHistoryCard student={selectedUser} onClose={() => setShowAttendanceHistoryCard(false)} />}
-                {showArchiveCard && selectedUser && <ArchiveUserCard userId={selectedUser.id!} username={selectedUser.username!} onArchived={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowArchiveCard(false)}  />}
-                {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onLoadHistory={() => loadAttendanceHistoryCard(selectedUser)} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
-                {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
+                        }
+                    </div>
             </div>
-        </>
+            
+            
+            <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
+                <div>#</div>
+                <div>Name</div>
+                <div>Strand</div>
+                <div>Section</div>
+                <div>Student ID</div>
+                <div className="ml-8">Actions</div>
+            </div>
+            
+            {userArray.filter((user) => user.isArchived === false).length > 0 ? (
+                userArray.filter((user) => user.isArchived === false).map((user: Partial<User>, index) => (
+                    <UserListCell
+                        key={user.id}
+                        user={user}
+                        number={index + 1}
+                        onLoadView={() => loadViewCard(user)}
+                        onArchive={() => loadArchiveCard(user)}
+                    />
+                ))
+            ) : (
+                <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No students found.</p>
+            )}
+            {showFilter && (<StudentFilterOptions onApplyFilters={handleApplyFilters} onClose={() => setShowFilter(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} selectedStrand={selectedStrand} setSelectedStrand={setSelectedStrand} selectedBySection={selectedBySection} setSelectedBySection={setSelectedBySection} /> )}
+            {showUpdateCard && selectedUser && <UpdateUserCard student={selectedUser} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
+            {showAttendanceHistoryCard && selectedUser && <AttendanceHistoryCard student={selectedUser} onClose={() => setShowAttendanceHistoryCard(false)} />}
+            {showArchiveCard && selectedUser && <ArchiveUserCard userId={selectedUser.id!} username={selectedUser.username!} onArchived={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowArchiveCard(false)}  />}
+            {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onLoadHistory={() => loadAttendanceHistoryCard(selectedUser)} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
+        </div>
     );
 }

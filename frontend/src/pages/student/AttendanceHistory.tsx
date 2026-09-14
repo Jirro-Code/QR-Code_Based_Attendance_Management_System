@@ -98,9 +98,11 @@ export const AttendanceHistoryPage = () => {
     
     return (
         <>  
-            <Header title="Attendance History" path="/student-dashboard" />
             <div className="inset-0 min-h-screen bg-slate-100">
-                <div className="w-full h-screen relative">
+                <div className="top-0 left-0 w-full">
+                    <Header title="Attendance History" path="/student-dashboard" />
+                </div>
+                <div className="w-full relative">
                     <div className={"bg-slate-100 p-2 pr-4"}>
                         <div className="flex justify-end">
                             <div className="flex justify-between items-center">

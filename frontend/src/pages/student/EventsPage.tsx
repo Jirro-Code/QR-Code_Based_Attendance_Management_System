@@ -8,7 +8,7 @@ import { EventCard } from "../../components/Cards/EventCard.tsx";
 import { EventFilterOptions } from "../../components/Filters/EventFilter.tsx";
 import { Calendar } from "../../components/Calendar.tsx";
 import { Ellipsis, CalendarDays } from "lucide-react";
-import { Navbar } from "../../components/Navbar.tsx";
+
 
 export const EventsPage = () => {
     useEffect(() => {
@@ -152,7 +152,6 @@ export const EventsPage = () => {
     
     return(
         <>
-            <Navbar dashPath="/student-dashboard" profilePath="/student/profile" />
             <Header title="Upcoming Events" path="/student-dashboard" />
             <div className="min-h-screen bg-slate-100">
                 <div className="max-w-full mx-auto p-6">

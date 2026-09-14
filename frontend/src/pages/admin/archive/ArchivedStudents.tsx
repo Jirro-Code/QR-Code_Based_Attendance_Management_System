@@ -9,13 +9,15 @@ import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx
 import { ViewStudentCard } from "../../../components/Cards/ViewCards/ViewStudentCard.tsx";
 import { Header } from "../../../components/Header.tsx";
 import { StudentFilterOptions } from "../../../components/Filters/StudentFilter.tsx";
-import { Ellipsis } from "lucide-react";
+import { ArchiveRestore, Ellipsis } from "lucide-react";
 import { AttendanceHistoryCard } from "../../../components/Cards/ViewCards/ViewAttendanceHistoryCard.tsx";
+import { useNavigate } from "react-router-dom";
 
 export const ArchivedStudents = () => {
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0 });
     }, []);
+    const navigate = useNavigate();
     const { useViewAllUsers, useSearchUsers } = useView();
     const [error, setError] = useState<string>("");
     const [selectedUser, setSelectedUser] = useState<Partial<User> | null>(null);
@@ -167,54 +169,53 @@ export const ArchivedStudents = () => {
     }
     
     return (
-        <>
+        <div className="inset-0 min-h-screen bg-slate-100">
             <Header title={ "Archived Students"} path="/manage-students" />
-            <div className="inset-0 min-h-screen bg-slate-100">
-                <div className="px-5 py-4">
-                    <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)} />
-                    <p>{error}</p>
-                    
+            <div className="px-5 py-4">
+                <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)} />
+                <p>{error}</p>
+                
+                <div className="mt-3 flex items-center justify-between">
+                    <button onClick={() => navigate("/manage-students")} className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors">
+                        <ArchiveRestore className="w-5 h-5" />
+                    </button>
                     {!isOnSearch &&
-                        <div className="mt-3 flex items-center justify-end">
-                            <button onClick={() => setShowFilter(true)}>
-                                <Ellipsis className="w-5 h-5" />
-                            </button>
-                        </div>
+                        <button onClick={() => setShowFilter(true)}>
+                            <Ellipsis className="w-5 h-5" />
+                        </button>
                     }
                 </div>
-                
-                
-                <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
-                    <div>#</div>
-                    <div>Name</div>
-                    <div>Strand</div>
-                    <div>Section</div>
-                    <div>Student ID</div>
-                    <div className="ml-8">Actions</div>
-                </div>
-                
-                {userArray.filter((user) => user.isArchived === true).length > 0 ? (
-                    userArray.filter((user) => user.isArchived === true).map((user: Partial<User>, index) => (
-                        <UserListCell
-                            key={user.id}
-                            user={user}
-                            number={index + 1}
-                            onRestore={() => loadUnarchiveCard(user)}
-                            onLoadView={() => loadViewCard(user)}
-                        />
-                    ))
-                ) : (
-                    <p className="p-5 text-gray-500">
-                        No users found.
-                    </p>
-                )}
-                {showFilter && (<StudentFilterOptions onApplyFilters={handleApplyFilters} onClose={() => setShowFilter(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} selectedStrand={selectedStrand} setSelectedStrand={setSelectedStrand} selectedBySection={selectedBySection} setSelectedBySection={setSelectedBySection} /> )}
-                {showUpdateCard && selectedUser && <UpdateUserCard student={selectedUser} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
-                {showUnarchiveCard && selectedUser && <UnarchiveUserCard userId={selectedUser.id!} username={selectedUser.username!} onRestored={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUnarchiveCard(false)}  />}
-                {showAttendanceHistoryCard && selectedUser && <AttendanceHistoryCard student={selectedUser} onClose={() => setShowAttendanceHistoryCard(false)} />}
-                {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onLoadHistory={() => loadAttendanceHistoryCard(selectedUser)} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
-                {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
             </div>
-        </>
+            
+            
+            <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
+                <div>#</div>
+                <div>Name</div>
+                <div>Strand</div>
+                <div>Section</div>
+                <div>Student ID</div>
+                <div className="ml-8">Actions</div>
+            </div>
+            
+            {userArray.filter((user) => user.isArchived === true).length > 0 ? (
+                userArray.filter((user) => user.isArchived === true).map((user: Partial<User>, index) => (
+                    <UserListCell
+                        key={user.id}
+                        user={user}
+                        number={index + 1}
+                        onRestore={() => loadUnarchiveCard(user)}
+                        onLoadView={() => loadViewCard(user)}
+                    />
+                ))
+            ) : (
+                <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No students found.</p>
+            )}
+            {showFilter && (<StudentFilterOptions onApplyFilters={handleApplyFilters} onClose={() => setShowFilter(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} selectedStrand={selectedStrand} setSelectedStrand={setSelectedStrand} selectedBySection={selectedBySection} setSelectedBySection={setSelectedBySection} /> )}
+            {showUpdateCard && selectedUser && <UpdateUserCard student={selectedUser} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
+            {showUnarchiveCard && selectedUser && <UnarchiveUserCard userId={selectedUser.id!} username={selectedUser.username!} onRestored={refreshUserList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUnarchiveCard(false)}  />}
+            {showAttendanceHistoryCard && selectedUser && <AttendanceHistoryCard student={selectedUser} onClose={() => setShowAttendanceHistoryCard(false)} />}
+            {showViewCard && selectedUser && <ViewStudentCard student={selectedUser} onLoadHistory={() => loadAttendanceHistoryCard(selectedUser)} onUpdate={() => loadUpdateCard(selectedUser)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
+        </div>
     );
 }

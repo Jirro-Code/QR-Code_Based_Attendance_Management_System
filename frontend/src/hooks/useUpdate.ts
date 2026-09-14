@@ -1,4 +1,4 @@
-import { logout } from "../services/auth.ts";
+import { forgotPassword, logout } from "../services/auth.ts";
 import { updateUser, type User } from "../services/users.ts";
 import { updateEvent, type Event } from "../services/events.ts";
 import { ApiError } from "../services/error.ts";
@@ -103,6 +103,32 @@ export const useUpdate = () => {
             throw e;
         }
     }
+
+    const useForgotPassword = async (email: string, role: "user" | "admin", setError: React.Dispatch<React.SetStateAction<string>>) => {
+        try {
+            const responseData = await forgotPassword(email, role);
+            return responseData;
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Bad request. Please check your input and try again.");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "User not found.");
+                }
+                if (e.status >= 500) {
+                    alert("Server error. Please try again later.");
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("Failed to send password reset email.");
+            console.error("Error sending password reset email:", e);
+            throw e;
+        }
+    }
     
-    return { useUpdateUser, useUpdateEvent, useUpdateAttendance };
+    return { useUpdateUser, useUpdateEvent, useUpdateAttendance, useForgotPassword };
 }

@@ -67,3 +67,11 @@ export const logout = async (path: string) => {
         alert("An error occurred during logout. Please try again.");
     }
 }
+
+export const forgotPassword = async (email: string, role: "user" | "admin") => {
+    const response = await apiFetch("/auth/forgotPassword", {
+        method: "POST",
+        body: JSON.stringify({ email, role })
+    });
+    return response.json().catch(() => null);
+}

@@ -83,8 +83,8 @@ export const AttendanceCard = ({ event, strand, section, isOnArchive, onClose, o
                     </h1>
                     
                     <div className="w-full flex justify-between items-center">
-                        {strand ? (<h4 className="text-white/90 text-sm">{strand}</h4>) : <p className="text-white/90 text-sm">No strand selected</p>}
-                        {section ? (<h4 className="text-white/90 text-sm">{section}</h4>) : <p className="text-white/90 text-sm">No section selected</p>}
+                        {strand ? (<h4 className="text-white/90 text-sm">{strand}</h4>) : <p></p>}
+                        {section ? (<h4 className="text-white/90 text-sm">{section}</h4>) : <p></p>}
                         <h4 className="text-white/90 text-sm">{formatDate(event.eventDate)}</h4>
                     </div>
                     {error && (<p className="text-red-700 px-2 py-1 text-sm w-fit mt-1">{error}</p>)}

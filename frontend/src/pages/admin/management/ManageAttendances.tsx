@@ -153,55 +153,58 @@ export const ManageAttendances = () => {
     
     
     return(
-        <>
-            <Header title="Manage Attendances" />
-            <div className="min-h-screen bg-slate-100">
-                <div className="max-w-full mx-auto p-6">
-                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)}/>
-                    <p className="text-red-600 text-sm">{error}</p>
-                    
+        <div className="inset-0 min-h-screen bg-slate-100">
+            <Header title="Manage Attendances" path="/admin-dashboard" />
+            
+            <div className="max-w-full mx-auto p-6">
+                <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)}/>
+                <p className="text-red-600 text-sm">{error}</p>
+                
+                
+                <div className="mt-3 mb-3 flex items-center justify-between">
+                    <button onClick={() => navigate("/archived-attendances")}>
+                        <Archive className="w-5 h-5" />
+                    </button>
                     {!isOnSearch &&
-                        <div className="mt-3 mb-3 flex items-center justify-between">
-                            <button onClick={() => navigate("/archived-attendances")}>
-                                <Archive className="w-5 h-5" />
-                            </button>
-                            <button onClick={() => setShowFilter(true)}>
-                                <Ellipsis className="w-5 h-5" />
-                            </button>
-                        </div>
+                        <button onClick={() => setShowFilter(true)}>
+                            <Ellipsis className="w-5 h-5" />
+                        </button>
                     }
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
-                        {eventArray.length > 0 ? (
-                            eventArray.map((event: Event) => (
+                </div>
+                
+                
+                <div>
+                    {eventArray.length > 0 ? (
+                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
+                            {eventArray.map((event: Event) => (
                                 <EventAttendanceCard isArchived={false} key={event.id} event={event} onView={() => loadViewCard(event)}  />
-                            ))
-                        ) : (
-                            <p>No events found.</p>
-                        )}
-                    </div>
-                    
-                    {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} isOnArchive={false} section={selectedBySection} strand={selectedStrand} onClose={() => setShowViewCard(false)} onComplete={() => {applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedBySection, selectedByTime,  searchQuery);}} />}
-                    {showFilter && (
-                        <AttendanceFilterOptions
-                            onClose={() => setShowFilter(false)}
-                            onApplyFilters={handleApplyFilters}
-                            selectedOrder={selectedOrder}
-                            setSelectedOrder={setSelectedOrder}
-                            selectedMonth={selectedMonth}
-                            setSelectedMonth={setSelectedMonth}
-                            selectedYear={selectedYear}
-                            setSelectedYear={setSelectedYear}
-                            selectedStrand={selectedStrand}
-                            setSelectedStrand={setSelectedStrand}
-                            selectedBySection={selectedBySection}
-                            setSelectedBySection={setSelectedBySection}
-                            selectedByTime={selectedByTime}
-                            setSelectedByTime={setSelectedByTime}
-                        />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No attendance records found.</p>
                     )}
                 </div>
+                
+                {showViewCard && selectedEvent && <AttendanceCard event={selectedEvent} isOnArchive={false} section={selectedBySection} strand={selectedStrand} onClose={() => setShowViewCard(false)} onComplete={() => {applyAllFilters(selectedOrder, selectedMonth, selectedYear, selectedStrand, selectedBySection, selectedByTime,  searchQuery);}} />}
+                {showFilter && (
+                    <AttendanceFilterOptions
+                        onClose={() => setShowFilter(false)}
+                        onApplyFilters={handleApplyFilters}
+                        selectedOrder={selectedOrder}
+                        setSelectedOrder={setSelectedOrder}
+                        selectedMonth={selectedMonth}
+                        setSelectedMonth={setSelectedMonth}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        selectedStrand={selectedStrand}
+                        setSelectedStrand={setSelectedStrand}
+                        selectedBySection={selectedBySection}
+                        setSelectedBySection={setSelectedBySection}
+                        selectedByTime={selectedByTime}
+                        setSelectedByTime={setSelectedByTime}
+                    />
+                )}
             </div>
-        </>
+        </div>
     )
 }

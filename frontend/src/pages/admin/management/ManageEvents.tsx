@@ -185,60 +185,58 @@ export const ManageEvents = () => {
     }
     
     return(
-        <>
-            <Header title="Manage Events" />
-            <div className="min-h-screen bg-slate-100">
-                <div className="max-w-full mx-auto p-6">
-                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
-                    {showCalendar && <Calendar isAdmin={true} onClose={() => setShowCalendar(false)}  refreshEvents={eventArray} />}
-                    <p className="text-red-600 text-sm">{error}</p>
-                    
-                    <div className="mt-3 mb-3 flex items-center justify-between">
-                        <div className="flex justify-center items-center gap-4">
-                            <button onClick={() => navigate("/archived-events")}>
-                                <Archive className="w-5 h-5" />
-                            </button>
-                            <button onClick={() => {showCalendar ? setShowCalendar(false) : setShowCalendar(true)}}>
-                                <CalendarDays className="w-5 h-5" />
-                            </button>
-                        </div>
-                        {!isOnSearch &&
-                            <button onClick={() => setShowFilter(true)}>
-                                <Ellipsis className="w-5 h-5" />
-                            </button>
-                        }
+        <div className="min-h-screen bg-slate-100">
+            <Header title="Manage Events" path="/admin-dashboard" />
+            <div className="max-w-full mx-auto p-6">
+                <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
+                {showCalendar && <Calendar isAdmin={true} onClose={() => setShowCalendar(false)}  refreshEvents={eventArray} />}
+                <p className="text-red-600 text-sm">{error}</p>
+                
+                <div className="mt-3 mb-3 flex items-center justify-between">
+                    <div className="flex justify-center items-center gap-4">
+                        <button onClick={() => navigate("/archived-events")}>
+                            <Archive className="w-5 h-5" />
+                        </button>
+                        <button onClick={() => {showCalendar ? setShowCalendar(false) : setShowCalendar(true)}}>
+                            <CalendarDays className="w-5 h-5" />
+                        </button>
                     </div>
-                    
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
-                        {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
-                            eventArray.filter((event) => event.isArchived === false).map((event: Event) => (
-                                <EventCard key={event.id} event={event} isOnArchivedPage={false} onArchive={() => loadArchiveCard(event)} onLoadView={() => loadViewCard(event)} isAdmin={true} />
-                            ))
-                        ) : (
-                            <p>No events found.</p>
-                        )}
-                    </div>
-                    {showFilter && (
-                        <EventFilterOptions
-                            onClose={() => setShowFilter(false)}
-                            onApplyFilters={handleApplyFilters}
-                            selectedOrder={selectedOrder}
-                            setSelectedOrder={setSelectedOrder}
-                            selectedMonth={selectedMonth}
-                            setSelectedMonth={setSelectedMonth}
-                            selectedYear={selectedYear}
-                            setSelectedYear={setSelectedYear}
-                            selectedByTime={selectedByTime}
-                            setSelectedByTime={setSelectedByTime}
-                        />
-                    )}
-                    {showUpdateCard && selectedEvent && <UpdateEventCard event={selectedEvent} isDisabled={eventsWithRecords.some((e) => e.id === selectedEvent.id) || eventsWithArchivedRecords.some((e) => e.id === selectedEvent.id)} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
-                    {showArchiveCard && selectedEvent && <ArchiveEventCard id={selectedEvent.id} onArchived={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowArchiveCard(false)} eventName={selectedEvent.eventName} />}
-                    {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
-                    {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
+                    {!isOnSearch &&
+                        <button onClick={() => setShowFilter(true)}>
+                            <Ellipsis className="w-5 h-5" />
+                        </button>
+                    }
                 </div>
+                
+                {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
+                        {eventArray.filter((event) => event.isArchived === false).map((event: Event) => (
+                            <EventCard key={event.id} event={event} isOnArchivedPage={false} onArchive={() => loadArchiveCard(event)} onLoadView={() => loadViewCard(event)} isAdmin={true} />
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No events found.</p>
+                )}
+                
             </div>
-        </>
+            {showFilter && (
+                <EventFilterOptions
+                    onClose={() => setShowFilter(false)}
+                    onApplyFilters={handleApplyFilters}
+                    selectedOrder={selectedOrder}
+                    setSelectedOrder={setSelectedOrder}
+                    selectedMonth={selectedMonth}
+                    setSelectedMonth={setSelectedMonth}
+                    selectedYear={selectedYear}
+                    setSelectedYear={setSelectedYear}
+                    selectedByTime={selectedByTime}
+                    setSelectedByTime={setSelectedByTime}
+                />
+            )}
+            {showUpdateCard && selectedEvent && <UpdateEventCard event={selectedEvent} isDisabled={eventsWithRecords.some((e) => e.id === selectedEvent.id) || eventsWithArchivedRecords.some((e) => e.id === selectedEvent.id)} onUpdated={(updatedEvent) => updateNotification(updatedEvent)} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
+            {showArchiveCard && selectedEvent && <ArchiveEventCard id={selectedEvent.id} onArchived={refreshEventList} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowArchiveCard(false)} eventName={selectedEvent.eventName} />}
+            {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onUpdate={() => loadUpdateCard(selectedEvent)} onClose={() => {setShowViewCard(false), setShowUpdateCard(false), setShowNotification(false)}} />}
+            {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
+        </div>
     )
 }

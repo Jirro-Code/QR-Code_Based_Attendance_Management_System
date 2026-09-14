@@ -29,18 +29,15 @@ export const AdminDashboard = () => {
     return (
     <>
         <Navbar dashPath="/admin-dashboard" profilePath="/admin/profile" />
-        
-        <div className="min-h-screen bg-slate-100 px-6 py-10">
+        <div className="bg-slate-100 px-6 py-10">
             <div className="mx-auto max-w-full">
                 <div className="h-2"></div>
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Admin Dashboard</h1>
                     <p className="mt-2 text-slate-500"> Welcome back,{" "} <span className="font-semibold text-blue-800">{adminData.username}</span>!</p>
                 </div>
-                <div className="h-10"></div>
                 
                 <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                    
                     <button
                         onClick={() => navigate("/manage-attendances")}
                         className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
