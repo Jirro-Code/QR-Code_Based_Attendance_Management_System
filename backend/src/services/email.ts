@@ -1,32 +1,30 @@
 import nodemailer from "nodemailer";
+import {env} from "../../env.ts";
 
 const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
+    host: env.SMTP_HOST,
+    port: Number(env.SMTP_PORT),
     secure: true,
     auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
+        user: env.SMTP_USER,
+        pass: env.SMTP_API_KEY,
     },
 });
 
-export const sendPasswordResetOTP = async (
-    email: string,
-    otp: string
-) => {
-    await transporter.sendMail({
-        from: process.env.SMTP_FROM,
+export const sendPasswordResetOTP = async (email: string, otp: string) => {
+    return await transporter.sendMail({
+        from: env.SMTP_FROM,
         to: email,
-        subject: "AttendScan Password Reset Code",
-        text: `Your AttendScan password reset code is ${otp}. This code expires in 5 minutes.`,
+        subject: "AttendScan Password Reset OTP",
+        text: `Your AttendScan password reset OTP is ${otp}. This OTP expires in 5 minutes.`,
         html: `
             <h2>AttendScan Password Reset</h2>
             
-            <p>Your password reset verification code is:</p>
+            <p>Your password reset OTP is:</p>
             
             <h1>${otp}</h1>
             
-            <p>This code will expire in 5 minutes.</p>
+            <p>This OTP will expire in 5 minutes.</p>
             
             <p>If you did not request a password reset, you can ignore this email.</p>
         `,

@@ -1,8 +1,8 @@
-import {users, passwordResetOTP} from "../db/schema.ts";
-import {db} from "../db/connections.ts";
+import { users, passwordResetOTP} from "../db/schema.ts";
+import { db } from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
 import { sendPasswordResetOTP } from "../services/email.ts";
-import { generatePasswordResetOTP, hashPasswordResetOTP } from "../utils/otp.ts";
+import { generatePasswordResetOTP, hashPasswordResetOTP, verifyPasswordResetOTP} from "../utils/otp.ts";
 import { generateToken } from "../utils/jwt.ts";
 import { uploadProfilePicture } from "../services/azureBlob.ts";
 import { type Request, type Response} from "express";
@@ -121,7 +121,7 @@ export const loginUser = async (req: Request, res: Response) => {
         
         const {password, ...userWithoutPassword} = user;     
         res.cookie("token", token, cookieOptions);
-        
+        console.log(token);
         res.status(201).json({message: "Login successful", user: userWithoutPassword});
     }
     catch(e) {
@@ -150,16 +150,31 @@ export const logoutUser = async (_req: AuthenticatedRequest, res: Response) => {
 export const forgotPassword = async (req: Request, res: Response) => {
     try{
         const email = z.string().email().parse(req.body.email);
+        const role = z.enum(["user", "admin"]).parse(req.body.role);
         const user = await db.query.users.findFirst({
-            where: eq(users.email, email)
+            where: and(eq(users.email, email), eq(users.role, role))
         });
         
         if(!user){
             return res.status(404).json({message: "User not found"});
         }
         
+        await db.delete(passwordResetOTP).where(eq(passwordResetOTP.userEmail, user.email)).execute();
+        
         const token = generatePasswordResetOTP();
         const hashedToken = hashPasswordResetOTP(token);
+        
+        try {
+            const result = await sendPasswordResetOTP(user.email, token);
+            
+            if(result.rejected.includes(user.email)){
+                return res.status(500).json({message: "Failed to send OTP"});
+            }
+        }
+        catch (e) {
+            console.error("Error sending password reset OTP:", e);
+            return res.status(500).json({message: "Failed to send OTP"});
+        }
         
         await db.insert(passwordResetOTP).values({
             userEmail: user.email,
@@ -167,12 +182,56 @@ export const forgotPassword = async (req: Request, res: Response) => {
             expiresAt: new Date(Date.now() + 5 * 60 * 1000)
         });
         
-        await sendPasswordResetOTP(user.email, token);
-        
         res.status(200).json({message: "Password reset OTP sent to email"});
     }
     catch (e) {
+        if (e instanceof z.ZodError) {
+            console.error("Validation error in forgot password:", e.issues);
+            return res.status(400).json({message: "Invalid request data", errors: e.issues});
+        }
         console.error("Error in forgot password:", e);
+        res.status(500).json({message: "Internal server error"});
+    }
+}
+
+export const verifyOtp = async (req: Request, res: Response) => {
+    try{
+        const email = z.string().email().parse(req.body.email);
+        const role = z.enum(["user", "admin"]).parse(req.body.role);
+        const otp = z.string().length(6).parse(req.body.otp);
+        
+        const user = await db.query.users.findFirst({
+            where: and(eq(users.email, email), eq(users.role, role))
+        });
+        
+        if(!user){
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        const otpRecord = await db.query.passwordResetOTP.findFirst({
+            where: eq(passwordResetOTP.userEmail, email)
+        });
+        
+        if(!otpRecord){
+            return res.status(404).json({message: "OTP not found or expired"});
+        }
+        
+        const isOtpValid = await verifyPasswordResetOTP(otp, otpRecord.tokenHash);
+        
+        if(!isOtpValid){
+            return res.status(401).json({message: "Invalid OTP"});
+        }
+        
+        await db.delete(passwordResetOTP).where(eq(passwordResetOTP.userEmail, email)).execute();
+        
+        res.status(200).json({message: "OTP confirmed. You can now reset your password."});
+    } 
+    catch (e) {
+        if (e instanceof z.ZodError) {
+            console.error("Validation error in confirm OTP:", e.issues);
+            return res.status(400).json({message: "Invalid request data", errors: e.issues});
+        }
+        console.error("Error in confirm OTP:", e);
         res.status(500).json({message: "Internal server error"});
     }
 }

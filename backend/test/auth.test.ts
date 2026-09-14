@@ -90,7 +90,7 @@ describe("Authentication Tests", () => {
                     password: testUserPassword
                 })
                 .expect(201);
-            
+
             const response = await request(app)
                 .post("/api/auth/logout")
                 .set("Cookie", loginResponse.headers["set-cookie"]?.[0] ?? buildAuthCookie(loginResponse.body.token))
@@ -101,6 +101,20 @@ describe("Authentication Tests", () => {
             expect(response.headers["set-cookie"]?.[0]).toContain("token=");
         });
     })
+
+    describe("POST /api/auth/forgotPassword", () => {
+        it("should not send a reset OTP for an unregistered email", async () => {
+            const response = await request(app)
+                .post("/api/auth/forgotPassword")
+                .send({
+                    email: "not-registered@example.com",
+                    role: "user"
+                })
+                .expect(404);
+
+            expect(response.body).toHaveProperty("message", "User not found");
+        });
+    });
     
     describe("Error handling tests for auth controller", () =>{
         it("should return an error for missing fields", async () => {

@@ -7,3 +7,8 @@ export const generatePasswordResetOTP = () => {
 export const hashPasswordResetOTP = (otp: string) => {
     return crypto.createHash("sha256").update(otp).digest("hex");
 }
+
+export const verifyPasswordResetOTP = (otp: string, hashedOtp: string) => {
+    const hashedInputOtp = hashPasswordResetOTP(otp);
+    return hashedInputOtp === hashedOtp;
+}

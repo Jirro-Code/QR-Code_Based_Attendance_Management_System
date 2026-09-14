@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, loginUser, logoutUser } from "../controllers/authController.ts";
+import { registerUser, loginUser, logoutUser, forgotPassword, verifyOtp } from "../controllers/authController.ts";
 import { validateBody } from "../middlewares/validation.ts";
 import { userRoleSchema, userStrandSchema } from "../db/schema.ts";
 import { authAdminToken } from "../middlewares/authToken.ts";
@@ -33,9 +33,22 @@ const registerSchema = z.object({
     studentSection: z.string().optional()
 })
 
+const forgotPasswordSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    role: userRoleSchema
+});
+
+const verifyOtpSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    role: userRoleSchema,
+    otp: z.string().length(6, "OTP must be exactly 6 digits long")
+});
+
 
 router.post("/login", validateBody(loginSchema), loginUser);
 router.post("/logout", logoutUser);
+router.post("/forgotPassword", validateBody(forgotPasswordSchema), forgotPassword);
+router.post("/verifyOtp", validateBody(verifyOtpSchema), verifyOtp);
 
 router.use(authAdminToken);
 router.post("/register", upload.single("profilePicture"), validateBody(registerSchema), registerUser);
