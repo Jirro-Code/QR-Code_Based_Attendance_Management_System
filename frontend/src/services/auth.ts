@@ -75,3 +75,11 @@ export const forgotPassword = async (email: string, role: "user" | "admin") => {
     });
     return response.json().catch(() => null);
 }
+
+export const verifyOtp = async (email: string, role: "user" | "admin", otp: string) => {
+    const response = await apiFetch("/auth/verifyOtp", {
+        method: "POST",
+        body: JSON.stringify({ email, role, otp })
+    });
+    return response.json().catch(() => null);
+}
