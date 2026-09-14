@@ -78,6 +78,14 @@ export const updateUser = async (id: string, userData: Partial<User>) => {
     return response.json();
 }
 
+export const updateUserPassword = async (email: string, newPassword: string) => {
+    const response = await apiFetch(`/users/update-password/${email}`, {
+        method: "PATCH",
+        body: JSON.stringify({ password: newPassword }),
+    });
+    return response.json();
+}
+
 export const archiveUser = async (id: string) => {
     const response = await apiFetch(`/users/archive/${id}`, {
         method: "PATCH",

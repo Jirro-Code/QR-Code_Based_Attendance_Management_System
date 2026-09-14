@@ -1,5 +1,5 @@
 import { forgotPassword, logout, verifyOtp } from "../services/auth.ts";
-import { updateUser, type User } from "../services/users.ts";
+import { updateUser, updateUserPassword, type User } from "../services/users.ts";
 import { updateEvent, type Event } from "../services/events.ts";
 import { ApiError } from "../services/error.ts";
 import { updateAttendance } from "../services/attendance.ts";
@@ -114,6 +114,9 @@ export const useUpdate = () => {
                 if (e.status === 400) {
                     setError(e.message || "Bad request. Please check your input and try again.");
                 }
+                if (e.status === 403) {
+                    setError(e.message || "This account is archived. Please contact the administrator.");
+                }
                 if (e.status === 404) {
                     setError(e.message || "User not found.");
                 }
@@ -128,7 +131,7 @@ export const useUpdate = () => {
             throw e;
         }
     }
-
+    
     const useVerifyOtp = async (email: string, role: "user" | "admin", otp: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
             const responseData = await verifyOtp(email, role, otp);
@@ -157,5 +160,33 @@ export const useUpdate = () => {
         }
     }
     
-    return { useUpdateUser, useUpdateEvent, useUpdateAttendance, useForgotPassword, useVerifyOtp };
+    const useResetPassword = async (email: string, newPassword: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
+        try {
+            const responseData = await updateUserPassword(email, newPassword);
+            return responseData;
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                if (e.status === 400) {
+                    setError(e.message || "Bad request. Please check your input and try again.");
+                }
+                if (e.status === 403) {
+                    setError(e.message || "This account is archived. Please contact the administrator.");
+                }
+                if (e.status === 404) {
+                    setError(e.message || "User not found.");
+                }
+                if (e.status >= 500) {
+                    setError("Server error. Please try again later.");
+                }
+                throw e;
+            }
+            alert("Something went wrong. Please try again later.");
+            setError("Failed to reset password.");
+            console.error("Error resetting password:", e);
+            throw e;
+        }
+    }
+    
+    return { useUpdateUser, useUpdateEvent, useUpdateAttendance, useForgotPassword, useVerifyOtp, useResetPassword };
 }
