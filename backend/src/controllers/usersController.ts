@@ -216,12 +216,46 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
             updatedAt: new Date()
         };
         
-        const [updatedUser] = await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
+        await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
         
-        res.status(200).json({ message: "User updated successfully", user: updatedUser });
+        res.status(200).json({ message: "User updated successfully"});
     } catch (e) {
         console.error("Error updating user:", e);
         res.status(500).json({ message: "Error updating user" });
+    }
+};
+
+export const resetPassword = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const email = z.string().email().parse(req.params.email);
+        const newPassword = z.string().min(6).parse(req.body.password);
+        
+        const user = await db.query.users.findFirst({
+            where: eq(users.email, email)
+        });
+        
+        if (!user) {
+            console.error("User not found for email:", email);
+            return res.status(404).json({ message: "User not found" });
+        }
+        
+        if(user.isArchived){
+            return res.status(403).json({message: "This account is archived. Please contact the administrator."});
+        }
+        
+        const hashedPassword = await hashPassword(newPassword);
+        
+        await db.update(users).set({ password: hashedPassword, updatedAt: new Date() }).where(eq(users.email, email)).returning();
+        
+        res.status(200).json({ message: "Password reset successfully"});
+    } 
+    catch (e) {
+        if (e instanceof z.ZodError) {
+            console.error("Invalid input for password reset:", e.issues);
+            return res.status(400).json({ message: "Invalid input", errors: e.issues });
+        }
+        console.error("Error resetting user password:", e);
+        res.status(500).json({ message: "Error resetting user password" });
     }
 };
 

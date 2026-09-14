@@ -159,6 +159,10 @@ export const forgotPassword = async (req: Request, res: Response) => {
             return res.status(404).json({message: "User not found"});
         }
         
+        if(user.isArchived){
+            return res.status(403).json({message: "This account is archived. Please contact the administrator."});
+        }
+        
         await db.delete(passwordResetOTP).where(eq(passwordResetOTP.userEmail, user.email)).execute();
         
         const token = generatePasswordResetOTP();
@@ -213,7 +217,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
         });
         
         if(!otpRecord){
-            return res.status(404).json({message: "OTP not found or expired"});
+            return res.status(404).json({message: "OTP expired. Please request a new one"});
         }
         
         const isOtpValid = await verifyPasswordResetOTP(otp, otpRecord.tokenHash);

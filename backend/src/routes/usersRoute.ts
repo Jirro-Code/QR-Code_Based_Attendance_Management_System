@@ -1,7 +1,7 @@
 import Router from "express";
 import { authAdminToken, authToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
-import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, archiveUser, unarchiveUser, getProfilePictureById } from "../controllers/usersController.ts";
+import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, resetPassword, archiveUser, unarchiveUser, getProfilePictureById } from "../controllers/usersController.ts";
 import { userStrandSchema } from "../db/schema.ts";
 import { upload } from "../middlewares/upload.ts";
 import z from "zod";
@@ -29,6 +29,7 @@ const uuidSchema = z.object({
     id: z.uuid("Invalid UUID format")
 });
 
+router.patch("/update-password/:email", validateParams(z.object({ email: z.string().email("Invalid email address") })), validateBody(z.object({ password: z.string().min(6, "Password must be at least 6 characters long") })), resetPassword);
 
 router.use(authToken);
 router.get("/me", getSelf);
