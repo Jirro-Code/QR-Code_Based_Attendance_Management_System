@@ -1,4 +1,4 @@
-import { forgotPassword, logout, verifyOtp } from "../services/auth.ts";
+import { forgotPassword, getOtpStatus, logout, verifyOtp } from "../services/auth.ts";
 import { updateUser, updateUserPassword, type User } from "../services/users.ts";
 import { updateEvent, type Event } from "../services/events.ts";
 import { ApiError } from "../services/error.ts";
@@ -24,6 +24,9 @@ export const useUpdate = () => {
                 } 
                 if (e.status === 404) {
                     setError(e.message || "User not found.");
+                }
+                if (e.status === 429) {
+                    setError(e.message || "Please wait before requesting another OTP.");
                 }
                 if (e.status === 409) {
                     setError(e.message || "Conflict. The email, student ID, or LRN may already be in use.");
@@ -120,6 +123,9 @@ export const useUpdate = () => {
                 if (e.status === 404) {
                     setError(e.message || "User not found.");
                 }
+                if (e.status === 429) {
+                    setError(e.message || "Please wait before requesting another OTP.");
+                }
                 if (e.status >= 500) {
                     setError("Email service error. Please try again later.");
                 }
@@ -145,6 +151,12 @@ export const useUpdate = () => {
                 if (e.status === 401) {
                     setError(e.message || "Invalid OTP. Please try again.");
                 }
+                if (e.status === 410) {
+                    setError(e.message || "OTP expired. Please request a new one.");
+                }
+                if (e.status === 423) {
+                    setError(e.message || "OTP verification is temporarily locked.");
+                }
                 if (e.status === 404) {
                     setError(e.message || "User or OTP not found.");
                 }
@@ -158,6 +170,10 @@ export const useUpdate = () => {
             console.error("Error verifying OTP:", e);
             throw e;
         }
+    }
+
+    const useGetOtpStatus = async (email: string, role: "user" | "admin") => {
+        return await getOtpStatus(email, role);
     }
     
     const useResetPassword = async (email: string, newPassword: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
@@ -188,5 +204,5 @@ export const useUpdate = () => {
         }
     }
     
-    return { useUpdateUser, useUpdateEvent, useUpdateAttendance, useForgotPassword, useVerifyOtp, useResetPassword };
+    return { useUpdateUser, useUpdateEvent, useUpdateAttendance, useForgotPassword, useVerifyOtp, useGetOtpStatus, useResetPassword };
 }

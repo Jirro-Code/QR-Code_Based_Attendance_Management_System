@@ -83,3 +83,10 @@ export const verifyOtp = async (email: string, role: "user" | "admin", otp: stri
     });
     return response.json().catch(() => null);
 }
+
+export const getOtpStatus = async (email: string, role: "user" | "admin") => {
+    const response = await apiFetch(`/auth/otpStatus?email=${encodeURIComponent(email)}&role=${role}`, {
+        method: "GET"
+    });
+    return response.json().catch(() => null);
+}

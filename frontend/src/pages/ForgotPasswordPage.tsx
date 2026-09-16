@@ -1,15 +1,16 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useUpdate } from "../hooks/useUpdate.ts";
 import { Input } from "../components/Input/Input.tsx";
 import { CircleAlert, Eye, EyeOff } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { ApiError } from "../services/error.ts";
 
 export const ForgotPasswordPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isAdmin] = useState(!!location.state?.isAdmin);
     const role = isAdmin ? "admin" : "user";
-    const [email, setEmail] = useState("");
+    const [email, setEmail] = useState(() => sessionStorage.getItem("passwordResetEmail") ?? "");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [step1Completed, setStep1Completed] = useState(false);
@@ -23,7 +24,66 @@ export const ForgotPasswordPage = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordResetLoading, setPasswordResetLoading] = useState(false);
-    const { useForgotPassword, useVerifyOtp, useResetPassword } = useUpdate();
+    const [resendAvailableAt, setResendAvailableAt] = useState<string | null>(null);
+    const [resendSeconds, setResendSeconds] = useState(0);
+    const [lockedUntil, setLockedUntil] = useState<string | null>(null);
+    const [lockSeconds, setLockSeconds] = useState(0);
+    const { useForgotPassword, useVerifyOtp, useGetOtpStatus, useResetPassword } = useUpdate();
+    
+    useEffect(() => {
+        if (!email) return;
+        
+        const restoreOtpStatus = async () => {
+            try {
+                const status = await useGetOtpStatus(email, role);
+                setStep1Completed(true);
+                setResendAvailableAt(status.resendAvailableAt);
+                setLockedUntil(status.lockedUntil);
+            }
+            catch (statusError) {
+                if (statusError instanceof ApiError && [404, 410].includes(statusError.status)) {
+                    sessionStorage.removeItem("passwordResetEmail");
+                }
+            }
+        };
+        
+        restoreOtpStatus();
+    }, []);
+    
+    useEffect(() => {
+        if (!resendAvailableAt) {
+            setResendSeconds(0);
+            return;
+        }
+        
+        const updateRemainingTime = () => {
+            setResendSeconds(Math.max(0, Math.ceil((new Date(resendAvailableAt).getTime() - Date.now()) / 1000)));
+        };
+        
+        updateRemainingTime();
+        const timer = window.setInterval(updateRemainingTime, 1000);
+        return () => window.clearInterval(timer);
+    }, [resendAvailableAt]);
+    
+    useEffect(() => {
+        if (!lockedUntil) {
+            setLockSeconds(0);
+            return;
+        }
+        
+        const updateRemainingTime = () => {
+            const remaining = Math.max(0, Math.ceil((new Date(lockedUntil).getTime() - Date.now()) / 1000));
+            setLockSeconds(remaining);
+            if (remaining === 0) {
+                setLockedUntil(null);
+                setError("");
+            }
+        };
+        
+        updateRemainingTime();
+        const timer = window.setInterval(updateRemainingTime, 1000);
+        return () => window.clearInterval(timer);
+    }, [lockedUntil]);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
@@ -41,13 +101,46 @@ export const ForgotPasswordPage = () => {
                 setError("Invalid email format.");
                 return;
             }
+            
+            sessionStorage.setItem("passwordResetEmail", email);
+            
+            try {
+                const status = await useGetOtpStatus(email, role);
+                setStep1Completed(true);
+                setResendAvailableAt(status.resendAvailableAt);
+                setLockedUntil(status.lockedUntil);
+                return;
+            }
+            catch (statusError) {
+                if (!(statusError instanceof ApiError) || ![404, 410].includes(statusError.status)) {
+                    throw statusError;
+                }
+            }
+            
             const responseData = await useForgotPassword(email, role, setError);
             if (responseData?.message === "Password reset OTP sent to email") {
                 setStep1Completed(true);
+                setResendAvailableAt(responseData.resendAvailableAt);
+                setLockedUntil(null);
+                sessionStorage.removeItem("passwordResetEmail");
             }
         }
         catch (error) {
             console.error("Error sending password reset email:", error);
+            if (error instanceof ApiError && error.status === 429) {
+                const cooldown = error.details.resendAvailableAt;
+                if (typeof cooldown === "string") {
+                    setStep1Completed(true);
+                    setResendAvailableAt(cooldown);
+                }
+            }
+            if (error instanceof ApiError && error.status === 423) {
+                const lock = error.details.lockedUntil;
+                if (typeof lock === "string") {
+                    setStep1Completed(true);
+                    setLockedUntil(lock);
+                }
+            }
             setError(error instanceof Error ? error.message : "An unexpected error occurred.");
         }
         finally {
@@ -56,16 +149,30 @@ export const ForgotPasswordPage = () => {
     }
     
     const handleResendOtp = async () => {
+        if (resendSeconds > 0 || lockSeconds > 0) return;
+        
         try {
-            await useForgotPassword(email, role, setError);
+            const responseData = await useForgotPassword(email, role, setError);
+            if (responseData?.resendAvailableAt) {
+                setOtp(new Array(6).fill(""));
+                setError("");
+                setResendAvailableAt(responseData.resendAvailableAt);
+                setLockedUntil(null);
+            }
         } catch (error) {
             console.error("Error resending OTP:", error);
+            if (error instanceof ApiError && error.status === 423) {
+                const lock = error.details.lockedUntil;
+                if (typeof lock === "string") {
+                    setLockedUntil(lock);
+                }
+            }
             setError(error instanceof Error ? error.message : "An unexpected error occurred.");
         }
     }
     
     const handleOtpChange = (index: number, value: string) => {
-        if (!/^[0-9]?$/.test(value)) return; 
+        if (lockSeconds > 0 || !/^[0-9]?$/.test(value)) return; 
         
         const newOtp = [...otp];
         newOtp[index] = value;
@@ -84,6 +191,7 @@ export const ForgotPasswordPage = () => {
     
     const handleOtpPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
         e.preventDefault();
+        if (lockSeconds > 0) return;
         const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
         if (!pasted) return;
         
@@ -111,6 +219,12 @@ export const ForgotPasswordPage = () => {
         }
         catch (error) {
             console.error("Error verifying OTP:", error);
+            if (error instanceof ApiError && error.status === 423) {
+                const lock = error.details.lockedUntil;
+                if (typeof lock === "string") {
+                    setLockedUntil(lock);
+                }
+            }
         }
         finally {
             setOtpLoading(false);
@@ -176,13 +290,18 @@ export const ForgotPasswordPage = () => {
                     (<div className="flex flex-col w-full gap-5">
                         <div className="mb-5 text-center">
                             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Check Your Email</h2>
-                            <p className="text-gray-500 mt-2">Enter the 6-digit code we sent to your email.</p>
-                            {error && (<p className="text-red-600 text-sm text-center mt-5 ">{error}</p>)}
+                            <p className="text-gray-500 mt-2 mb-3">Enter the 6-digit code we sent to your email.</p>
+                            {lockSeconds > 0 && (
+                                <p className="text-center font-semibold text-red-600">
+                                    Too many incorrect attempts. Try again in {Math.floor(lockSeconds / 60)}:{String(lockSeconds % 60).padStart(2, "0")}
+                                </p>
+                            )}
+                            {error && (<p className="text-red-600 text-sm text-center">{error}</p>)}
                         </div>
                         <form onSubmit={handleOtpSubmit} className="w-full">
                             <div className="flex justify-between gap-2">
                                 {otp.map((digit, index) => (
-                                    <input
+                                        <input
                                         key={index}
                                         ref={(el) => { otpRefs.current[index] = el; }}
                                         type="text"
@@ -192,15 +311,16 @@ export const ForgotPasswordPage = () => {
                                         onChange={(e) => handleOtpChange(index, e.target.value)}
                                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
                                         onPaste={handleOtpPaste}
+                                            disabled={lockSeconds > 0}
                                         className={`${error ? 'border-red-400 bg-red-100 focus:outline-none focus:ring-1 focus:ring-red-700' : 'border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-800'} w-10 h-12 sm:w-12 sm:h-14 text-center text-lg font-semibold border rounded-lg`}
                                     />
                                 ))}
                             </div>
-                            <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={otpLoading}>
+                            <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={otpLoading || lockSeconds > 0}>
                                 {otpLoading ? "Verifying..." : "Send"}
                             </button>
                         </form>
-                        <p className="text-sm text-gray-500 text-center">Didn't receive the code? <button className="text-blue-500 hover:underline" onClick={handleResendOtp}>Resend</button></p>
+                        <p className="text-sm text-gray-500 text-center">Didn't receive the code? <button type="button" disabled={resendSeconds > 0 || lockSeconds > 0} className="text-blue-500 hover:underline disabled:text-gray-400 disabled:no-underline" onClick={handleResendOtp}>{lockSeconds > 0 ? "Resend unavailable" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend"}</button></p>
                         <p className="text-sm text-gray-500 text-center mt-3">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
                     </div>)
                 }

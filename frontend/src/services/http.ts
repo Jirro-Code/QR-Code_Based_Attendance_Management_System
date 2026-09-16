@@ -18,8 +18,9 @@ export const apiFetch = async (path: string, init: RequestInit = {}) => {
         const contentType = response.headers.get("content-type") ?? "";
         
         if (contentType.includes("application/json")) {
-            const errorData = await response.json().catch(() => null) as { message?: string } | null;
+            const errorData = await response.json().catch(() => null) as ({ message?: string } & Record<string, unknown>) | null;
             message = errorData?.message ?? "";
+            throw new ApiError(message || response.statusText || "Request failed.", response.status, errorData ?? {});
         } else {
             message = await response.text().catch(() => "");
         }
