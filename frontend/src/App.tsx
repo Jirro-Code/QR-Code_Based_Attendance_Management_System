@@ -15,7 +15,7 @@ import { ArchivedEvents } from "./pages/admin/archive/ArchivedEvents.tsx";
 import { ArchivedAttendances } from "./pages/admin/archive/ArchivedAttendances.tsx";
 import { AttendanceHistoryPage } from "./pages/student/AttendanceHistory.tsx";
 import { EventsPage } from "./pages/student/EventsPage.tsx";
-import { ForgotPasswordPage } from "./pages/student/StudentForgotPasswordPage.tsx";
+import { ForgotPasswordPage } from "./pages/ForgotPasswordPage.tsx";
 
 export const App = () => {
     return (
@@ -37,7 +37,7 @@ export const App = () => {
                 <Route path="/archived-students" element={<ArchivedStudents />} />
                 <Route path="/archived-events" element={<ArchivedEvents />} />
                 <Route path="/archived-attendances" element={<ArchivedAttendances />} />
-                <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                <Route path="/forgot-password" element={<ForgotPasswordPage/>} />
             </Routes>
         </div>
     );

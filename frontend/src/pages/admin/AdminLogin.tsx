@@ -2,13 +2,18 @@ import { useState } from "react";
 import { Input } from "../../components/Input/Input.tsx";
 import { useLogin } from "../../hooks/useLogin";
 import { CircleAlert, Eye, EyeOff} from "lucide-react";
+import { useNavigate, useLocation} from "react-router-dom";
+import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import icp from "../../assets/icp.png";
 
 export const AdminLoginPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [form, setForm] = useState({email: "", password: ""});
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isHidden, setIsHidden] = useState(true);
+    const [notify, setNotify] = useState(!!location.state?.notify);
     const { useLoginUser } = useLogin("/admin-dashboard", setError);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,9 +73,11 @@ export const AdminLoginPage = () => {
                             {error && (<span className="absolute w-[110%] -bottom-8 left-0 flex items-center gap-1 text-red-600 text-[10px]"><CircleAlert size={12} /><u>{error}</u></span>)}
                         </div>
                         <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={isLoading}> {isLoading ? "Logging in..." : "Log In"}</button>
+                        <p className="text-sm text-gray-500 mt-4">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: true } })} className="text-blue-500 hover:underline">Click here</button></p>
                     </form>
                 </div>
             </div>
+            {notify && <NotificationCard title="Password Reset" message="You have successfully reset your password." onClose={() => { setNotify(false); navigate(location.pathname, { replace: true, state: {} }); }} />}
         </div>
     );
 }

@@ -1,10 +1,14 @@
 import { useState, useRef } from "react";
-import { useUpdate } from "../../hooks/useUpdate.ts";
-import { Input } from "../../components/Input/Input";
+import { useUpdate } from "../hooks/useUpdate.ts";
+import { Input } from "../components/Input/Input.tsx";
 import { CircleAlert, Eye, EyeOff } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export const ForgotPasswordPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const [isAdmin] = useState(!!location.state?.isAdmin);
+    const role = isAdmin ? "admin" : "user";
     const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +23,6 @@ export const ForgotPasswordPage = () => {
     const [password, setPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [passwordResetLoading, setPasswordResetLoading] = useState(false);
-    const navigate = useNavigate();
     const { useForgotPassword, useVerifyOtp, useResetPassword } = useUpdate();
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +41,7 @@ export const ForgotPasswordPage = () => {
                 setError("Invalid email format.");
                 return;
             }
-            const responseData = await useForgotPassword(email, "user", setError);
+            const responseData = await useForgotPassword(email, role, setError);
             if (responseData?.message === "Password reset OTP sent to email") {
                 setStep1Completed(true);
             }
@@ -54,7 +57,7 @@ export const ForgotPasswordPage = () => {
     
     const handleResendOtp = async () => {
         try {
-            await useForgotPassword(email, "user", setError);
+            await useForgotPassword(email, role, setError);
         } catch (error) {
             console.error("Error resending OTP:", error);
             setError(error instanceof Error ? error.message : "An unexpected error occurred.");
@@ -101,7 +104,7 @@ export const ForgotPasswordPage = () => {
                 setError("Please enter the complete 6-digit OTP.");
                 return;
             }
-            const responseData = await useVerifyOtp(email, "user", code, setError);
+            const responseData = await useVerifyOtp(email, role, code, setError);
             if (responseData) {
                 setStep2Completed(true);
             }
@@ -132,7 +135,11 @@ export const ForgotPasswordPage = () => {
             
             if (responseData?.message === "Password reset successfully") {
                 setStep3Completed(true);
-                navigate("/student-login");
+                
+                navigate(
+                isAdmin ? "/admin-login" : "/student-login",
+                { state: { notify: true } }
+                );
             }
         }
         catch (error) {
@@ -144,7 +151,7 @@ export const ForgotPasswordPage = () => {
     }
     
     return (
-        <div className="min-h-screen w-screen flex flex-col items-center justify-center bg-slate-100 p-10">                
+        <div className="min-h-screen w-screen flex flex-col items-center justify-center bg-slate-100 p-15">                
             <div className="w-full max-w-150">
                 {!step1Completed && !step2Completed && !step3Completed &&
                     (<div className="flex flex-col w-full gap-2">
@@ -161,7 +168,7 @@ export const ForgotPasswordPage = () => {
                             <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-10 hover:bg-blue-900 transition-colors" disabled={isLoading}>
                                 {isLoading ? "Sending..." : "Send OTP"}
                             </button>
-                            <p className="text-center text-sm text-gray-500 mt-4">Back to <a href="/student-login" className="text-blue-500 hover:underline">Login</a></p>
+                            <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
                         </form>
                     </div>)
                 }
@@ -194,7 +201,7 @@ export const ForgotPasswordPage = () => {
                             </button>
                         </form>
                         <p className="text-sm text-gray-500 text-center">Didn't receive the code? <button className="text-blue-500 hover:underline" onClick={handleResendOtp}>Resend</button></p>
-                        <p className="text-sm text-gray-500 text-center mt-3">Back to <a href="/student-login" className="text-blue-500 hover:underline">Login</a></p>
+                        <p className="text-sm text-gray-500 text-center mt-3">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
                     </div>)
                 }
                 {step1Completed && step2Completed && !step3Completed && (
