@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { registerUser, loginUser, logoutUser, forgotPassword, verifyOtp } from "../controllers/authController.ts";
+import { registerUser, loginUser, logoutUser, forgotPassword, verifyOtp, getOtpStatus } from "../controllers/authController.ts";
 import { validateBody } from "../middlewares/validation.ts";
 import { userRoleSchema, userStrandSchema } from "../db/schema.ts";
 import { authAdminToken } from "../middlewares/authToken.ts";
@@ -49,6 +49,7 @@ router.post("/login", validateBody(loginSchema), loginUser);
 router.post("/logout", logoutUser);
 router.post("/forgotPassword", validateBody(forgotPasswordSchema), forgotPassword);
 router.post("/verifyOtp", validateBody(verifyOtpSchema), verifyOtp);
+router.get("/otpStatus", getOtpStatus);
 
 router.use(authAdminToken);
 router.post("/register", upload.single("profilePicture"), validateBody(registerSchema), registerUser);

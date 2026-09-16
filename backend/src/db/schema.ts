@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, date, boolean, unique, pgEnum} from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, date, boolean, integer, unique, pgEnum} from "drizzle-orm/pg-core";
 import { relations} from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
@@ -37,6 +37,9 @@ export const passwordResetOTP = pgTable("password_reset_otp", {
     }),
     tokenHash: varchar("token", { length: 255 }).notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    resendAvailableAt: timestamp("resend_available_at", { withTimezone: true }),
+    failedAttempts: integer("failed_attempts").notNull().default(0),
+    lockedUntil: timestamp("locked_until", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
 
