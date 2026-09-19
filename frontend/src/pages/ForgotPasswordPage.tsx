@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { useUpdate } from "../hooks/useUpdate.ts";
 import { Input } from "../components/Input/Input.tsx";
-import { CircleAlert, Eye, EyeOff } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ApiError } from "../services/error.ts";
+import icp from "../assets/icp.png";
+import { CircleAlert, Eye, EyeOff } from "lucide-react";
 
 export const ForgotPasswordPage = () => {
     const navigate = useNavigate();
@@ -265,7 +266,11 @@ export const ForgotPasswordPage = () => {
     }
     
     return (
-        <div className="min-h-screen w-screen flex flex-col items-center justify-center bg-slate-100 p-15">                
+        <div className="min-h-screen w-screen flex flex-col items-center justify-between bg-slate-100 pl-15 pr-15 pt-5 pb-8"> 
+            <div className="flex items-center">
+                <img src={icp} alt="ICP" className="md:w-14 md:h-14 sm:w-12 sm:h-12 w-11 h-11" />
+                <h1 className="md:text-4xl sm:text-3xl text-2xl font-bold text-gray-800">AttendScan</h1>
+            </div>               
             <div className="w-full max-w-150">
                 {!step1Completed && !step2Completed && !step3Completed &&
                     (<div className="flex flex-col w-full gap-2">
@@ -319,9 +324,9 @@ export const ForgotPasswordPage = () => {
                             <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={otpLoading || lockSeconds > 0}>
                                 {otpLoading ? "Verifying..." : "Send"}
                             </button>
+                            <p className="text-sm text-gray-500 text-center">Didn't receive the code? <button type="button" disabled={resendSeconds > 0 || lockSeconds > 0} className="text-blue-500 hover:underline disabled:text-gray-400 disabled:no-underline" onClick={handleResendOtp}>{lockSeconds > 0 ? "Resend unavailable" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend"}</button></p>
+                            <p className="text-sm text-gray-500 text-center mt-3">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
                         </form>
-                        <p className="text-sm text-gray-500 text-center">Didn't receive the code? <button type="button" disabled={resendSeconds > 0 || lockSeconds > 0} className="text-blue-500 hover:underline disabled:text-gray-400 disabled:no-underline" onClick={handleResendOtp}>{lockSeconds > 0 ? "Resend unavailable" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend"}</button></p>
-                        <p className="text-sm text-gray-500 text-center mt-3">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
                     </div>)
                 }
                 {step1Completed && step2Completed && !step3Completed && (
@@ -329,9 +334,9 @@ export const ForgotPasswordPage = () => {
                         <div className="mb-5 text-center">
                             <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">OTP Verified</h2>
                             <p className="text-gray-500 mt-2">You can now reset your password.</p>
-                            <form onSubmit={handlePasswordReset} className="w-full mt-5">
+                            <form onSubmit={handlePasswordReset} className="w-full mt-5 text-left">
                                 <div className="relative">
-                                    <Input label="Password" id="studentPassword" type={isHidden ? "password" : "text" } placeholder="Password" onChange={(e) => setPassword(e.target.value)} name="password" value={password ?? ""} isRequired={true} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                                    <Input label="Password" id="studentPassword" type={isHidden ? "password" : "text" } placeholder="Enter Password" onChange={(e) => setPassword(e.target.value)} name="password" value={password ?? ""} isRequired={true} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
                                     <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
                                         {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
                                     </button>
@@ -342,14 +347,20 @@ export const ForgotPasswordPage = () => {
                                         {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
                                     </button>
                                 </div>
-                                
+                                <p className="text-sm text-gray-500 mt-3">Passwords must be at least 8 characters long.</p>
                                 <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={passwordResetLoading}>
                                     {passwordResetLoading ? "Resetting..." : "Reset Password"}
                                 </button>
+                                <p className="text-sm text-gray-500 text-center mt-3">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
                             </form>
                         </div>
                     </div>
                 )}
+            </div>
+            <div className="w-full max-w-150 flex justify-between gap-3">
+                <span className={`${!step1Completed && !step2Completed && !step3Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`}/>
+                <span className={`${step1Completed && !step2Completed && !step3Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`}/>
+                <span className={`${step1Completed && step2Completed && !step3Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`}/>
             </div>
         </div>
     );

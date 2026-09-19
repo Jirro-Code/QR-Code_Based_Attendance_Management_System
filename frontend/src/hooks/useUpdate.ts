@@ -171,7 +171,7 @@ export const useUpdate = () => {
             throw e;
         }
     }
-
+    
     const useGetOtpStatus = async (email: string, role: "user" | "admin") => {
         return await getOtpStatus(email, role);
     }

@@ -40,7 +40,7 @@ export const EventsPage = () => {
             try {
                 await useViewAllEvents((allEvents: Event[]) => {
                     const upcoming = allEvents.filter(
-                        (event) => event.eventDate > localDateString(new Date())
+                        (event) => event.eventDate >= localDateString(new Date())
                     );
                     setEventArray(upcoming);
                 }, setError);
@@ -108,7 +108,7 @@ export const EventsPage = () => {
                 );
             }
             
-            result = result.filter((event) => event.eventDate > localDateString(new Date()));
+            result = result.filter((event) => event.eventDate >= localDateString(new Date()));
             
             setEventArray(result);
         }, setError);
