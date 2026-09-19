@@ -97,70 +97,67 @@ export const AttendanceHistoryPage = () => {
     const selectionClassName = "mt-1 bg-gray-100 block w-full border border-blue-800 text-blue-800 rounded-md shadow-sm py-1 px-2 text-sm focus:outline-none focus:ring-blue-900 focus:border-blue-800";
     
     return (
-        <>  
-            <div className="inset-0 min-h-screen bg-slate-100">
-                <div className="top-0 left-0 w-full">
-                    <Header title="Attendance History" path="/student-dashboard" />
-                </div>
-                <div className="w-full relative">
-                    <div className={"bg-slate-100 p-2 pr-4"}>
-                        <div className="flex justify-end">
-                            <div className="flex justify-between items-center">
-                                <div className="flex h-9 max-h-9 gap-2">
-                                    <div className="w-28">
-                                        <SelectionField id="month-filter" className={selectionClassName} value={month} onChange={handleMonthChange} isRequired={false} 
-                                            placeholder="Month"
-                                            options={[
-                                                "January", "February", "March", "April", "May", "June",
-                                                "July", "August", "September", "October", "November", "December"
-                                            ]}
-                                        />
-                                    </div>
-                                    
-                                    <div className="w-16">
-                                        <Input className={inputClassName} type="number" id="day" placeholder="Day" name="day" value={day} onChange={handleDayChange} />
-                                    </div>
-                                    
-                                    <div className="w-24">
-                                        <SelectionField className={selectionClassName} id="year-filter" value={year} onChange={handleYearChange} isRequired={false} 
-                                            placeholder="Year"
-                                            options={years}
-                                        />
-                                    </div>
+        <div className="min-h-screen bg-slate-100">
+            
+            <Header title="Attendance History" path="/student-dashboard" />
+            <div className="w-full relative">
+                <div className={"p-2 pr-4"}>
+                    <div className="flex justify-end">
+                        <div className="flex justify-between items-center">
+                            <div className="flex h-9 max-h-9 gap-2">
+                                <div className="w-28">
+                                    <SelectionField id="month-filter" className={selectionClassName} value={month} onChange={handleMonthChange} isRequired={false} 
+                                        placeholder="Month"
+                                        options={[
+                                            "January", "February", "March", "April", "May", "June",
+                                            "July", "August", "September", "October", "November", "December"
+                                        ]}
+                                    />
+                                </div>
+                                
+                                <div className="w-16">
+                                    <Input className={inputClassName} type="number" id="day" placeholder="Day" name="day" value={day} onChange={handleDayChange} />
+                                </div>
+                                
+                                <div className="w-24">
+                                    <SelectionField className={selectionClassName} id="year-filter" value={year} onChange={handleYearChange} isRequired={false} 
+                                        placeholder="Year"
+                                        options={years}
+                                    />
                                 </div>
                             </div>
                         </div>
-                        {error && <p className="text-red-700">{error}</p>}
                     </div>
-                    <div>
-                        <div className="bg-gray-100">
-                            <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
-                                <div>#</div>
-                                <div>Event</div>
-                                <div>Date</div>
-                                <div>Location</div>
-                                <div>Status</div>
-                                <div>Time</div>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 divide-y divide-gray-100">
-                                {visibleAttendance.length > 0 ? (
-                                    visibleAttendance.map((attendance, index) => (
-                                        <AttendanceHistoryListCell
-                                            key={attendance.id}
-                                            attendance={attendance}
-                                            event={events.get(attendance.eventId)}
-                                            number={index + 1}
-                                        />
-                                    ))
-                                ) : (
-                                    <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No attendance records found.</p>
-                                )}
-                            </div>
+                    {error && <p className="text-red-700">{error}</p>}
+                </div>
+                <div>
+                    <div className="bg-gray-100">
+                        <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
+                            <div>#</div>
+                            <div>Event</div>
+                            <div>Date</div>
+                            <div>Location</div>
+                            <div>Status</div>
+                            <div>Time</div>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 divide-y divide-gray-100">
+                            {visibleAttendance.length > 0 ? (
+                                visibleAttendance.map((attendance, index) => (
+                                    <AttendanceHistoryListCell
+                                        key={attendance.id}
+                                        attendance={attendance}
+                                        event={events.get(attendance.eventId)}
+                                        number={index + 1}
+                                    />
+                                ))
+                            ) : (
+                                <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No attendance records found.</p>
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };

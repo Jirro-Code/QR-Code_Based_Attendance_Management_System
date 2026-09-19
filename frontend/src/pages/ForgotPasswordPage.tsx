@@ -123,7 +123,6 @@ export const ForgotPasswordPage = () => {
                 setStep1Completed(true);
                 setResendAvailableAt(responseData.resendAvailableAt);
                 setLockedUntil(null);
-                sessionStorage.removeItem("passwordResetEmail");
             }
         }
         catch (error) {

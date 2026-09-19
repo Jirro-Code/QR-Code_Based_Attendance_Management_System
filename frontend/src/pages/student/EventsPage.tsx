@@ -151,55 +151,53 @@ export const EventsPage = () => {
     
     
     return(
-        <>
+        <div className="min-h-screen bg-slate-100">
             <Header title="Upcoming Events" path="/student-dashboard" />
-            <div className="min-h-screen bg-slate-100">
-                <div className="max-w-full mx-auto p-6">
-                    <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
-                    {showCalendar && <Calendar isAdmin={false} onClose={() => setShowCalendar(false)} refreshEvents={eventArray} />}
-                    <p className="text-red-600 text-sm">{error}</p>
+            <div className="max-w-full mx-auto p-6">
+                <SearchBar handleSearch={handleSearch} setSearchQuery={setSearchQuery} searchQuery={searchQuery} handleClearSearch={handleClearSearch} isOnSearch={isOnSearch} handleFilterClick={() => setShowFilter(true)} />
+                {showCalendar && <Calendar isAdmin={false} onClose={() => setShowCalendar(false)} refreshEvents={eventArray} />}
+                <p className="text-red-600 text-sm">{error}</p>
+                
+                
+                <div className="mt-3 mb-3 flex items-center justify-between">
+                    <button onClick={() => {showCalendar ? setShowCalendar(false) : setShowCalendar(true)}}>
+                        <CalendarDays className="w-5 h-5" />
+                    </button>
                     
-                    
-                    <div className="mt-3 mb-3 flex items-center justify-between">
-                        <button onClick={() => {showCalendar ? setShowCalendar(false) : setShowCalendar(true)}}>
-                            <CalendarDays className="w-5 h-5" />
+                    {!isOnSearch &&
+                        <button onClick={() => setShowFilter(true)}>
+                            <Ellipsis className="w-5 h-5" />
                         </button>
-                        
-                        {!isOnSearch &&
-                            <button onClick={() => setShowFilter(true)}>
-                                <Ellipsis className="w-5 h-5" />
-                            </button>
-                        }
-                    </div>
-                    
-                    
-                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
-                        {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
-                            eventArray.filter((event) => event.isArchived === false).map((event: Event) => (
-                                <EventCard key={event.id} event={event} onLoadView={() => {setSelectedEvent(event), setShowViewCard(true)}} isOnArchivedPage={false} isAdmin={false} />
-                            ))
-                        ) : (
-                            <p>No events found.</p>
-                        )}
-                    </div>
-                    {showFilter && (
-                        <EventFilterOptions
-                            onClose={() => setShowFilter(false)}
-                            onApplyFilters={handleApplyFilters}
-                            selectedOrder={selectedOrder}
-                            setSelectedOrder={setSelectedOrder}
-                            selectedMonth={selectedMonth}
-                            setSelectedMonth={setSelectedMonth}
-                            selectedYear={selectedYear}
-                            setSelectedYear={setSelectedYear}
-                            selectedByTime={selectedByTime}
-                            setSelectedByTime={setSelectedByTime}
-                        />
-                    )}
-                    
-                    {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onClose={() => setShowViewCard(false)} />}
+                    }
                 </div>
+                
+                
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
+                    {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
+                        eventArray.filter((event) => event.isArchived === false).map((event: Event) => (
+                            <EventCard key={event.id} event={event} onLoadView={() => {setSelectedEvent(event), setShowViewCard(true)}} isOnArchivedPage={false} isAdmin={false} />
+                        ))
+                    ) : (
+                        <p>No events found.</p>
+                    )}
+                </div>
+                {showFilter && (
+                    <EventFilterOptions
+                        onClose={() => setShowFilter(false)}
+                        onApplyFilters={handleApplyFilters}
+                        selectedOrder={selectedOrder}
+                        setSelectedOrder={setSelectedOrder}
+                        selectedMonth={selectedMonth}
+                        setSelectedMonth={setSelectedMonth}
+                        selectedYear={selectedYear}
+                        setSelectedYear={setSelectedYear}
+                        selectedByTime={selectedByTime}
+                        setSelectedByTime={setSelectedByTime}
+                    />
+                )}
+                
+                {showViewCard && selectedEvent && <ViewEventCard event={selectedEvent}  onClose={() => setShowViewCard(false)} />}
             </div>
-        </>
+        </div>
     )
 }

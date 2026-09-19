@@ -50,7 +50,7 @@ export const ScannerPage = () => {
     
     if (!eventId) {
         return (
-            <div className="bg-slate-100">
+            <div className="min-h-screen bg-slate-100">
                 <Header title="Scanner" path="/admin-dashboard" />
                 <div className="max-w-full mx-auto pt-6 sm:pt-10 p-4 sm:p-6">
                     <div className="bg-white p-5 sm:p-6 rounded-lg shadow-md flex flex-col gap-4">
@@ -91,7 +91,7 @@ export const ScannerPage = () => {
     }
     
     return (
-        <div className="bg-slate-100">
+        <div className="min-h-screen bg-slate-100">
             <Header title="Scanner" path="/admin-dashboard" />
             <div className="max-w-200 mx-auto pt-6 sm:pt-10 p-4 sm:p-6">
                 <div className="bg-white p-5 sm:p-6 rounded-lg shadow-md flex flex-col gap-4">

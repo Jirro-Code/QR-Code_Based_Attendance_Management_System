@@ -65,10 +65,10 @@ export const StudentDashboard = () => {
     
     
     return (
-        <>
+        <div className="min-h-screen bg-slate-100">
             <Navbar dashPath="/student-dashboard" profilePath="/student/profile" />
-        <div className="bg-slate-100 px-6 py-10">
-            <div className="mx-auto max-w-full">
+            
+            <div className="mx-auto max-w-full px-6 py-10">
                 <div className="h-2"></div>
                 <div className="mb-8">
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Student Dashboard</h1>
@@ -139,7 +139,6 @@ export const StudentDashboard = () => {
                 </div>
                 
             </div>
-        </div>
-        </>            
+        </div>       
     )
 }
