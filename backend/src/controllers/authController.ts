@@ -20,10 +20,6 @@ const cookieOptions = {
     maxAge: ms(env.JWT_EXPIRES_IN as ms.StringValue)
 };
 
-const OTP_EXPIRATION_MS = 5 * 60 * 1000;
-const OTP_RESEND_COOLDOWN_MS = 60 * 1000;
-const OTP_LOCK_DURATION_MS = 10 * 60 * 1000;
-const OTP_MAX_FAILED_ATTEMPTS = 3;
 
 export const registerUser = async (req: Request, res: Response) => {
     try{
@@ -202,8 +198,8 @@ export const forgotPassword = async (req: Request, res: Response) => {
             return res.status(500).json({message: "Failed to send OTP"});
         }
         
-        const expiresAt = new Date(now.getTime() + OTP_EXPIRATION_MS);
-        const resendAvailableAt = new Date(now.getTime() + OTP_RESEND_COOLDOWN_MS);
+        const expiresAt = new Date(now.getTime() + 5 * 60 * 1000);
+        const resendAvailableAt = new Date(now.getTime() + 60 * 1000);
         
         if (existingOtp) {
             await db.update(passwordResetOTP)
@@ -211,18 +207,17 @@ export const forgotPassword = async (req: Request, res: Response) => {
                     tokenHash: hashedToken,
                     expiresAt,
                     resendAvailableAt,
-                    failedAttempts: 0,
                     lockedUntil: null,
                     createdAt: now
                 })
                 .where(eq(passwordResetOTP.id, existingOtp.id));
-        } else {
+        } 
+        else {
             await db.insert(passwordResetOTP).values({
                 userEmail: user.email,
                 tokenHash: hashedToken,
                 expiresAt,
                 resendAvailableAt,
-                failedAttempts: 0,
                 lockedUntil: null
             });
         }
@@ -247,6 +242,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
         const email = z.string().email().parse(req.body.email);
         const role = z.enum(["user", "admin"]).parse(req.body.role);
         const otp = z.string().length(6).parse(req.body.otp);
+        const now = new Date();
         
         const user = await db.query.users.findFirst({
             where: and(eq(users.email, email), eq(users.role, role))
@@ -254,6 +250,10 @@ export const verifyOtp = async (req: Request, res: Response) => {
         
         if(!user){
             return res.status(404).json({message: "User not found"});
+        }
+        
+        if(user.isArchived){
+            return res.status(403).json({message: "This account is archived. Please contact the administrator."});
         }
         
         const otpRecord = await db.query.passwordResetOTP.findFirst({
@@ -264,7 +264,14 @@ export const verifyOtp = async (req: Request, res: Response) => {
             return res.status(404).json({message: "OTP expired. Please request a new one"});
         }
         
-        const now = new Date();
+        const otpAgeInMilliseconds = now.getTime() - otpRecord.createdAt.getTime();
+        const fourDaysInMilliseconds = 4 * 24 * 60 * 60 * 1000;
+        let userOtpAttempts = user.otpAttempts;
+        
+        if (otpAgeInMilliseconds >= fourDaysInMilliseconds) {
+            await db.update(users).set({ otpAttempts: 0 }).where(eq(users.email, email));
+            userOtpAttempts = 0;
+        }
         
         if (otpRecord.lockedUntil && otpRecord.lockedUntil > now) {
             return res.status(423).json({
@@ -273,11 +280,8 @@ export const verifyOtp = async (req: Request, res: Response) => {
             });
         }
         
-        if (otpRecord.lockedUntil && otpRecord.lockedUntil <= now) {
-            await db.update(passwordResetOTP)
-                .set({ failedAttempts: 0, lockedUntil: null })
-                .where(eq(passwordResetOTP.id, otpRecord.id));
-            otpRecord.failedAttempts = 0;
+        if (otpRecord.lockedUntil && otpRecord.lockedUntil <= now) {            
+            await db.update(passwordResetOTP).set({ lockedUntil: null }).where(eq(passwordResetOTP.id, otpRecord.id));
             otpRecord.lockedUntil = null;
         }
         
@@ -289,29 +293,47 @@ export const verifyOtp = async (req: Request, res: Response) => {
         const isOtpValid = await verifyPasswordResetOTP(otp, otpRecord.tokenHash);
         
         if(!isOtpValid){
-            const failedAttempts = otpRecord.failedAttempts + 1;
-            const lockedUntil = failedAttempts >= OTP_MAX_FAILED_ATTEMPTS
-                ? new Date(now.getTime() + OTP_LOCK_DURATION_MS)
-                : null;
+            const failedAttempts = userOtpAttempts + 1;
             
-            await db.update(passwordResetOTP)
-                .set({ failedAttempts, lockedUntil })
-                .where(eq(passwordResetOTP.id, otpRecord.id));
+            let lockedUntil;
             
-            if (lockedUntil) {
-                return res.status(423).json({
-                    message: "OTP verification is temporarily locked",
-                    lockedUntil: lockedUntil.toISOString()
-                });
+            switch (failedAttempts >= 15 ? 15 : failedAttempts) {
+                case 3:
+                    lockedUntil = new Date(now.getTime() + 10 * 60 * 1000);
+                    break;
+                case 6:
+                    lockedUntil = new Date(now.getTime() + 15 * 60 * 1000);
+                    break;
+                case 9:
+                    lockedUntil = new Date(now.getTime() + 60 * 60 * 1000);
+                    break;
+                case 12:
+                    lockedUntil = new Date(now.getTime() + 1440 * 60 * 1000);
+                    break;
+                case 15:
+                    lockedUntil = new Date(now.getTime() + 4320 * 60 * 1000);
+                    break;
+                default:
+                    lockedUntil = null;
             }
             
-            return res.status(401).json({
-                message: "Invalid OTP",
-                attemptsRemaining: OTP_MAX_FAILED_ATTEMPTS - failedAttempts
-            });
+            if (lockedUntil) {
+                await db.update(users)
+                    .set({ otpAttempts: failedAttempts })
+                    .where(eq(users.email, email));
+                await db.update(passwordResetOTP)
+                    .set({ lockedUntil })
+                    .where(eq(passwordResetOTP.id, otpRecord.id));
+                return res.status(423).json({ message: "OTP verification is temporarily locked", lockedUntil: lockedUntil.toISOString()});
+            }
+            
+            
+            await db.update(users).set({ otpAttempts: failedAttempts }).where(eq(users.email, email));
+            return res.status(401).json({message: "Invalid OTP", attemptsRemaining: failedAttempts >= 3 ? 0 : 3 - failedAttempts});
         }
         
         await db.delete(passwordResetOTP).where(eq(passwordResetOTP.userEmail, email)).execute();
+        await db.update(users).set({ otpAttempts: 0 }).where(eq(users.email, email)).execute();
         
         res.status(200).json({message: "OTP confirmed. You can now reset your password."});
     } 

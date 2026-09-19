@@ -24,10 +24,10 @@ export const users = pgTable("users", {
     studentStrand: userStrands(),
     studentSection: varchar("student_section", { length: 255 }),
     isArchived: boolean("is_archived").notNull().default(false),
+    otpAttempts: integer("otp_attempts").notNull().default(0),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
-
 
 
 export const passwordResetOTP = pgTable("password_reset_otp", {
@@ -38,7 +38,6 @@ export const passwordResetOTP = pgTable("password_reset_otp", {
     tokenHash: varchar("token", { length: 255 }).notNull(),
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     resendAvailableAt: timestamp("resend_available_at", { withTimezone: true }),
-    failedAttempts: integer("failed_attempts").notNull().default(0),
     lockedUntil: timestamp("locked_until", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
