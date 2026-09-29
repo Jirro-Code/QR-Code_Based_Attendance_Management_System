@@ -3,15 +3,12 @@ import { type User } from "../../services/users.ts";
 import { useCurrentUser } from "../../hooks/useCurrentUser.ts"
 import { useEffect, useState } from "react";
 import { Navbar } from "../../components/Navbar.tsx";
-//import { useView } from "../../hooks/useView.ts";
-import { logout } from "../../services/auth.ts";
 import { ClipboardClock, Calendar, SquareArrowOutUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 export const StudentDashboard = () => {
     const [qrCode, setQrCode] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(true);
-    //const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [studentData, setStudentData] = useState<Partial<User>>({
         id: "",
         username: "",
@@ -23,24 +20,10 @@ export const StudentDashboard = () => {
     const qrURl = `ICP|icpsantamaria|${studentData.id}|icpsantamaria|SantaMaria`;
     const navigate = useNavigate();
     useCurrentUser("/student-login", setStudentData);
-    //const { useViewProfilePicture } = useView();
     
     useEffect(() => {
-        /*const fetchProfilePicture = async () => {
-            if (!studentData.id) return;
-            try {
-                const url = await useViewProfilePicture(studentData.id, (error) => {
-                    console.error("Error fetching profile picture:", error);
-                });
-                setProfilePicture(url);
-            }
-            catch (e) {
-                console.error("Error fetching profile picture:", e);
-                setProfilePicture(null);
-            }
-        }
-        fetchProfilePicture();
-        */
+        window.scrollTo({ top: 0, left: 0 });
+        
         if (studentData.id && studentData.username) {
             setIsLoading(true);
             try {
@@ -66,11 +49,11 @@ export const StudentDashboard = () => {
     
     return (
         <div className="min-h-screen bg-slate-100">
-            <Navbar dashPath="/student-dashboard" profilePath="/student/profile" />
+            <Navbar dashPath="/student-dashboard" profilePath="/student-profile" user={studentData} />
             
             <div className="mx-auto max-w-full px-6 py-10">
                 <div className="h-2"></div>
-                <div className="mb-8">
+                <div className="mb-20">
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Student Dashboard</h1>
                     <p className="mt-2 text-slate-500"> Welcome back,{" "} <span className="font-semibold text-blue-800">{studentData.username}</span>!</p>
                 </div>
@@ -127,15 +110,6 @@ export const StudentDashboard = () => {
                         </button>
                     </div>
                     
-                </div>
-                
-                <div className="mt-8">
-                    <button
-                        onClick={() => logout("/student-login")}
-                        className="rounded-xl border border-red-200 bg-white px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50"
-                    >
-                        Logout
-                    </button>
                 </div>
                 
             </div>

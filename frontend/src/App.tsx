@@ -16,6 +16,7 @@ import { ArchivedAttendances } from "./pages/admin/archive/ArchivedAttendances.t
 import { AttendanceHistoryPage } from "./pages/student/AttendanceHistory.tsx";
 import { EventsPage } from "./pages/student/EventsPage.tsx";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage.tsx";
+import { StudentProfilePage } from "./pages/student/StudentProfile.tsx";
 
 export const App = () => {
     return (
@@ -25,6 +26,7 @@ export const App = () => {
                 <Route path="/student-login" element={<StudentLoginPage />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/student-dashboard" element={<StudentDashboard />} />
+                <Route path="/student-profile" element={<StudentProfilePage />} />
                 <Route path="/attendance-history" element={<AttendanceHistoryPage />} />
                 <Route path="/events-page" element={<EventsPage />} />
                 <Route path="/create-student" element={<RegisterStudent />} />

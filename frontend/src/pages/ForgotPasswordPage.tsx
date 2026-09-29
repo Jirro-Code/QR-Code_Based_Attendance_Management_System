@@ -250,10 +250,7 @@ export const ForgotPasswordPage = () => {
             if (responseData?.message === "Password reset successfully") {
                 setStep3Completed(true);
                 
-                navigate(
-                isAdmin ? "/admin-login" : "/student-login",
-                { state: { notify: true } }
-                );
+                navigate(isAdmin ? "/admin-login" : "/student-login", { state: { notify: true } });
             }
         }
         catch (error) {
