@@ -156,36 +156,39 @@ export const searchUsers = async (req: AuthenticatedRequest, res: Response) => {
 
 export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
     try {
+        
+        const updateUserSchema = z.object({
+            username: z.string().min(1).optional(),
+            email: z.string().email().optional(),
+            studentId: z.string().min(1).optional(),
+            studentLRN: z.string().min(1).optional(),
+            password: z.string().min(6).optional(),
+        });
+        
         const userId = z.string().parse(req.params.id);
         const profilePicture = req.file;
-        const userPassword = req.body.password ? await hashPassword(req.body.password) : undefined;
         
-        let newBlobName: string | undefined;
+        const body = updateUserSchema.parse(req.body ?? {});
+        const { password: rawPassword, ...safeBody } = body;
+        const userPassword = rawPassword ? await hashPassword(rawPassword) : undefined;
         
         const existingUser = await db.query.users.findFirst({
-            where: eq(users.id, userId)
+            where: eq(users.id, userId),
         });
-        if(!existingUser) {
-            console.error("User not found:", userId);
-            return res.status(404).json({message: "User not found"});
+        if (!existingUser) {
+            return res.status(404).json({ message: "User not found" });
         }
         
         const [emailConflict, studentIdConflict, studentLRNConflict] = await Promise.all([
-            req.body.email
-            ? db.query.users.findFirst({
-                where: and(not(eq(users.id, userId)), eq(users.email, req.body.email)),
-            })
+            body.email
+                ? db.query.users.findFirst({ where: and(not(eq(users.id, userId)), eq(users.email, body.email)) })
                 : null,
-                req.body.studentId
-                ? db.query.users.findFirst({
-                    where: and(not(eq(users.id, userId)), eq(users.studentId, req.body.studentId)),
-                })
+            body.studentId
+                ? db.query.users.findFirst({ where: and(not(eq(users.id, userId)), eq(users.studentId, body.studentId)) })
                 : null,
-            req.body.studentLRN
-            ? db.query.users.findFirst({
-                where: and(not(eq(users.id, userId)), eq(users.studentLRN, req.body.studentLRN)),
-            })
-            : null,
+            body.studentLRN
+                ? db.query.users.findFirst({ where: and(not(eq(users.id, userId)), eq(users.studentLRN, body.studentLRN)) })
+                : null,
         ]);
         
         const duplicateFields: string[] = [];
@@ -194,32 +197,42 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         if (studentLRNConflict) duplicateFields.push("studentLRN");
         
         if (duplicateFields.length > 0) {
-            console.error("Duplicate data found for:", duplicateFields);
             return res.status(409).json({
                 message: `Duplicate data found for: ${duplicateFields.join(", ")}`,
                 duplicateFields,
             });
         }
         
+        let newBlobName: string | undefined;
         if (profilePicture) {
             newBlobName = existingUser.profilePictureUrl
                 ? await updateProfilePicture(existingUser.profilePictureUrl, profilePicture)
                 : await uploadProfilePicture(profilePicture);
         }
         
-        const { profilePictureUrl: _ignored, ...safeBody } = req.body;
+        const [updated] = await db
+            .update(users)
+            .set({
+                ...safeBody,
+                ...(userPassword && { password: userPassword }),
+                ...(newBlobName && { profilePictureUrl: newBlobName }),
+                updatedAt: new Date(),
+            })
+            .where(eq(users.id, userId))
+            .returning();
         
-        const updatedData = {
-            ...safeBody,
-            ...(userPassword && { password: userPassword }),
-            ...(newBlobName && { profilePictureUrl: newBlobName }),
-            updatedAt: new Date()
-        };
+        if (!updated) {
+            return res.status(500).json({ message: "Failed to update user" });
+        }
         
-        await db.update(users).set(updatedData).where(eq(users.id, userId)).returning();
-        
-        res.status(200).json({ message: "User updated successfully"});
-    } catch (e) {
+        const { password, ...userWithoutPassword } = updated;
+        res.status(200).json({ message: "User updated successfully", user: userWithoutPassword });
+    } 
+    catch (e) {
+        if (e instanceof z.ZodError) {
+            console.error("Invalid input:", e.issues);
+            return res.status(400).json({ message: "Invalid input", errors: e.issues });
+        }
         console.error("Error updating user:", e);
         res.status(500).json({ message: "Error updating user" });
     }
