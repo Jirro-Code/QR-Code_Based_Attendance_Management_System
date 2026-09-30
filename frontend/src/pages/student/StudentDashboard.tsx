@@ -52,8 +52,7 @@ export const StudentDashboard = () => {
             <Navbar dashPath="/student-dashboard" profilePath="/student-profile" user={studentData} />
             
             <div className="mx-auto max-w-full px-6 py-10">
-                <div className="h-2"></div>
-                <div className="mb-20">
+                <div className="mt-5 mb-20 max-w-sm truncate">
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Student Dashboard</h1>
                     <p className="mt-2 text-slate-500"> Welcome back,{" "} <span className="font-semibold text-blue-800">{studentData.username}</span>!</p>
                 </div>

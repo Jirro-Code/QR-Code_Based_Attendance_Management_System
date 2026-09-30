@@ -181,16 +181,16 @@ export const ManageStudents = () => {
                 <SearchBar handleSearch={handleSearch} searchQuery={searchQuery} setSearchQuery={setSearchQuery} isOnSearch={isOnSearch} handleClearSearch={handleClearSearch} handleFilterClick={() => setShowFilter(true)} />
                 <p>{error}</p>
                 
-                    <div className="mt-3 flex items-center justify-between">
-                        <button onClick={() => navigate("/archived-students")} className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors">
-                            <Archive className="w-5 h-5" />
+                <div className="mt-3 flex items-center justify-between">
+                    <button onClick={() => navigate("/archived-students")} className="flex items-center gap-1 text-gray-600 hover:text-gray-800 transition-colors">
+                        <Archive className="w-5 h-5" />
+                    </button>
+                    {!isOnSearch &&
+                        <button onClick={() => setShowFilter(true)}>
+                            <Ellipsis className="w-5 h-5" />
                         </button>
-                        {!isOnSearch &&
-                            <button onClick={() => setShowFilter(true)}>
-                                <Ellipsis className="w-5 h-5" />
-                            </button>
-                        }
-                    </div>
+                    }
+                </div>
             </div>
             
             

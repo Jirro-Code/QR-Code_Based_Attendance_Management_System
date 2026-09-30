@@ -12,8 +12,8 @@ type ListCellProps = {
 export const UserListCell = ({ user, number, onArchive, onRestore, onLoadView }: ListCellProps) => {
     return (
         <div className={`${number % 2 === 0 ? "bg-white" : "bg-gray-50"} grid grid-cols-[0.3fr_repeat(5,1fr)] items-center px-5 py-3.5 text-sm hover:bg-blue-50/50 transition-colors`}>
-            <div className="text-gray-500">{number}</div>
-            <div className="font-semibold text-gray-800">{user.username}</div>
+            <div className="text-gray-500 truncate">{number}</div>
+            <div className="font-semibold text-gray-800 truncate">{user.username}</div>
             <div className="text-gray-600">{user.studentStrand}</div>
             <div className="text-gray-600">{user.studentSection}</div>
             <div className="text-gray-600">{user.studentId}</div>

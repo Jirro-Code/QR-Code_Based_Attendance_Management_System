@@ -43,7 +43,9 @@ export const AdminProfilePage = () => {
             <Navbar dashPath="/admin-dashboard" profilePath="/admin-profile" user={admin}/>
             
             <div className="w-full">
-                <div className="relative h-40 sm:h-50 md:h-60 bg-blue-800"></div>
+                <div className="relative h-40 sm:h-50 md:h-60 bg-blue-800">
+                    <div className="absolute inset-x-0 bottom-0 h-30 bg-linear-to-t from-gray-50 to-transparent" />
+                </div>
                 
                 <div className="relative px-5 sm:px-8 lg:px-12">
                     <div className="flex items-end -mt-20 sm:-mt-24 md:-mt-28">
@@ -65,8 +67,8 @@ export const AdminProfilePage = () => {
                             )}
                         </div>
                         
-                        <div className="ml-5 mb-1.5 min-w-0">
-                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 wrap-break-word">
+                        <div className="ml-5 mbe-1.5 min-w-0">
+                            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 wrap-break-word truncate">
                                 {admin.username || "Admin"}
                             </h1>
                             <p className="mt-2 text-sm sm:text-base text-gray-500">

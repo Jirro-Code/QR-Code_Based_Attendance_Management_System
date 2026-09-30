@@ -1,7 +1,6 @@
 import { useCurrentUser } from "../../hooks/useCurrentUser.ts";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { logout } from "../../services/auth.ts";
 import { type User } from "../../services/users.ts";
 import { SelectionCard } from "../../components/Cards/RegisterSelectionCard.tsx";
 import { Navbar } from "../../components/Navbar.tsx";
@@ -31,13 +30,12 @@ export const AdminDashboard = () => {
             <Navbar dashPath="/admin-dashboard" profilePath="/admin-profile" user={adminData}/>
             
             <div className="mx-auto max-w-full  px-6 py-10">
-                <div className="h-2"></div>
-                <div className="mb-8">
+                <div className="mt-5 mb-10 max-w-sm truncate">
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Admin Dashboard</h1>
                     <p className="mt-2 text-slate-500"> Welcome back,{" "} <span className="font-semibold text-blue-800">{adminData.username}</span>!</p>
                 </div>
                 
-                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="mt-25 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <button
                         onClick={() => navigate("/manage-attendances")}
                         className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
@@ -162,15 +160,6 @@ export const AdminDashboard = () => {
                         </div>
                     </button>
                     
-                </div>
-                
-                <div className="mt-8">
-                    <button
-                        onClick={() => logout("/admin-login")}
-                        className="rounded-xl border border-red-200 bg-white px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-50"
-                    >
-                        Logout
-                    </button>
                 </div>
                 
                 {isSelecting && (<SelectionCard onClose={() => isSelectingHandler()} /> )}
