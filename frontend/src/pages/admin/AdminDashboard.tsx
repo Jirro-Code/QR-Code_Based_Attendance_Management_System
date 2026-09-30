@@ -28,7 +28,7 @@ export const AdminDashboard = () => {
     
     return (
         <div className="min-h-screen bg-slate-100">
-            <Navbar dashPath="/admin-dashboard" profilePath="/admin/profile" />
+            <Navbar dashPath="/admin-dashboard" profilePath="/admin-profile" user={adminData}/>
             
             <div className="mx-auto max-w-full  px-6 py-10">
                 <div className="h-2"></div>
