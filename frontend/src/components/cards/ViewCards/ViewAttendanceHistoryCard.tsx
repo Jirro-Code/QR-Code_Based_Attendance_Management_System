@@ -62,23 +62,23 @@ export const AttendanceHistoryCard = ({ student, onClose }: AttendanceHistoryCar
     
     const visibleAttendance = attendanceHistory
         .filter((attendance) => attendance.isArchived === false)
-            .filter((attendance) => {
-                if (!year) return true;
-                const event = events.get(attendance.eventId);
-                if (!event?.eventDate) return false;
-                return new Date(event.eventDate).getFullYear().toString() === year;
-            })
-            .filter((attendance) => {
-                if (!month) return true;
-                const event = events.get(attendance.eventId);
-                if (!event?.eventDate) return false;
-                return new Date(event.eventDate).toLocaleString("en-PH", { month: "long" }) === month;
-            })
-            .filter((attendance) => {
-                if (!day) return true;
-                const event = events.get(attendance.eventId);
-                if (!event?.eventDate) return false;
-                return new Date(event.eventDate).getDate() === parseInt(day, 10);
+        .filter((attendance) => {
+            if (!year) return true;
+            const event = events.get(attendance.eventId);
+            if (!event?.eventDate) return false;
+            return new Date(event.eventDate).getFullYear().toString() === year;
+        })
+        .filter((attendance) => {
+            if (!month) return true;
+            const event = events.get(attendance.eventId);
+            if (!event?.eventDate) return false;
+            return new Date(event.eventDate).toLocaleString("en-PH", { month: "long" }) === month;
+        })
+        .filter((attendance) => {
+            if (!day) return true;
+            const event = events.get(attendance.eventId);
+            if (!event?.eventDate) return false;
+            return new Date(event.eventDate).getDate() === parseInt(day, 10);
     });
     
     const years = new Array(5).fill(0).map((_, index) => (2026 + index).toString());

@@ -9,7 +9,9 @@ type NotificationProps = {
 
 export const NotificationCard = ({ title, message, onClose }: NotificationProps) => {
     return (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-white border min-h-27 border-gray-300 rounded-lg shadow-lg p-4 flex flex-col gap-2 max-w-sm w-full z-200">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 bg-white border min-h-27 border-gray-300 rounded-lg shadow-lg p-4 flex flex-col gap-2 max-w-sm w-full z-500"
+            onClick={(event) => event.stopPropagation()}
+        >
             <div className="flex justify-between items-center">
                 <h3 className="font-semibold text-gray-800">{title}</h3>
                 <CancelButton onClose={onClose} color="gray-800" />
