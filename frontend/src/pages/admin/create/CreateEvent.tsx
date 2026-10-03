@@ -56,6 +56,13 @@ export const CreateEvent = () => {
                 return;
             }
             await useCreateEvent({form: eventData, setError, setShowNotification, setNotificationMessage});
+            setEventData({
+                eventName: "",
+                eventDescription: "",
+                eventDate: "",
+                eventLocation: "",
+            });
+            setError("");
         } 
         catch (error) {
             console.error("Error creating event:", error);
@@ -67,15 +74,6 @@ export const CreateEvent = () => {
         }
         finally {
             setIsSubmitting(false);
-            if (notificationMessage.title === "Event Created Successfully") {
-                setEventData({
-                    eventName: "",
-                    eventDescription: "",
-                    eventDate: "",
-                    eventLocation: "",
-                });
-                setError("");
-            }
         }
     }
     

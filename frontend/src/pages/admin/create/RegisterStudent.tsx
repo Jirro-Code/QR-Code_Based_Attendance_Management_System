@@ -105,6 +105,23 @@ export const RegisterStudent = () => {
                 return;
             }
             await useRegister({ form: studentData, setError, setShowNotification, setNotificationMessage});
+            setStudentData({
+                role: "user",
+                profilePicture: null,
+                username: "",
+                email: "",
+                password: "",
+                studentId: "",
+                studentLRN: "",
+                studentStrand: "",
+                studentSection: ""
+            });
+            setConfirmPassword("");
+            setError("");
+            setPreviewUrl((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+            });
         }
         catch (error) {
             window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
@@ -114,26 +131,6 @@ export const RegisterStudent = () => {
         }
         finally {
             setIsSubmitting(false);
-            if (notificationMessage.title === "Registration Successful") {
-                setStudentData({
-                    role: "user",
-                    profilePicture: null,
-                    username: "",
-                    email: "",
-                    password: "",
-                    studentId: "",
-                    studentLRN: "",
-                    studentStrand: "",
-                    studentSection: ""
-                });
-                setError("");
-                setConfirmPassword("");
-                setPreviewUrl((prev) => {
-                    if (prev) URL.revokeObjectURL(prev);
-                    return null;
-                }
-                );
-            }
         }
     };
     
@@ -203,13 +200,13 @@ export const RegisterStudent = () => {
                         />
                         <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleChange} name="studentSection" value={studentData.studentSection} />
                         <div className="relative">
-                            <Input label="Password" id="studentPassword" type="password" placeholder="Password" onChange={handleChange} name="password" value={studentData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                            <Input label="Password" id="studentPassword" type={isHidden ? "password" : "text"} placeholder="Password" onChange={handleChange} name="password" value={studentData.password} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
                             <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none">
                                 {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
                             </button>
                         </div>
                         <div className="relative">
-                            <Input label="Confirm Password" id="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                            <Input label="Confirm Password" id="confirmPassword" type={isHidden2 ? "password" : "text"} placeholder="Confirm Password" onChange={handleChange} name="confirmPassword" value={confirmPassword} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
                             <button type="button" onClick={() => setIsHidden2(!isHidden2)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none">
                                 {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
                             </button>

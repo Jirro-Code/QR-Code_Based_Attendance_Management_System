@@ -89,6 +89,19 @@ export const RegisterAdmin = () => {
                 return;
             }
             await useRegister({form: adminData, setError, setShowNotification, setNotificationMessage});
+            setAdminData({
+                role: "admin",
+                profilePicture: null,
+                username: "",
+                email: "",
+                password: ""
+            });
+            setConfirmPassword("");
+            setError("");
+            setPreviewUrl((prev) => {
+                if (prev) URL.revokeObjectURL(prev);
+                return null;
+            });
         } 
         catch (error) {
             window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
@@ -97,21 +110,6 @@ export const RegisterAdmin = () => {
         }
         finally {
             setIsSubmitting(false);
-            if (notificationMessage.title === "Registration Successful") {
-                setAdminData({
-                    role: "admin",
-                    profilePicture: null,
-                    username: "",
-                    email: "",
-                    password: ""
-                });
-                setConfirmPassword("");
-                setPreviewUrl((prev) => {
-                    if (prev) URL.revokeObjectURL(prev);
-                    return null;
-                });
-                setError("");
-            }
         }
     };
     
