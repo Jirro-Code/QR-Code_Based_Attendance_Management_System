@@ -2,7 +2,7 @@ import type { Response } from "express";
 import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
 import { users, attendance, userRoleSchema } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
-import { hashPassword } from "../utils/password.ts";
+import { comparePassword, hashPassword } from "../utils/password.ts";
 import { eq, and, or, ilike, desc, not} from "drizzle-orm";
 import z from "zod";
 import { generateProfilePictureSASUrl, updateProfilePicture, uploadProfilePicture } from "../services/azureBlob.ts";
@@ -163,13 +163,14 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
             studentId: z.string().min(1).optional(),
             studentLRN: z.string().min(1).optional(),
             password: z.string().min(6).optional(),
+            currentPassword: z.string().min(1).optional(),
         });
         
         const userId = z.string().parse(req.params.id);
         const profilePicture = req.file;
         
         const body = updateUserSchema.parse(req.body ?? {});
-        const { password: rawPassword, ...safeBody } = body;
+        const { password: rawPassword, currentPassword, ...safeBody } = body;
         const userPassword = rawPassword ? await hashPassword(rawPassword) : undefined;
         
         const existingUser = await db.query.users.findFirst({
@@ -177,6 +178,17 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         });
         if (!existingUser) {
             return res.status(404).json({ message: "User not found" });
+        }
+        
+        if (rawPassword) {
+            if (!currentPassword) {
+                return res.status(400).json({ message: "Current password is required to change the password" });
+            }
+            
+            const isCurrentPasswordValid = await comparePassword(currentPassword, existingUser.password);
+            if (!isCurrentPasswordValid) {
+                return res.status(401).json({ message: "Current password is incorrect" });
+            }
         }
         
         const [emailConflict, studentIdConflict, studentLRNConflict] = await Promise.all([

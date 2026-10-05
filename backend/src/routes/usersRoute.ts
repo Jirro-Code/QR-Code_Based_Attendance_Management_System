@@ -21,7 +21,8 @@ const updateUserSchema = z.object({
     studentLRN: z.string().optional(),
     studentStrand: userStrandSchema.optional(),
     studentSection: z.string().optional(),
-    password: z.string().min(6, "Password must be at least 6 characters long").optional()
+    password: z.string().min(6, "Password must be at least 6 characters long").optional(),
+    currentPassword: z.string().min(1, "Current password is required").optional()
 });
 
 
