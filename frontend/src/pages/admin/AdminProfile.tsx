@@ -39,10 +39,10 @@ export const AdminProfilePage = () => {
     
     
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-gray-50 flex flex-col">
             <Navbar dashPath="/admin-dashboard" profilePath="/admin-profile" user={admin}/>
             
-            <div className="w-full">
+            <div className="w-full flex-1 flex flex-col">
                 <div className="relative h-40 sm:h-50 md:h-60 bg-blue-800">
                     <div className="absolute inset-x-0 bottom-0 h-30 bg-linear-to-t from-gray-50 to-transparent" />
                 </div>
@@ -75,10 +75,16 @@ export const AdminProfilePage = () => {
                                 Admin Profile
                             </p>
                         </div>
+                        
+                        <button
+                            className="ml-auto mb-1.5 shrink-0 rounded-lg border border-blue-800 bg-white px-5 py-2.5 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
+                        >
+                            Edit
+                        </button>
                     </div>
                 </div>
                 
-                <div className="px-4 pt-10 pb-8">
+                <div className="flex-1 flex flex-col px-4 pt-10 pb-8">
                     <div className="border-b border-gray-200"></div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-7 px-4 py-7 sm:py-8">
@@ -103,7 +109,7 @@ export const AdminProfilePage = () => {
                         
                     </div>
                     
-                    <div className="mt-8 flex justify-start items-center gap-4 px-4">
+                    <div className="mt-auto flex justify-end px-4 pt-8">
                         <button
                             onClick={() => logout("/admin-login")}
                             className="rounded-lg border border-red-700 bg-white px-6 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50"

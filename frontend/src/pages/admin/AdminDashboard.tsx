@@ -29,7 +29,7 @@ export const AdminDashboard = () => {
         <div className="min-h-screen bg-slate-100">
             <Navbar dashPath="/admin-dashboard" profilePath="/admin-profile" user={adminData}/>
             
-            <div className="mx-auto max-w-full  px-6 py-10">
+            <div className="mx-auto max-w-full px-6 py-10">
                 <div className="mt-5 mb-10 max-w-sm truncate">
                     <h1 className="text-3xl font-bold tracking-tight text-slate-900">Admin Dashboard</h1>
                     <p className="mt-2 text-slate-500"> Welcome back,{" "} <span className="font-semibold text-blue-800">{adminData.username}</span>!</p>
