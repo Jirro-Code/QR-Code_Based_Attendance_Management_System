@@ -57,11 +57,15 @@ export const searchUsers = async (query: string) => {
     return response.json();
 }
 
-export const updateUser = async (id: string, userData: Partial<User>) => {
+export type UpdateUserPayload = Partial<User> & {
+    currentPassword?: string;
+};
+
+export const updateUser = async (id: string, userData: UpdateUserPayload) => {
     const formData = new FormData();
     
     Object.entries(userData).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
+        if (key !== "profilePicture" && value !== null && value !== undefined) {
             formData.append(key, String(value));
         }
     });

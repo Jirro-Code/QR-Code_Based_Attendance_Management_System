@@ -1,41 +1,39 @@
 import { Navbar } from "../../components/Navbar";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { useView } from "../../hooks/useView.ts";
-import { type User } from "../../services/users.ts";
+import { useNavigate } from "react-router-dom";
+import { getProfilePictureById, getSelf, type User } from "../../services/users.ts";
 import { logout } from "../../services/auth.ts";
 
 
 export const AdminProfilePage = () => {
-    const location = useLocation();
-    const admin = location.state?.user as User || "";
+    const navigate = useNavigate();
+    const [admin, setAdmin] = useState<Partial<User>>({});
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [isLoadingPicture, setIsLoadingPicture] = useState<boolean>(true);
-    const { useViewProfilePicture } = useView();
     
     useEffect(() => {
-        
         window.scrollTo({ top: 0, left: 0 });
         
-        const fetchProfilePicture = async () => {
-            if (!admin.id) return;
-            setIsLoadingPicture(true);
+        const loadAdminProfile = async () => {
             try {
-                const url = await useViewProfilePicture(admin.id, (error) => {
-                    console.error("Error fetching profile picture:", error);
-                });
-                setProfilePicture(url);
-            }
-            catch (e) {
-                console.error("Error fetching profile picture:", e);
+                const response = await getSelf();
+                const user = response.user as User;
+                setAdmin(user);
+                if (!user.profilePictureUrl) {
+                    setProfilePicture(null);
+                    return;
+                }
+
+                const pictureResponse = await getProfilePictureById(user.id);
+                setProfilePicture(pictureResponse.url as string);
+            } catch (e) {
+                console.error("Error fetching admin profile:", e);
                 setProfilePicture(null);
             }
-            finally {
-                setIsLoadingPicture(false);
-            }
-        }
-        fetchProfilePicture();
-    }, [admin.id]);
+            setIsLoadingPicture(false);
+        };
+        loadAdminProfile();
+    }, []);
     
     
     return (
@@ -77,6 +75,7 @@ export const AdminProfilePage = () => {
                         </div>
                         
                         <button
+                            onClick={() => navigate("/admin-edit")}
                             className="ml-auto mb-1.5 shrink-0 rounded-lg border border-blue-800 bg-white px-5 py-2.5 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
                         >
                             Edit

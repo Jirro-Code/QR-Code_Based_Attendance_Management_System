@@ -18,6 +18,7 @@ import { EventsPage } from "./pages/student/EventsPage.tsx";
 import { ForgotPasswordPage } from "./pages/ForgotPasswordPage.tsx";
 import { StudentProfilePage } from "./pages/student/StudentProfile.tsx";
 import { AdminProfilePage } from "./pages/admin/AdminProfile.tsx";
+import { AdminEditPage } from "./pages/admin/AdminEditPage.tsx";
 
 export const App = () => {
     return (
@@ -27,6 +28,7 @@ export const App = () => {
                 <Route path="/student-login" element={<StudentLoginPage />} />
                 <Route path="/admin-dashboard" element={<AdminDashboard />} />
                 <Route path="/admin-profile" element={<AdminProfilePage />} />
+                <Route path="/admin-edit" element={<AdminEditPage />} />
                 <Route path="/student-dashboard" element={<StudentDashboard />} />
                 <Route path="/student-profile" element={<StudentProfilePage />} />
                 <Route path="/attendance-history" element={<AttendanceHistoryPage />} />
