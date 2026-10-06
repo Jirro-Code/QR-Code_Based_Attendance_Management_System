@@ -5,7 +5,8 @@ import { Header } from "../../components/Header.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { ImageCropModal } from "../../components/ImageCrop.tsx";
 import { Input } from "../../components/Input/Input.tsx";
-import { getProfilePictureById, getSelf, updateUser, type User } from "../../services/users.ts";
+import { getPasswordChangeStatus, getProfilePictureById, getSelf, updateUser, type User } from "../../services/users.ts";
+import { ApiError } from "../../services/error.ts";
 
 export const AdminEditPage = () => {
     const navigate = useNavigate();
@@ -24,6 +25,8 @@ export const AdminEditPage = () => {
     const [showNotification, setShowNotification] = useState(false);
     const [notificationMessage, setNotificationMessage] = useState({ title: "", message: "" });
     const [hiddenFields, setHiddenFields] = useState({ current: true, password: true, confirm: true });
+    const [lockedUntil, setLockedUntil] = useState<string | null>(null);
+    const [lockSeconds, setLockSeconds] = useState(0);
     
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0 });
@@ -49,6 +52,30 @@ export const AdminEditPage = () => {
     useEffect(() => () => {
         if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     }, [previewUrl]);
+
+    useEffect(() => {
+        getPasswordChangeStatus()
+            .then((status) => setLockedUntil(status.lockedUntil))
+            .catch((statusError) => console.error("Error loading password lock status:", statusError));
+    }, []);
+
+    useEffect(() => {
+        if (!lockedUntil) {
+            setLockSeconds(0);
+            return;
+        }
+        const updateRemaining = () => {
+            const remaining = Math.max(0, Math.ceil((new Date(lockedUntil).getTime() - Date.now()) / 1000));
+            setLockSeconds(remaining);
+            if (remaining === 0) {
+                setLockedUntil(null);
+                setError("");
+            }
+        };
+        updateRemaining();
+        const timer = window.setInterval(updateRemaining, 1000);
+        return () => window.clearInterval(timer);
+    }, [lockedUntil]);
     
     const handleFileSelected = (event: React.ChangeEvent<HTMLInputElement>) => {
         const file = event.target.files?.[0] ?? null;
@@ -106,6 +133,10 @@ export const AdminEditPage = () => {
             setShowNotification(true);
         } catch (submitError) {
             console.error("Error updating admin profile:", submitError);
+            if (submitError instanceof ApiError && submitError.status === 423) {
+                const lock = submitError.details.lockedUntil;
+                if (typeof lock === "string") setLockedUntil(lock);
+            }
             setError(submitError instanceof Error ? submitError.message : "Unable to update your profile.");
         } finally {
             setIsSubmitting(false);
@@ -122,12 +153,13 @@ export const AdminEditPage = () => {
             <main className="w-full max-w-4xl mx-auto flex-1 p-4 sm:p-8">
                 <form className="mt-6 flex flex-col gap-2" onSubmit={handleSubmit}>
                     {error && <div className="text-red-700 px-2" role="alert">{error}</div>}
+                    {lockSeconds > 0 && <div className="text-red-700 px-2" role="alert">Password changes are locked. Try again in {Math.floor(lockSeconds / 60)}:{String(lockSeconds % 60).padStart(2, "0")}.</div>}
                     
                     <div>   
                         <label className="block text-sm font-medium text-gray-700" htmlFor="profilePicture">Profile Picture:</label>
                         {previewUrl ? (
-                            <div className="mt-2 flex items-center gap-3">
-                                <img src={previewUrl} alt="Selected profile" className="w-30 h-30 rounded-md object-cover ring-1 ring-gray-200" />
+                            <div className="mt-2 flex items-center sm:flex-row flex-col sm:justify-start justify-center gap-3">
+                                <img src={previewUrl} alt="Selected profile" className="w-35 h-35 rounded-md object-cover ring-1 ring-gray-200" />
                                 <div className="flex gap-3 text-xs">
                                     <button type="button" onClick={() => fileInputRef.current?.click()} className="text-blue-800 hover:underline">Change</button>
                                 </div>
@@ -173,11 +205,11 @@ export const AdminEditPage = () => {
                         <Input label="Confirm New Password" id="confirmPassword" type={hiddenFields.confirm ? "password" : "text"} placeholder="Confirm New Password" name="confirmPassword" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} isRequired={false} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined}/>
                         <button type="button" onClick={() => toggleField("confirm")} className="absolute right-3 top-9 text-gray-500">{hiddenFields.confirm ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                     </div>
-                    <p className="text-sm text-gray-500">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: true } })} className="text-blue-600 hover:underline">Click here</button></p>
+                    <p className="text-sm text-gray-500">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: true, fromProfile: true } })} className="text-blue-600 hover:underline">Click here</button></p>
                     
                     <div className="flex justify-end gap-3">
                         <button type="button" onClick={() => navigate("/admin-profile")} className="border border-gray-300 bg-white text-gray-700 font-semibold py-2 px-4 rounded">Cancel</button>
-                        <button type="submit" disabled={isSubmitting || !admin.id} className="bg-blue-800 hover:bg-blue-900 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded">{isSubmitting ? "Saving..." : "Save Changes"}</button>
+                        <button type="submit" disabled={isSubmitting || !admin.id || lockSeconds > 0} className="bg-blue-800 hover:bg-blue-900 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded">{isSubmitting ? "Saving..." : "Save Changes"}</button>
                     </div>
                 </form>
             </main>

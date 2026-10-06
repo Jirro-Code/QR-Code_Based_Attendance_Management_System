@@ -19,6 +19,7 @@ import { ForgotPasswordPage } from "./pages/ForgotPasswordPage.tsx";
 import { StudentProfilePage } from "./pages/student/StudentProfile.tsx";
 import { AdminProfilePage } from "./pages/admin/AdminProfile.tsx";
 import { AdminEditPage } from "./pages/admin/AdminEditPage.tsx";
+import { StudentChangePasswordPage } from "./pages/student/StudentChangePasswordPage.tsx";
 
 export const App = () => {
     return (
@@ -31,6 +32,7 @@ export const App = () => {
                 <Route path="/admin-edit" element={<AdminEditPage />} />
                 <Route path="/student-dashboard" element={<StudentDashboard />} />
                 <Route path="/student-profile" element={<StudentProfilePage />} />
+                <Route path="/student-change-password" element={<StudentChangePasswordPage />} />
                 <Route path="/attendance-history" element={<AttendanceHistoryPage />} />
                 <Route path="/events-page" element={<EventsPage />} />
                 <Route path="/create-student" element={<RegisterStudent />} />

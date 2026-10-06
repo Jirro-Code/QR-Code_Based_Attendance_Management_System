@@ -1,20 +1,27 @@
 import { Navbar } from "../../components/Navbar";
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useView } from "../../hooks/useView.ts";
-import { type User } from "../../services/users.ts";
+import { getSelf, type User } from "../../services/users.ts";
 import { logout } from "../../services/auth.ts";
+import { KeyRound } from "lucide-react";
 
 export const StudentProfilePage = () => {
     const location = useLocation();
-    const student = location.state?.user as User || "";
+    const navigate = useNavigate();
+    const [student, setStudent] = useState<Partial<User>>(() => location.state?.user as User || {});
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [isLoadingPicture, setIsLoadingPicture] = useState<boolean>(true);
     const { useViewProfilePicture } = useView();
     
     useEffect(() => {
-        
         window.scrollTo({ top: 0, left: 0 });
+
+        if (!student.id) {
+            getSelf()
+                .then((response) => setStudent(response.user as User))
+                .catch((error) => console.error("Error fetching student profile:", error));
+        }
         
         const fetchProfilePicture = async () => {
             if (!student.id) return;
@@ -74,17 +81,10 @@ export const StudentProfilePage = () => {
                                 Student Profile
                             </p>
                         </div>
-                        
-                        <button
-                            className="ml-auto mb-1.5 shrink-0 rounded-lg border border-blue-800 bg-white px-5 py-2.5 text-sm font-semibold text-blue-800 transition hover:bg-blue-50"
-                        >
-                            Edit
-                        </button>
-                        
                     </div>
                 </div>
                 
-                <div className="flex-1 flex flex-col px-4 pt-10 pb-8">
+                <div className="flex-1 flex flex-col px-4 pt-5 pb-8">
                     <div className="border-b border-gray-200"></div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-7 px-4 py-7 sm:py-8">
@@ -145,11 +145,12 @@ export const StudentProfilePage = () => {
                         
                     </div>
                     
-                    <div className="mt-auto flex justify-end px-4 pt-8">
-                        <button
-                            onClick={() => logout("/student-login")}
-                            className="rounded-lg border border-red-700 bg-white px-6 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50"
-                        >
+                    <div className="mt-auto flex flex-wrap justify-between sm:justify-end gap-5 px-4 pt-8">
+                        <button onClick={() => navigate("/student-change-password", { state: { user: student } })} className="inline-flex items-center gap-2 rounded-lg border border-blue-800 bg-white px-5 py-3 text-sm font-semibold text-blue-800 transition hover:bg-blue-50">
+                            <KeyRound className="h-4 w-4" />
+                            Change Password
+                        </button>
+                        <button onClick={() => logout("/student-login")} className="rounded-lg border border-red-700 bg-white px-6 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50">
                             Logout
                         </button>
                     </div>

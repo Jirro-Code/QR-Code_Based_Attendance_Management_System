@@ -1,10 +1,40 @@
 import { forgotPassword, getOtpStatus, logout, verifyOtp } from "../services/auth.ts";
-import { updateUser, updateUserPassword, type User } from "../services/users.ts";
+import { changePassword, getPasswordChangeStatus, updateUser, updateUserPassword, verifyCurrentPassword, type User } from "../services/users.ts";
 import { updateEvent, type Event } from "../services/events.ts";
 import { ApiError } from "../services/error.ts";
 import { updateAttendance } from "../services/attendance.ts";
 
 export const useUpdate = () => {
+    const useChangePassword = async (currentPassword: string, newPassword: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
+        try {
+            return await changePassword(currentPassword, newPassword);
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                setError(e.message);
+            } else {
+                setError("Failed to change password.");
+                console.error("Error changing password:", e);
+            }
+            throw e;
+        }
+    };
+    const useGetPasswordChangeStatus = async () => getPasswordChangeStatus();
+    const useVerifyCurrentPassword = async (currentPassword: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
+        try {
+            return await verifyCurrentPassword(currentPassword);
+        }
+        catch (e) {
+            if (e instanceof ApiError) {
+                setError(e.message);
+            } else {
+                setError("Failed to verify your old password.");
+                console.error("Error verifying current password:", e);
+            }
+            throw e;
+        }
+    };
+
     const useUpdateUser = async (data: User, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
             const responseData = await updateUser(data.id, data);
@@ -204,5 +234,5 @@ export const useUpdate = () => {
         }
     }
     
-    return { useUpdateUser, useUpdateEvent, useUpdateAttendance, useForgotPassword, useVerifyOtp, useGetOtpStatus, useResetPassword };
+    return { useChangePassword, useGetPasswordChangeStatus, useVerifyCurrentPassword, useUpdateUser, useUpdateEvent, useUpdateAttendance, useForgotPassword, useVerifyOtp, useGetOtpStatus, useResetPassword };
 }

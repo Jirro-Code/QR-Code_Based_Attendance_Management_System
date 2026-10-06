@@ -5,11 +5,13 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ApiError } from "../services/error.ts";
 import icp from "../assets/icp.png";
 import { CircleAlert, Eye, EyeOff } from "lucide-react";
+import { Header } from "../components/Header.tsx";
 
 export const ForgotPasswordPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [isAdmin] = useState(!!location.state?.isAdmin);
+    const isFromProfile = !!location.state?.fromProfile;
     const role = isAdmin ? "admin" : "user";
     const [email, setEmail] = useState(() => sessionStorage.getItem("passwordResetEmail") ?? "");
     const [error, setError] = useState("");
@@ -262,11 +264,17 @@ export const ForgotPasswordPage = () => {
     }
     
     return (
-        <div className="min-h-screen w-screen flex flex-col items-center justify-between bg-slate-100 pl-15 pr-15 pt-5 pb-8"> 
-            <div className="flex items-center">
-                <img src={icp} alt="ICP" className="md:w-14 md:h-14 sm:w-12 sm:h-12 w-11 h-11" />
-                <h1 className="md:text-4xl sm:text-3xl text-2xl font-bold text-gray-800">AttendScan</h1>
-            </div>               
+        <div className="min-h-screen w-screen flex flex-col items-center justify-between bg-slate-100 pl-15 pr-15 pt-5 pb-8">
+            {isFromProfile ? (
+                <div className="w-screen -mt-5">
+                    <Header title="Forgot Password" path={isAdmin ? "/admin-edit" : "/student-change-password"} />
+                </div>
+            ) : (
+                <div className="flex items-center">
+                    <img src={icp} alt="ICP" className="md:w-14 md:h-14 sm:w-12 sm:h-12 w-11 h-11" />
+                    <h1 className="md:text-4xl sm:text-3xl text-2xl font-bold text-gray-800">AttendScan</h1>
+                </div>
+            )}
             <div className="w-full max-w-150">
                 {!step1Completed && !step2Completed && !step3Completed &&
                     (<div className="flex flex-col w-full gap-2">
@@ -283,7 +291,11 @@ export const ForgotPasswordPage = () => {
                             <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-10 hover:bg-blue-900 transition-colors" disabled={isLoading}>
                                 {isLoading ? "Sending..." : "Send OTP"}
                             </button>
-                            <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
+                            {isFromProfile ? (
+                                <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-edit" : "/student-change-password")} className="text-blue-500 hover:underline">Profile</button></p>
+                                ):(
+                                <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
+                            )}
                         </form>
                     </div>)
                 }
@@ -321,7 +333,11 @@ export const ForgotPasswordPage = () => {
                                 {otpLoading ? "Verifying..." : "Send"}
                             </button>
                             <p className="text-sm text-gray-500 text-center">Didn't receive the code? <button type="button" disabled={resendSeconds > 0 || lockSeconds > 0} className="text-blue-500 hover:underline disabled:text-gray-400 disabled:no-underline" onClick={handleResendOtp}>{lockSeconds > 0 ? "Resend unavailable" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend"}</button></p>
-                            <p className="text-sm text-gray-500 text-center mt-3">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
+                            {isFromProfile ? (
+                                <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-edit" : "/student-change-password")} className="text-blue-500 hover:underline">Profile</button></p>
+                                ):(
+                                <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
+                            )}
                         </form>
                     </div>)
                 }
@@ -347,7 +363,11 @@ export const ForgotPasswordPage = () => {
                                 <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={passwordResetLoading}>
                                     {passwordResetLoading ? "Resetting..." : "Reset Password"}
                                 </button>
-                                <p className="text-sm text-gray-500 text-center mt-3">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
+                                {isFromProfile ? (
+                                    <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-edit" : "/student-change-password")} className="text-blue-500 hover:underline">Profile</button></p>
+                                    ):(
+                                    <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-login" : "/student-login")} className="text-blue-500 hover:underline">Login</button></p>
+                                )}
                             </form>
                         </div>
                     </div>

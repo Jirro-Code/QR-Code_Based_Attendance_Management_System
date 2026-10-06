@@ -82,6 +82,32 @@ export const updateUser = async (id: string, userData: UpdateUserPayload) => {
     return response.json();
 }
 
+export const changePassword = async (currentPassword: string, newPassword: string) => {
+    const response = await apiFetch("/users/change-password", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword, newPassword }),
+        credentials: "include"
+    });
+    return response.json();
+}
+
+export const getPasswordChangeStatus = async () => {
+    const response = await apiFetch("/users/change-password/status", {
+        method: "GET",
+        credentials: "include"
+    });
+    return response.json();
+}
+
+export const verifyCurrentPassword = async (currentPassword: string) => {
+    const response = await apiFetch("/users/change-password/verify", {
+        method: "POST",
+        body: JSON.stringify({ currentPassword }),
+        credentials: "include"
+    });
+    return response.json();
+}
+
 export const updateUserPassword = async (email: string, newPassword: string) => {
     const response = await apiFetch(`/users/update-password/${email}`, {
         method: "PATCH",
