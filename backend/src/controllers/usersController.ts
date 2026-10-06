@@ -7,6 +7,13 @@ import { eq, and, or, ilike, desc, not} from "drizzle-orm";
 import z from "zod";
 import { generateProfilePictureSASUrl, updateProfilePicture, uploadProfilePicture } from "../services/azureBlob.ts";
 
+const getPasswordLockMinutes = (attempts: number) => {
+    if (attempts >= 11) return (attempts - 11) % 3 === 0 ? 30 : 0;
+    if (attempts >= 8) return 15;
+    if (attempts >= 5) return 10;
+    return 0;
+};
+
 
 export const getSelf = async (req: AuthenticatedRequest, res: Response) => {
     try{
@@ -184,9 +191,31 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
             if (!currentPassword) {
                 return res.status(400).json({ message: "Current password is required to change the password" });
             }
+
+            const now = new Date();
+            if (existingUser.passwordChangeLockedUntil && existingUser.passwordChangeLockedUntil > now) {
+                return res.status(423).json({
+                    message: "Password change is temporarily locked",
+                    lockedUntil: existingUser.passwordChangeLockedUntil.toISOString()
+                });
+            }
             
             const isCurrentPasswordValid = await comparePassword(currentPassword, existingUser.password);
             if (!isCurrentPasswordValid) {
+                const failedAttempts = existingUser.passwordChangeAttempts + 1;
+                const lockMinutes = getPasswordLockMinutes(failedAttempts);
+                const lockedUntil = lockMinutes ? new Date(now.getTime() + lockMinutes * 60 * 1000) : null;
+                await db.update(users).set({
+                    passwordChangeAttempts: failedAttempts,
+                    passwordChangeLockedUntil: lockedUntil
+                }).where(eq(users.id, existingUser.id));
+
+                if (lockedUntil) {
+                    return res.status(423).json({
+                        message: `Too many incorrect attempts. Try again in ${lockMinutes} minutes.`,
+                        lockedUntil: lockedUntil.toISOString()
+                    });
+                }
                 return res.status(401).json({ message: "Current password is incorrect" });
             }
         }
@@ -228,6 +257,7 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
                 ...safeBody,
                 ...(userPassword && { password: userPassword }),
                 ...(newBlobName && { profilePictureUrl: newBlobName }),
+                ...(userPassword && { passwordChangeAttempts: 0, passwordChangeLockedUntil: null }),
                 updatedAt: new Date(),
             })
             .where(eq(users.id, userId))
@@ -247,6 +277,150 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         }
         console.error("Error updating user:", e);
         res.status(500).json({ message: "Error updating user" });
+    }
+};
+
+export const changePassword = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const currentPassword = z.string().min(1).parse(req.body.currentPassword);
+        const newPassword = z.string().min(6).parse(req.body.newPassword);
+        const userId = z.string().parse(req.user!.id);
+        const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        if (user.isArchived) {
+            return res.status(403).json({ message: "This account is archived. Please contact the administrator." });
+        }
+
+        const now = new Date();
+        if (user.passwordChangeLockedUntil && user.passwordChangeLockedUntil > now) {
+            return res.status(423).json({
+                message: "Password change is temporarily locked",
+                lockedUntil: user.passwordChangeLockedUntil.toISOString()
+            });
+        }
+
+        if (user.passwordChangeLockedUntil && user.passwordChangeLockedUntil <= now) {
+            await db.update(users).set({
+                passwordChangeLockedUntil: null
+            }).where(eq(users.id, user.id));
+        }
+
+        if (currentPassword === newPassword) {
+            return res.status(400).json({ message: "New password must be different from your old password." });
+        }
+
+        const isCurrentPasswordValid = await comparePassword(currentPassword, user.password);
+        if (!isCurrentPasswordValid) {
+            const failedAttempts = user.passwordChangeAttempts + 1;
+            const lockMinutes = getPasswordLockMinutes(failedAttempts);
+            const lockedUntil = lockMinutes
+                ? new Date(now.getTime() + lockMinutes * 60 * 1000)
+                : null;
+
+            await db.update(users).set({
+                passwordChangeAttempts: failedAttempts,
+                passwordChangeLockedUntil: lockedUntil
+            }).where(eq(users.id, user.id));
+
+            if (lockedUntil) {
+                return res.status(423).json({
+                    message: `Too many incorrect attempts. Try again in ${lockMinutes} minutes.`,
+                    lockedUntil: lockedUntil.toISOString()
+                });
+            }
+
+            return res.status(401).json({
+                message: "Current password is incorrect.",
+                attemptsRemaining: Math.max(0, 5 - failedAttempts)
+            });
+        }
+
+        const hashedPassword = await hashPassword(newPassword);
+        await db.update(users).set({
+            password: hashedPassword,
+            passwordChangeAttempts: 0,
+            passwordChangeLockedUntil: null,
+            updatedAt: now
+        }).where(eq(users.id, user.id));
+
+        return res.status(200).json({ message: "Password changed successfully" });
+    }
+    catch (e) {
+        if (e instanceof z.ZodError) {
+            return res.status(400).json({ message: "Invalid password data", errors: e.issues });
+        }
+        console.error("Error changing password:", e);
+        return res.status(500).json({ message: "Error changing password" });
+    }
+};
+
+export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const currentPassword = z.string().min(1).parse(req.body.currentPassword);
+        const userId = z.string().parse(req.user!.id);
+        const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const now = new Date();
+        if (user.passwordChangeLockedUntil && user.passwordChangeLockedUntil > now) {
+            return res.status(423).json({
+                message: "Password change is temporarily locked",
+                lockedUntil: user.passwordChangeLockedUntil.toISOString()
+            });
+        }
+
+        const isValid = await comparePassword(currentPassword, user.password);
+        if (!isValid) {
+            const failedAttempts = user.passwordChangeAttempts + 1;
+            const lockMinutes = getPasswordLockMinutes(failedAttempts);
+            const lockedUntil = lockMinutes ? new Date(now.getTime() + lockMinutes * 60 * 1000) : null;
+            await db.update(users).set({
+                passwordChangeAttempts: failedAttempts,
+                passwordChangeLockedUntil: lockedUntil
+            }).where(eq(users.id, user.id));
+
+            if (lockedUntil) {
+                return res.status(423).json({
+                    message: `Too many incorrect attempts. Try again in ${lockMinutes} minutes.`,
+                    lockedUntil: lockedUntil.toISOString()
+                });
+            }
+            return res.status(401).json({ message: "Current password is incorrect." });
+        }
+
+        return res.status(200).json({ message: "Current password confirmed" });
+    }
+    catch (e) {
+        if (e instanceof z.ZodError) {
+            return res.status(400).json({ message: "Invalid password data", errors: e.issues });
+        }
+        console.error("Error verifying current password:", e);
+        return res.status(500).json({ message: "Error verifying current password" });
+    }
+};
+
+export const getPasswordChangeStatus = async (req: AuthenticatedRequest, res: Response) => {
+    try {
+        const userId = z.string().parse(req.user!.id);
+        const user = await db.query.users.findFirst({
+            where: eq(users.id, userId),
+            columns: { passwordChangeLockedUntil: true }
+        });
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.status(200).json({
+            lockedUntil: user.passwordChangeLockedUntil?.toISOString() ?? null
+        });
+    }
+    catch (e) {
+        console.error("Error fetching password change status:", e);
+        return res.status(500).json({ message: "Error fetching password change status" });
     }
 };
 

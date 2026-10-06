@@ -1,7 +1,7 @@
 import Router from "express";
 import { authAdminToken, authToken } from "../middlewares/authToken.ts";
 import { validateQuery, validateBody, validateParams} from "../middlewares/validation.ts";
-import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, resetPassword, archiveUser, unarchiveUser, getProfilePictureById } from "../controllers/usersController.ts";
+import { getUserById, getAllUserByRole, getSelf, searchUsers, updateUser, changePassword, verifyCurrentPassword, getPasswordChangeStatus, resetPassword, archiveUser, unarchiveUser, getProfilePictureById } from "../controllers/usersController.ts";
 import { userStrandSchema } from "../db/schema.ts";
 import { upload } from "../middlewares/upload.ts";
 import z from "zod";
@@ -35,6 +35,14 @@ router.patch("/update-password/:email", validateParams(z.object({ email: z.strin
 router.use(authToken);
 router.get("/me", getSelf);
 router.get("/profile-picture/:id", validateParams(uuidSchema), getProfilePictureById);
+router.post("/change-password", validateBody(z.object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(6)
+})), changePassword);
+router.post("/change-password/verify", validateBody(z.object({
+    currentPassword: z.string().min(1)
+})), verifyCurrentPassword);
+router.get("/change-password/status", getPasswordChangeStatus);
 
 
 router.use(authAdminToken);

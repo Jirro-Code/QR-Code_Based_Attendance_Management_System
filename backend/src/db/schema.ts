@@ -25,6 +25,8 @@ export const users = pgTable("users", {
     studentSection: varchar("student_section", { length: 255 }),
     isArchived: boolean("is_archived").notNull().default(false),
     otpAttempts: integer("otp_attempts").notNull().default(0),
+    passwordChangeAttempts: integer("password_change_attempts").notNull().default(0),
+    passwordChangeLockedUntil: timestamp("password_change_locked_until", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
@@ -141,4 +143,3 @@ export const insertAttendanceSchema = createInsertSchema(attendance).omit({
     id: true, attendedAt: true
 });
 export const selectAttendanceSchema = createSelectSchema(attendance);
-
