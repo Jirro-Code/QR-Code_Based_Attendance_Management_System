@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, X } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { Header } from "../../components/Header.tsx";
 import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { ImageCropModal } from "../../components/ImageCrop.tsx";
@@ -130,10 +130,32 @@ export const AdminEditPage = () => {
                                 <img src={previewUrl} alt="Selected profile" className="w-30 h-30 rounded-md object-cover ring-1 ring-gray-200" />
                                 <div className="flex gap-3 text-xs">
                                     <button type="button" onClick={() => fileInputRef.current?.click()} className="text-blue-800 hover:underline">Change</button>
-                                    <button type="button" onClick={() => { setProfilePicture(null); setPreviewUrl(null); }} className="text-red-600 hover:underline flex items-center gap-0.5"><X size={12} /> Remove</button>
                                 </div>
                             </div>
-                        ) : <p className="mt-2 text-sm text-gray-500">No profile picture selected.</p>}
+                        ) : (
+                                <input
+                                    ref={fileInputRef}
+                                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                                    id="profilePicture"
+                                    type="file"
+                                    name="profilePicture"
+                                    accept="image/png,image/jpeg,image/webp"
+                                    onChange={handleFileSelected}
+                                    required
+                                />
+                            )}
+                            
+                            {previewUrl && (
+                                <input
+                                    ref={fileInputRef}
+                                    className="hidden"
+                                    type="file"
+                                    name="profilePicture"
+                                    accept="image/png,image/jpeg,image/webp"
+                                    onChange={handleFileSelected}
+                                />
+                            )}
+                            
                         <input ref={fileInputRef} className="hidden" type="file" id="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} />
                     </div>
                     

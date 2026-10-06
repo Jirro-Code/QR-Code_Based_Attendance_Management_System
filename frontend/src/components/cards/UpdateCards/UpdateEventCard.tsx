@@ -15,10 +15,11 @@ type UpdateEventCardProps = {
 
 export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateEventCardProps) => {
     const { useUpdateEvent } = useUpdate();
-    const [formData, setFormData] = useState<Event>({} as Event);
+    const [formData, setFormData] = useState<Partial<Event>>(() => ({ ...event }));
     const [error, setError] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const hasContent = Object.values(formData).some((value) => String(value ?? "").trim() !== "")
+
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
     }
@@ -30,17 +31,15 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
         return `${year}-${month}-${day}`;
     }
     
-    const handleUpdate = async (data: Event) => {
+    const handleUpdate = async (data: Partial<Event>) => {
         setIsSubmitting(true);
         try {
-            if (data.eventDate < localDateString(new Date())) {
+            if (data.eventDate && data.eventDate < localDateString(new Date())) {
                 setError("Date must be today or in the future");
                 return;
             }
-            const updatedEvent = await useUpdateEvent({ ...data, id: event.id! }, setError);
+            const updatedEvent = await useUpdateEvent({ ...data, id: event.id! } as Event, setError);
             onUpdated(updatedEvent);
-            setFormData({} as Event);
-            await useUpdateEvent({ ...data, id: event.id! }, setError);
             onSetNotif({
                 title: "Update Successful",
                 message: "Data updated successfully!"
@@ -78,16 +77,16 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
                         
                         <div className="flex flex-col gap-3 sm:w-1/2">
-                            <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={formData.eventName} onChange={handleFormChange} />
-                            <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={formData.eventLocation} onChange={handleFormChange} />
+                            <Input label="Event Name" type="text" id="eventName" placeholder="Event Name" name="eventName" value={formData.eventName ?? ""} onChange={handleFormChange} />
+                            <Input label="Event Location" type="text" id="eventLocation" placeholder="Event Location" name="eventLocation" value={formData.eventLocation ?? ""} onChange={handleFormChange} />
                             
                             { !isDisabled && (
-                                <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate} onChange={handleFormChange} error={error?.includes("Date") ? error : undefined} />
+                                <Input label="Event Date" type="date" id="eventDate" placeholder="Event Date" name="eventDate" value={formData.eventDate ?? ""} onChange={handleFormChange} error={error?.includes("Date") ? error : undefined} />
                             )}
                         </div>
                         
                         <div className="flex flex-col sm:w-1/2 [&>div]:flex-1 [&>div]:flex [&>div]:flex-col [&>div]:mb-0">
-                            <Input label="Event Description" type="textarea" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={formData.eventDescription} onChange={handleFormChange} isRequired={false} className={descriptionClassName} />
+                            <Input label="Event Description" type="textarea" id="eventDescription" placeholder="Event Description (Optional)" name="eventDescription" value={formData.eventDescription ?? ""} onChange={handleFormChange} isRequired={false} className={descriptionClassName} />
                         </div>
                     </div>
                     

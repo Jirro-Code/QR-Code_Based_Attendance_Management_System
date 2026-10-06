@@ -1,12 +1,13 @@
 import { useUpdate } from "../../../hooks/useUpdate.ts";
 import { useScrollFunctions } from "../../../hooks/useScrollFunctions.ts";
-import { useRef, useState } from "react";
+import { useView } from "../../../hooks/useView.ts";
+import { useEffect, useRef, useState } from "react";
 import { Input }  from "../../Input/Input.tsx";
 import { type User } from "../../../services/users.ts";
 import { SelectionField } from "../../Input/SelectionField.tsx";
 import { CancelButton } from "../../Button.tsx";
 import { ImageCropModal } from "../../../components/ImageCrop.tsx";
-import { ArrowLeftRight, X, Eye, EyeOff } from "lucide-react";
+import { ArrowLeftRight, Eye, EyeOff } from "lucide-react";
 
 type UpdateUserCardProps = {
     student: Partial<User>;
@@ -18,8 +19,9 @@ type UpdateUserCardProps = {
 
 export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetNotif, onClose }: UpdateUserCardProps) => {
     const { useUpdateUser } = useUpdate();
+    const { useViewProfilePicture } = useView();
     const { useScrollToTopOverflow } = useScrollFunctions();
-    const [formData, setFormData] = useState<User>({} as User);
+    const [formData, setFormData] = useState<Partial<User>>(() => ({ ...student }));
     const [confirmPassword, setConfirmPassword] = useState<string>("");
     const [error, setError] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -29,6 +31,33 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isHidden, setIsHidden] = useState(true);
     const [isHidden2, setIsHidden2] = useState(true);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        const loadProfilePicture = async () => {
+            if (!student.id || !student.profilePictureUrl) {
+                setPreviewUrl(null);
+                return;
+            }
+
+            try {
+                const pictureUrl = await useViewProfilePicture(student.id, () => {});
+                if (isMounted) {
+                    setPreviewUrl(pictureUrl);
+                }
+            }
+            catch (pictureError) {
+                console.error("Error loading profile picture:", pictureError);
+            }
+        };
+
+        loadProfilePicture();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [student.id, student.profilePictureUrl]);
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
@@ -54,15 +83,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
         setPendingFile(null);
     };
     
-    const handleRemovePicture = () => {
-        setFormData((current) => ({ ...current, profilePicture: null }));
-        setPreviewUrl((prev) => {
-            if (prev) URL.revokeObjectURL(prev);
-            return null;
-        });
-    };
-    
-    const handleUpdate = async (data: User) => {
+    const handleUpdate = async (data: Partial<User>) => {
         setIsSubmitting(true);
         try {
             if (data.username && data.username.trim().length < 2) {
@@ -111,12 +132,11 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
             setError("");
             const filteredData = Object.fromEntries(
             Object.entries(data).filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "")
-            ) as User;
+            ) as Partial<User>;
             
-            const updatedUser = await useUpdateUser({ ...filteredData, id: student.id! }, setError);
+            const updatedUser = await useUpdateUser({ ...filteredData, id: student.id! } as User, setError);
             
             onUpdated(updatedUser);
-            setFormData({} as User);
             setConfirmPassword("");
             onSetNotif({
                 title: "Update Successful",
@@ -141,7 +161,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
             <div onClick={(e) => e.stopPropagation()} className="w-full max-w-250 h-160 sm:h-140 lg:h-125 max-h-[90vh] flex flex-col rounded-lg shadow-lg overflow-hidden">
                 
                 <div className={`bg-${color} px-4 py-5 sm:px-6 flex items-center justify-between gap-3 shrink-0`}>
-                    <h1 className="text-white text-xl font-bold wrap-break-words">{student.username}</h1>
+                    <h1 className="text-white text-xl font-bold wrap-break-words truncate">{student.username}</h1>
                     <CancelButton onClose={onClose} color="white"/>
                 </div>
                 
@@ -156,41 +176,26 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                             
                             {previewUrl ? (
                                 <div className="mt-2 flex items-center gap-4 sm:gap-5">
-                                    <img src={previewUrl} alt="Selected profile" className="w-16 h-16 sm:w-20 sm:h-20 rounded-md object-cover ring-1 ring-gray-200 shrink-0" />
+                                    <img src={previewUrl} alt="Selected profile" className="w-30 h-30 sm:w-25 sm:h-25 rounded-md object-cover ring-1 ring-gray-200 shrink-0" />
                                     <div className="flex flex-col gap-1 min-w-0">
                                         <span className="text-sm text-gray-700 truncate">{formData.profilePicture?.name}</span>
                                         <div className="flex gap-3">
                                             <label htmlFor="profilePicture" className="text-xs flex gap-1 items-center text-blue-800 hover:underline cursor-pointer">
                                                 <ArrowLeftRight size={12} /> Change
                                             </label>
-                                            <button type="button" onClick={handleRemovePicture} className="text-xs text-red-600 hover:underline flex items-center gap-0.5">
-                                                <X size={12} /> Remove
-                                            </button>
                                         </div>
                                     </div>
                                 </div>
                             ) : (
-                                <input className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} required/>
+                                <input className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected}/>
                             )}
                             
-                            {previewUrl && ( <input className="hidden" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} required />)}
+                            {previewUrl && ( <input className="hidden" id="profilePicture" type="file" name="profilePicture" accept="image/png,image/jpeg,image/webp" onChange={handleFileSelected} />)}
                         </div>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-4 gap-y-3">
                             
                             <Input label="Student Name" id="studentName" type="text" placeholder="John Doe" onChange={handleFormChange} name="username" value={formData.username ?? ""} isRequired={false} error={error?.includes("name") ? error : undefined} />
                             <Input label="Email" id="studentEmail" type="email" placeholder="example09@gmail.com" onChange={handleFormChange} name="email" value={formData.email ?? ""} isRequired={false} error={error?.includes("email") ? error : undefined} />
-                            <div className="relative">
-                                <Input label="Password" id="studentPassword" type={isHidden ? "password" : "text" } placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
-                                <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
-                                    {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
-                                </button>
-                            </div>
-                            <div className="relative">
-                                <Input label="Confirm Password" id="confirmPassword" type={isHidden2 ? "password" : "text" } placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} error={error?.includes("Password") || error?.includes("Passwords") ? error : undefined} />
-                                <button type="button" onClick={() => setIsHidden2(!isHidden2)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
-                                    {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
-                                </button>
-                            </div>
                             <Input label="Student LRN" id="studentLRN" type="number" placeholder="XXXXXXXXXXXX" onChange={handleFormChange} name="studentLRN" value={formData.studentLRN ?? ""} isRequired={false} error={error?.includes("LRN") || error?.includes("studentLRN") ? error : undefined} />
                             <Input label="Student ID" id="studentID" type="text" placeholder="2025-0000-ICP" onChange={handleFormChange} name="studentId" value={formData.studentId ?? ""} isRequired={false} error={error?.includes("ID") || error?.includes("studentId") ? error : undefined} />
                             <SelectionField label="Student Strand" id="studentStrand" value={formData.studentStrand ?? ""} onChange={handleFormChange} isRequired={false}
@@ -206,6 +211,18 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                                 ]}
                             />
                             <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
+                            <div className="relative">
+                                <Input label="Password" id="studentPassword" type={isHidden ? "password" : "text" } placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
+                                <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                    {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                                </button>
+                            </div>
+                            <div className="relative">
+                                <Input label="Confirm Password" id="confirmPassword" type={isHidden2 ? "password" : "text" } placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} error={error?.includes("Password") || error?.includes("Passwords") ? error : undefined} />
+                                <button type="button" onClick={() => setIsHidden2(!isHidden2)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                    {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
+                                </button>
+                            </div>
                         </div>
                     </form>
                 </div>
