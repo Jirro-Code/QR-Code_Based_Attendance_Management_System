@@ -1,7 +1,7 @@
 import { users, passwordResetOTP} from "../db/schema.ts";
 import { db } from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
-import { sendPasswordResetOTP } from "../services/email.ts";
+import { sendPasswordResetOTP, sendAccountCreationEmail } from "../services/email.ts";
 import { generatePasswordResetOTP, hashPasswordResetOTP, verifyPasswordResetOTP} from "../utils/otp.ts";
 import { generateToken } from "../utils/jwt.ts";
 import { uploadProfilePicture } from "../services/azureBlob.ts";
@@ -64,6 +64,19 @@ export const registerUser = async (req: Request, res: Response) => {
         
         if (profilePicture) {
             profilePictureUrl = await uploadProfilePicture(profilePicture);
+        }
+        
+        try {
+            const result = await sendAccountCreationEmail(req.body.email, req.body.password, req.body.role === "user", req.body.studentId);
+            
+            if(result.rejected.includes(req.body.email)){
+                console.error("Failed to send account creation email to:", req.body.email);
+                return res.status(422).json({message: "This email address could not be verified.", field: "email"});
+            }
+        }
+        catch (e) {
+            console.error("Error sending account creation email:", e);
+            return res.status(500).json({message: "Failed to verify the email address."});
         }
         
         const hashedPassword = await hashPassword(req.body.password);

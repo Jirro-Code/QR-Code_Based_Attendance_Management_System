@@ -1,0 +1,1 @@
+ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "password_change_last_attempt_at" timestamp with time zone;

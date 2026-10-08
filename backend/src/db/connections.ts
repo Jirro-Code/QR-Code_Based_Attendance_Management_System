@@ -3,6 +3,7 @@ import * as schema from "./schema.ts";
 import {env, isProd} from "../../env.ts";
 import {remember} from "@epic-web/remember"
 import { Pool } from "pg";
+import { sql } from "drizzle-orm";
 
 //connection pool is used reuse the connections to the database instead of creating a new connection for each request.
 const createPool = () => {
@@ -24,5 +25,9 @@ if (isProd()) {
 
 //exports the drizzle client with the schema and default mode
 export const db = drizzle({client, schema});
+
+export const initializeDatabase = async () => {
+    await db.execute(sql`select 1`);
+};
 
 export default db;

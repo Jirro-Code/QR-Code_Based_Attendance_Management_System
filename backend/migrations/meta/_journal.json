@@ -15,6 +15,13 @@
       "when": 1791298584777,
       "tag": "0001_add_password_change_lock",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1791460638074,
+      "tag": "0002_abandoned_norman_osborn",
+      "breakpoints": true
     }
   ]
 }

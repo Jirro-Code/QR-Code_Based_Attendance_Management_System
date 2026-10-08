@@ -4,6 +4,7 @@ import https from "https";
 import fs from "fs";
 import { Server } from "socket.io";
 import { verifyToken } from "./utils/jwt.ts";
+import { initializeDatabase } from "./db/connections.ts";
 
 const httpsOptions = {
   key: fs.readFileSync("./certs/localhost+1-key.pem"),
@@ -72,6 +73,17 @@ io.on("connection", (socket) => {
 });
 
 
-httpServer.listen(env.PORT, "0.0.0.0", () => {
-  console.log(`Server is running on https://localhost:${env.PORT}`);
-});
+const startServer = async () => {
+  try {
+    await initializeDatabase();
+    httpServer.listen(env.PORT, "0.0.0.0", () => {
+      console.log(`Server is running on https://localhost:${env.PORT}`);
+    });
+  }
+  catch (error) {
+    console.error("Unable to connect to the database. Server was not started:", error);
+    process.exit(1);
+  }
+};
+
+startServer();

@@ -30,3 +30,38 @@ export const sendPasswordResetOTP = async (email: string, otp: string) => {
         `,
     });
 };
+
+export const sendAccountCreationEmail = async (email: string, password: string, isStudent: boolean, studentId?: string) => {
+    return await transporter.sendMail({
+        from: env.SMTP_FROM,
+        to: email,
+        subject: "AttendScan Account Created",
+        text: `Your AttendScan account has been created. Your password is ${password}.`,
+        html: `
+            <h2>AttendScan Account Created</h2>
+            
+            <p>Your account has been created successfully.</p>
+            
+            <p>Your login credentials are:</p>
+            
+            ${isStudent ? `<p><strong>Student ID:</strong> ${studentId}</p>` : `<p><strong>Email:</strong> ${email}</p>`}
+            <p><strong>Password:</strong> ${password}</p>
+            
+            
+            <p>If you have any questions, please contact the administrator.</p>
+        `,
+    });
+};
+
+export const sendEmailUpdateEmail = async (email: string) => {
+    return await transporter.sendMail({
+        from: env.SMTP_FROM,
+        to: email,
+        subject: "AttendScan Email Updated",
+        text: "Your AttendScan account email address has been updated.",
+        html: `
+            <h2>AttendScan Email Updated</h2>
+            <p>Your AttendScan account email address has been updated successfully.</p>
+        `,
+    });
+};
