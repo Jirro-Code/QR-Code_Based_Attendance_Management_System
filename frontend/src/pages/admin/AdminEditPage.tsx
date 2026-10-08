@@ -151,14 +151,14 @@ export const AdminEditPage = () => {
         <div className="min-h-screen bg-slate-100 flex flex-col">
             <Header title="Edit Admin Profile" path="/admin-profile" />
             <main className="w-full max-w-4xl mx-auto flex-1 p-4 sm:p-8">
-                <form className="mt-6 flex flex-col gap-2" onSubmit={handleSubmit}>
-                    {error && <div className="text-red-700 px-2" role="alert">{error}</div>}
-                    {lockSeconds > 0 && <div className="text-red-700 px-2" role="alert">Password changes are locked. Try again in {Math.floor(lockSeconds / 60)}:{String(lockSeconds % 60).padStart(2, "0")}.</div>}
+                <form className="flex flex-col gap-2" onSubmit={handleSubmit}>
+                    {lockSeconds > 0 && <div className="text-red-700" role="alert">Password changes are locked. Try again in {Math.floor(lockSeconds / 60)}:{String(lockSeconds % 60).padStart(2, "0")}.</div>}
+                    {error && lockSeconds === 0 && <div className="text-red-700 px-2" role="alert">{error}</div>}
                     
                     <div>   
                         <label className="block text-sm font-medium text-gray-700" htmlFor="profilePicture">Profile Picture:</label>
                         {previewUrl ? (
-                            <div className="mt-2 flex items-center sm:flex-row flex-col sm:justify-start justify-center gap-3">
+                            <div className="mt-2 flex items-center flex-col justify-center gap-3">
                                 <img src={previewUrl} alt="Selected profile" className="w-35 h-35 rounded-md object-cover ring-1 ring-gray-200" />
                                 <div className="flex gap-3 text-xs">
                                     <button type="button" onClick={() => fileInputRef.current?.click()} className="text-blue-800 hover:underline">Change</button>
@@ -205,7 +205,7 @@ export const AdminEditPage = () => {
                         <Input label="Confirm New Password" id="confirmPassword" type={hiddenFields.confirm ? "password" : "text"} placeholder="Confirm New Password" name="confirmPassword" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} isRequired={false} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined}/>
                         <button type="button" onClick={() => toggleField("confirm")} className="absolute right-3 top-9 text-gray-500">{hiddenFields.confirm ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                     </div>
-                    <p className="text-sm text-gray-500">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: true, fromProfile: true } })} className="text-blue-600 hover:underline">Click here</button></p>
+                    <p className="text-sm text-gray-500">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: true, fromProfile: true, email } })} className="text-blue-600 hover:underline">Click here</button></p>
                     
                     <div className="flex justify-end gap-3">
                         <button type="button" onClick={() => navigate("/admin-profile")} className="border border-gray-300 bg-white text-gray-700 font-semibold py-2 px-4 rounded">Cancel</button>

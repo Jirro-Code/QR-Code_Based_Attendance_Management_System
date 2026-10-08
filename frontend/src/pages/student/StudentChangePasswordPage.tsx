@@ -94,7 +94,7 @@ export const StudentChangePasswordPage = () => {
                     <div className="mb-5 text-center">
                         <h2 className="text-2xl mb-5 sm:text-3xl font-bold text-gray-800">Change Your Password</h2>
                         {lockSeconds > 0 && <p className="text-red-600 font-semibold mt-3">Too many incorrect attempts. Try again in {formatCountdown(lockSeconds)}</p>}
-                        {error && <p className="text-red-600 text-sm mt-3">{error}</p>}
+                        {error && lockSeconds === 0 && <p className="text-red-600 text-sm mt-3">{error}</p>}
                     </div>
                     <form onSubmit={handleChangePassword} className="text-left">
                         <div className="relative">
@@ -113,7 +113,7 @@ export const StudentChangePasswordPage = () => {
                             {isLoading ? "Saving..." : "Change Password"}
                         </button>
                         <div className="flex justify-start">
-                            <p className="text-center text-sm text-gray-500 mt-4">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: false, fromProfile: true } })} className="text-blue-600 hover:underline">Click here</button></p>
+                            <p className="text-center text-sm text-gray-500 mt-4">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: false, fromProfile: true, email: student?.email } })} className="text-blue-600 hover:underline">Click here</button></p>
                         </div>
                     </form>
                 </div>

@@ -107,10 +107,7 @@ export const AdminProfilePage = () => {
                     </div>
                     
                     <div className="mt-auto flex justify-end px-4 pt-8">
-                        <button
-                            onClick={() => logout("/admin-login")}
-                            className="rounded-lg border border-red-700 bg-white px-6 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50"
-                        >
+                        <button onClick={() => logout("/admin-login")} className="rounded-lg border border-red-700 bg-white px-6 py-3 text-sm font-semibold text-red-700 transition hover:bg-red-50">
                             Logout
                         </button>
                     </div>

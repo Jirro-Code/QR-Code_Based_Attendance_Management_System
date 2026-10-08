@@ -5,10 +5,12 @@ import { useView } from "../../hooks/useView.ts";
 import { getSelf, type User } from "../../services/users.ts";
 import { logout } from "../../services/auth.ts";
 import { KeyRound } from "lucide-react";
+import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 
 export const StudentProfilePage = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const [showNotification, setShowNotification] = useState(!!location.state?.notify);
     const [student, setStudent] = useState<Partial<User>>(() => location.state?.user as User || {});
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [isLoadingPicture, setIsLoadingPicture] = useState<boolean>(true);
@@ -156,6 +158,16 @@ export const StudentProfilePage = () => {
                     </div>
                 </div>
             </div>
+            {showNotification && (
+                <NotificationCard
+                    title="Password Changed"
+                    message="Your password has been changed successfully."
+                    onClose={() => {
+                        setShowNotification(false);
+                        navigate(location.pathname, { replace: true, state: { user: student } });
+                    }}
+                />
+            )}
         </div>
     );
 }

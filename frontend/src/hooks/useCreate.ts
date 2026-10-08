@@ -38,7 +38,14 @@ export const useCreate = () => {
         catch (e) {
             if (e instanceof ApiError) {
                 if (e.status === 400) {
-                    setError(e.message || "Invalid registration data.");
+                    const emailError = Array.isArray(e.details.details)
+                        && e.details.details.some((detail) => (
+                            typeof detail === "object"
+                            && detail !== null
+                            && "field" in detail
+                            && detail.field === "email"
+                        ));
+                    setError(emailError ? "Invalid email address." : e.message || "Invalid registration data.");
                 }
                 if (e.status === 401) {
                     alert("Unauthorized. Please log in.");
@@ -49,6 +56,9 @@ export const useCreate = () => {
                 }
                 if (e.status === 409) {
                     setError(e.message || "User already exists.");
+                }
+                if (e.status === 422) {
+                    setError(e.message || "This email address could not be verified.");
                 }
                 if (e.status >= 500) {
                     alert("Server error. Please try again later.");

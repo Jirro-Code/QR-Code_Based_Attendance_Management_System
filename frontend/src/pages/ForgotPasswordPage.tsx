@@ -13,7 +13,8 @@ export const ForgotPasswordPage = () => {
     const [isAdmin] = useState(!!location.state?.isAdmin);
     const isFromProfile = !!location.state?.fromProfile;
     const role = isAdmin ? "admin" : "user";
-    const [email, setEmail] = useState(() => sessionStorage.getItem("passwordResetEmail") ?? "");
+    const [email, setEmail] = useState(() => location.state?.email ?? "");
+    const [isAutoSending, setIsAutoSending] = useState(isFromProfile);
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [step1Completed, setStep1Completed] = useState(false);
@@ -34,10 +35,35 @@ export const ForgotPasswordPage = () => {
     const { useForgotPassword, useVerifyOtp, useGetOtpStatus, useResetPassword } = useUpdate();
     
     useEffect(() => {
-        if (!email) return;
+        if (!email) {
+            setIsAutoSending(false);
+            return;
+        }
         
         const restoreOtpStatus = async () => {
             try {
+                if (isFromProfile) {
+                    try {
+                        const responseData = await useForgotPassword(email, role, setError);
+                        setStep1Completed(true);
+                        setResendAvailableAt(responseData?.resendAvailableAt ?? null);
+                        setLockedUntil(null);
+                    }
+                    catch (sendError) {
+                        if (sendError instanceof ApiError && [423, 429].includes(sendError.status)) {
+                            const status = await useGetOtpStatus(email, role);
+                            setStep1Completed(true);
+                            setResendAvailableAt(status.resendAvailableAt);
+                            setLockedUntil(status.lockedUntil);
+                            setError("");
+                            setIsAutoSending(false);
+                            return;
+                        }
+                        throw sendError;
+                    }
+                    setIsAutoSending(false);
+                    return;
+                }
                 const status = await useGetOtpStatus(email, role);
                 setStep1Completed(true);
                 setResendAvailableAt(status.resendAvailableAt);
@@ -45,8 +71,8 @@ export const ForgotPasswordPage = () => {
             }
             catch (statusError) {
                 if (statusError instanceof ApiError && [404, 410].includes(statusError.status)) {
-                    sessionStorage.removeItem("passwordResetEmail");
                 }
+                setIsAutoSending(false);
             }
         };
         
@@ -104,8 +130,6 @@ export const ForgotPasswordPage = () => {
                 setError("Invalid email format.");
                 return;
             }
-            
-            sessionStorage.setItem("passwordResetEmail", email);
             
             try {
                 const status = await useGetOtpStatus(email, role);
@@ -214,6 +238,7 @@ export const ForgotPasswordPage = () => {
                 setError("Please enter the complete 6-digit OTP.");
                 return;
             }
+            
             const responseData = await useVerifyOtp(email, role, code, setError);
             if (responseData) {
                 setStep2Completed(true);
@@ -232,6 +257,19 @@ export const ForgotPasswordPage = () => {
             setOtpLoading(false);
         }
     }
+    
+    const goBackToEmail = () => {
+        if (isFromProfile) return;
+        setStep1Completed(false);
+        setStep2Completed(false);
+        setError("");
+    };
+    
+    const goBackToOtp = () => {
+        setStep2Completed(false);
+        setStep3Completed(false);
+        setError("");
+    };
     
     const handlePasswordReset = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -276,7 +314,13 @@ export const ForgotPasswordPage = () => {
                 </div>
             )}
             <div className="w-full max-w-150">
-                {!step1Completed && !step2Completed && !step3Completed &&
+                {isAutoSending && (
+                    <div className="flex flex-col items-center w-full gap-3 text-center">
+                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-800">Sending OTP...</h2>
+                        <p className="text-gray-500">We are sending the verification code to your email.</p>
+                    </div>
+                )}
+                {!isFromProfile && !isAutoSending && !step1Completed && !step2Completed && !step3Completed &&
                     (<div className="flex flex-col w-full gap-2">
                         <div className="mb-5 text-center">
                             <h2 className="text-3xl font-bold text-gray-800">Enter Your Email Address</h2>
@@ -333,6 +377,7 @@ export const ForgotPasswordPage = () => {
                                 {otpLoading ? "Verifying..." : "Send"}
                             </button>
                             <p className="text-sm text-gray-500 text-center">Didn't receive the code? <button type="button" disabled={resendSeconds > 0 || lockSeconds > 0} className="text-blue-500 hover:underline disabled:text-gray-400 disabled:no-underline" onClick={handleResendOtp}>{lockSeconds > 0 ? "Resend unavailable" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend"}</button></p>
+                            {!isFromProfile && <button type="button" onClick={goBackToEmail} className="text-sm text-blue-500 hover:underline">Back to email</button>}
                             {isFromProfile ? (
                                 <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-edit" : "/student-change-password")} className="text-blue-500 hover:underline">Profile</button></p>
                                 ):(
@@ -359,10 +404,11 @@ export const ForgotPasswordPage = () => {
                                         {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
                                     </button>
                                 </div>
-                                <p className="text-sm text-gray-500 mt-3">Passwords must be at least 8 characters long.</p>
+                                <p className="text-sm text-gray-500 mt-3">Passwords must be at least 6 characters long.</p>
                                 <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={passwordResetLoading}>
                                     {passwordResetLoading ? "Resetting..." : "Reset Password"}
                                 </button>
+                                <button type="button" onClick={goBackToOtp} className="w-full text-sm text-blue-500 hover:underline mt-4">Back to OTP</button>
                                 {isFromProfile ? (
                                     <p className="text-center text-sm text-gray-500 mt-4">Back to <button type="button" onClick={() => navigate(isAdmin ? "/admin-edit" : "/student-change-password")} className="text-blue-500 hover:underline">Profile</button></p>
                                     ):(
@@ -374,9 +420,9 @@ export const ForgotPasswordPage = () => {
                 )}
             </div>
             <div className="w-full max-w-150 flex justify-between gap-3">
-                <span className={`${!step1Completed && !step2Completed && !step3Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`}/>
-                <span className={`${step1Completed && !step2Completed && !step3Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`}/>
-                <span className={`${step1Completed && step2Completed && !step3Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`}/>
+                {!isFromProfile && <button type="button" onClick={goBackToEmail} className={`${!step1Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`} aria-label="Go to email step" />}
+                <button type="button" onClick={() => step1Completed && setStep2Completed(false)} className={`${step1Completed && !step2Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`} aria-label="Go to OTP step" />
+                <button type="button" onClick={() => step2Completed && setStep3Completed(false)} className={`${step1Completed && step2Completed && !step3Completed ? "bg-blue-800" : "bg-gray-300"} w-full rounded-2xl h-3 transition-colors`} aria-label="Go to password step" />
             </div>
         </div>
     );

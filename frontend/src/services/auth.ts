@@ -48,11 +48,21 @@ export const register = async (data: RegisterPayload) => {
 }
 
 export const login = async (payload: LoginPayload) => {
-    const response = await apiFetch("/auth/login", {
+    const request = () => apiFetch("/auth/login", {
         method: "POST",
         body: JSON.stringify(payload)
     });
-    return response.json().catch(() => null);
+    
+    try {
+        const response = await request();
+        return response.json().catch(() => null);
+    }
+    catch (error) {
+        if (!(error instanceof TypeError)) throw error;
+        await new Promise((resolve) => window.setTimeout(resolve, 500));
+        const response = await request();
+        return response.json().catch(() => null);
+    }
 }
 
 export const logout = async (path: string) => {
