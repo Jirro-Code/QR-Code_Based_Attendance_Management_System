@@ -9,6 +9,10 @@ import { sql } from "drizzle-orm";
 const createPool = () => {
     return new Pool({
         connectionString: env.DATABASE_URL,
+        max: 10, // maximum number of clients in the pool
+        connectionTimeoutMillis: 5000, // return an error after 2 seconds if connection could not be established
+        idleTimeoutMillis: 20000, // close idle clients after 20 seconds
+        maxLifetimeSeconds: 1800, // close clients after 30 minutes
     })
 }
 

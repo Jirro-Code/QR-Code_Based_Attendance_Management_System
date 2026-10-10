@@ -108,8 +108,9 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
         
         // Emit a socket event to notify the user that their attendance has been marked
         io.to(`userId-${req.body.userId}`).emit("attendance:marked", {
-            message: "You have been marked as present!",
+            message: `New attendance recorded for ${eventExist.eventName}.`,
             eventId: req.body.eventId,
+            eventName: eventExist.eventName,
             attendance: newAttendance,
         });
         

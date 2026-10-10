@@ -52,6 +52,6 @@ router.post("/verifyOtp", validateBody(verifyOtpSchema), verifyOtp);
 router.get("/otpStatus", getOtpStatus);
 
 router.use(authAdminToken);
-router.post("/register", upload.single("profilePicture"), validateBody(registerSchema), registerUser);
+router.post("/register", upload?.single("profilePicture"), validateBody(registerSchema), registerUser);
 
 export default router;

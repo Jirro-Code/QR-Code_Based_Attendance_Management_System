@@ -27,8 +27,14 @@ export const io = new Server(httpServer, {
 io.use(async (socket, next) => {
   try {
     
-    // Extract the token from the socket handshake query parameters
-    const token = socket.handshake.auth?.token;
+    const authToken = socket.handshake.auth?.token;
+    const cookieToken = socket.handshake.headers.cookie
+      ?.match(/(?:^|;\s*)token=([^;]+)/)?.[1];
+    const token = typeof authToken === "string"
+      ? authToken
+      : cookieToken
+        ? decodeURIComponent(cookieToken)
+        : undefined;
     
     if (!token || typeof token !== "string") {
       return next(new Error("Authentication token is required"));
