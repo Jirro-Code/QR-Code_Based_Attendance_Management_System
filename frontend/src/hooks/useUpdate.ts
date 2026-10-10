@@ -74,8 +74,13 @@ export const useUpdate = () => {
         }
     }
     
-    const useUpdateEvent = async (data: Event, setError: React.Dispatch<React.SetStateAction<string>>) => {
+    const useUpdateEvent = async (data: Partial<Event>, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
+            if (!data.id) {
+                const error = new Error("Event ID is required.");
+                setError(error.message);
+                throw error;
+            }
             const responseData = await updateEvent(data.id, data);
             return responseData.event;
         } 

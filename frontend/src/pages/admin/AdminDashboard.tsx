@@ -38,8 +38,8 @@ export const AdminDashboard = () => {
                 <div className="mt-26 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
                     <button
                         onClick={() => navigate("/manage-attendances")}
-                        className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
-                        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
+                        className="group rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
+                        <div className="mb-5 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
                             <Folders size={20} />
                         </div>
                         
@@ -59,8 +59,8 @@ export const AdminDashboard = () => {
                     
                     <button
                         onClick={() => navigate("/scanner")}
-                        className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl" >
-                        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
+                        className="group rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl" >
+                        <div className="mb-5 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
                             <ScanSquare size={20} />
                         </div>
                         
@@ -80,8 +80,8 @@ export const AdminDashboard = () => {
                     
                     <button
                         onClick={() => navigate("/manage-events")}
-                        className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
-                        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
+                        className="group rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
+                        <div className="mb-5 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
                             <Calendars size={20} />
                         </div>
                         
@@ -101,8 +101,8 @@ export const AdminDashboard = () => {
                     
                     <button
                         onClick={() => navigate("/create-event")}
-                        className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
-                        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
+                        className="group rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
+                        <div className="mb-5 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
                             <CalendarPlus2 size={20} />
                         </div>
                         
@@ -121,8 +121,8 @@ export const AdminDashboard = () => {
                     
                     
                     <button onClick={() => navigate("/manage-students")}
-                        className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
-                        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
+                        className="group rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
+                        <div className="mb-5 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
                             <Users size={20} />
                         </div>
                         
@@ -142,8 +142,8 @@ export const AdminDashboard = () => {
                     
                     <button
                         onClick={() => setIsSelecting(true)}
-                        className="group rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
-                        <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
+                        className="group rounded-2xl border border-slate-200 bg-white p-4 sm:p-6 text-left shadow-sm transition duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-xl">
+                        <div className="mb-5 flex h-9 w-9 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-blue-100 text-sm font-semibold text-blue-700">
                             <UserPlus size={20} />
                         </div>
                         

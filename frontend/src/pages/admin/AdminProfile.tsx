@@ -47,7 +47,7 @@ export const AdminProfilePage = () => {
                 
                 <div className="relative px-5 sm:px-8 lg:px-12">
                     <div className="flex items-end -mt-20 sm:-mt-24 md:-mt-28">
-                        <div className="w-36 sm:w-44 md:w-52 shrink-0">
+                        <div className="w-25 sm:w-40 md:w-50 shrink-0">
                             {isLoadingPicture ? (
                                 <div className="w-full aspect-square rounded-md bg-gray-100 ring-4 ring-white animate-pulse" />
                             ) : profilePicture ? (

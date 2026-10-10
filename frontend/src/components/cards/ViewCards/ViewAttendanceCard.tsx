@@ -68,6 +68,8 @@ export const AttendanceCard = ({ event, strand, section, isOnArchive, onClose, o
     attendance.isArchivedByStudent === true ||
     attendance.isArchivedByEvent === true;
     
+    const atendeesCount = attendanceArray.filter((attendance) => isOnArchive ? isArchivedRecord(attendance) : !isArchivedRecord(attendance));
+    
     const color = isOnArchive ? "gray-500" : "blue-800";
     return (
         <div onClick={onClose} className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-10 backdrop-blur-[2px]">
@@ -83,6 +85,7 @@ export const AttendanceCard = ({ event, strand, section, isOnArchive, onClose, o
                     </h1>
                     
                     <div className="w-full flex justify-between items-center">
+                        <h4 className="text-white/90 text-sm">{atendeesCount.length} Attendees</h4>
                         {strand ? (<h4 className="text-white/90 text-sm">{strand}</h4>) : <p></p>}
                         {section ? (<h4 className="text-white/90 text-sm">{section}</h4>) : <p></p>}
                         <h4 className="text-white/90 text-sm">{formatDate(event.eventDate)}</h4>
@@ -90,9 +93,9 @@ export const AttendanceCard = ({ event, strand, section, isOnArchive, onClose, o
                     {error && (<p className="text-red-700 px-2 py-1 text-sm w-fit mt-1">{error}</p>)}
                 </div>
                 
-                <div className="scrollable-card bg-gray-50 h-100 overflow-y-auto overscroll-contain">
+                <div className="scrollable-card bg-gray-50 h-100 overflow-y-auto overflow-x-auto overscroll-contain">
                     
-                    <div className="grid grid-cols-[0.3fr_repeat(7,1fr)] border-b border-gray-200 bg-white sticky top-0 px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide shadow-sm">
+                    <div className="min-w-160 grid grid-cols-[0.3fr_repeat(7,1fr)] border-b border-gray-200 bg-white sticky top-0 px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide shadow-sm">
                         <div>#</div>
                         <div>Name</div>
                         <div>Strand</div>
@@ -103,7 +106,7 @@ export const AttendanceCard = ({ event, strand, section, isOnArchive, onClose, o
                         <div className="flex justify-end">Actions</div>
                     </div>
                     
-                    <div className="grid grid-cols-1 divide-y divide-gray-100">
+                    <div className="min-w-160 grid grid-cols-1 divide-y divide-gray-100">
                         {
                             isOnArchive ? (
                                 attendanceArray.filter(isArchivedRecord).length > 0 ? (

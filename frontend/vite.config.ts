@@ -13,7 +13,6 @@ const printRoutes = () => ({
         if (address && typeof address === "object") {
           const port = address.port;
           
-          console.log("");
           console.log(`➜ Admin: https://localhost:${port}/admin-login`);
           console.log(`➜ Student: https://localhost:${port}/student-login`);
         }

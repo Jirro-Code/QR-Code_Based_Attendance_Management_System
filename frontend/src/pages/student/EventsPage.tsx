@@ -172,7 +172,7 @@ export const EventsPage = () => {
                 </div>
                 
                 
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                     {eventArray.filter((event) => event.isArchived === false).length > 0 ? (
                         eventArray.filter((event) => event.isArchived === false).map((event: Event) => (
                             <EventCard key={event.id} event={event} onLoadView={() => {setSelectedEvent(event), setShowViewCard(true)}} isOnArchivedPage={false} isAdmin={false} />

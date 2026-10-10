@@ -157,7 +157,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     const color = student.isArchived ? "gray-500" : "blue-800";
     
     return (
-        <div onClick={onClose} className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-3 sm:p-4">
+        <div onClick={onClose} className="fixed inset-0 bg-black/40 flex flex-col items-center justify-center z-50 p-4">
             <div onClick={(e) => e.stopPropagation()} className="w-full max-w-250 h-160 sm:h-140 lg:h-125 max-h-[90vh] flex flex-col rounded-lg shadow-lg overflow-hidden">
                 
                 <div className={`bg-${color} px-4 py-5 sm:px-6 flex items-center justify-between gap-3 shrink-0`}>
@@ -177,7 +177,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                             {previewUrl ? (
                                 <div className="mt-2 flex flex-col items-center gap-1">
                                     <img src={previewUrl} alt="Selected profile" className="w-30 h-30 rounded-md object-cover ring-1 ring-gray-200 shrink-0" />
-                                    <div className="flex flex-col gap-1 min-w-0">
+                                    <div className="flex flex-col items-center gap-1 min-w-0">
                                         <span className="text-sm text-gray-700 truncate">{formData.profilePicture?.name}</span>
                                         <div className="flex">
                                             <label htmlFor="profilePicture" className="text-xs flex gap-1 items-center text-blue-800 hover:underline cursor-pointer">
@@ -231,7 +231,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                     <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded">
                         Cancel
                     </button>
-                    <button type="button" onClick={() => handleUpdate(formData)} className={`w-33 text-white py-1.5 px-4 rounded ${hasContent ? "bg-blue-800 hover:bg-blue-900" : "bg-gray-500"}`} disabled={!hasContent || isSubmitting}>
+                    <button type="button" onClick={() => handleUpdate(formData)} className={`w-35 text-white py-1.5 px-4 rounded ${hasContent ? "bg-blue-800 hover:bg-blue-900" : "bg-gray-500"}`} disabled={!hasContent || isSubmitting}>
                         {isSubmitting ? "Saving..." : "Save Changes"}
                     </button>
                 </div>

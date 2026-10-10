@@ -212,7 +212,7 @@ export const ArchivedEvents = () => {
                     </div>
                     
                     {eventArray.filter((event) => event.isArchived === true).length > 0 ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-5 mt-4">
                             {eventArray.filter((event) => event.isArchived === true).map((event: Event) => (
                                 <EventCard key={event.id} event={event} isOnArchivedPage={true} onRestore={() => loadUnarchiveCard(event)} onLoadView={() => loadViewCard(event)} isAdmin={true} />
                             ))}

@@ -8,6 +8,9 @@ import { CircleAlert, Eye, EyeOff } from "lucide-react";
 import { Header } from "../components/Header.tsx";
 
 export const ForgotPasswordPage = () => {
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const navigate = useNavigate();
     const location = useLocation();
     const [isAdmin] = useState(!!location.state?.isAdmin);
@@ -302,7 +305,7 @@ export const ForgotPasswordPage = () => {
     }
     
     return (
-        <div className="min-h-screen w-screen flex flex-col items-center justify-between bg-slate-100 pl-15 pr-15 pt-5 pb-8">
+        <div className="min-h-screen w-screen flex flex-col items-center justify-between bg-slate-100 px-4 sm:pl-15 sm:pr-15 pt-5 pb-8">
             {isFromProfile ? (
                 <div className="w-screen -mt-5">
                     <Header title="Forgot Password" path={isAdmin ? "/admin-edit" : "/student-change-password"} />
@@ -369,7 +372,7 @@ export const ForgotPasswordPage = () => {
                                         onKeyDown={(e) => handleOtpKeyDown(index, e)}
                                         onPaste={handleOtpPaste}
                                             disabled={lockSeconds > 0}
-                                        className={`${error ? 'border-red-400 bg-red-100 focus:outline-none focus:ring-1 focus:ring-red-700' : 'border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-800'} w-10 h-12 sm:w-12 sm:h-14 text-center text-lg font-semibold border rounded-lg`}
+                                        className={`${error ? 'border-red-400 bg-red-100 focus:outline-none focus:ring-1 focus:ring-red-700' : 'border-gray-300 focus:outline-none focus:ring-1 focus:ring-blue-800'} w-8 h-10 sm:w-12 sm:h-14 text-center text-lg font-semibold border rounded-lg`}
                                     />
                                 ))}
                             </div>

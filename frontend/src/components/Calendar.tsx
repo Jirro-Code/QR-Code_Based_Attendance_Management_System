@@ -100,7 +100,7 @@ export const Calendar = ({ isAdmin, isArchived, onClose, refreshEvents }: Calend
             days.push(
                 <div
                     key={`empty-start-${i}`}
-                    className="h-10 sm:h-12 lg:h-14 xl:h-16 flex items-center justify-center text-sm rounded-lg border border-slate-200 bg-white hover:bg-gray-100 p-6 text-left shadow-sm"
+                    className="h-10 max-md:h-9 sm:h-12 lg:h-14 xl:h-16 flex items-center justify-center text-sm max-md:text-xs rounded-lg max-md:rounded-md border border-slate-200 bg-white hover:bg-gray-100 p-6 max-md:p-1 text-left shadow-sm"
                 />
             );
         }
@@ -112,15 +112,15 @@ export const Calendar = ({ isAdmin, isArchived, onClose, refreshEvents }: Calend
             
             days.push(
                 <div key={`day-${i}`} onClick={() => setSelectedDay(i)}
-                    className={`relative flex h-10 sm:h-12 lg:h-14 xl:h-16 items-center justify-center text-sm rounded-lg border p-6 text-left shadow-sm ${
+                    className={`relative flex h-10 max-md:h-9 sm:h-12 lg:h-14 xl:h-16 items-center justify-center text-sm max-md:text-xs rounded-lg max-md:rounded-md border p-6 max-md:p-1 text-left shadow-sm ${
                         today ? `border-slate-400 ${isArchived ? "bg-gray-200 hover:bg-gray-300" : "bg-blue-100 hover:bg-blue-200"} font-semibold underline` : "border-slate-200 bg-white hover:bg-gray-100" } ${
                         eventCount > 0 ? "cursor-pointer" : "cursor-default" }
                     }`} >
                     {i}
                     {eventCount > 0 && (
-                        <div className="absolute top-0 right-0 w-7 h-7 lg:h-10 lg:w-10 xl:h-13 xl:w-13 overflow-hidden rounded-tr-lg pointer-events-none">
-                            <div className={`absolute ${ isArchived ? "border-t-gray-500" : "border-t-blue-700" } top-0 right-0 w-0 h-0 border-t-27 border-l-27 lg:border-t-32 lg:border-l-32 xl:border-t-35 xl:border-l-35 border-l-transparent`} />
-                            <span className={`absolute top-0.5 right-0.5 text-white text-[10px] lg:text-[12px] xl:text-[14px] font-semibold leading-none`}>
+                        <div className="absolute top-0 right-0 w-7 h-7 max-md:w-5 max-md:h-5 lg:h-10 lg:w-10 xl:h-13 xl:w-13 overflow-hidden rounded-tr-lg pointer-events-none">
+                            <div className={`absolute ${ isArchived ? "border-t-gray-500" : "border-t-blue-700" } top-0 right-0 w-0 h-0 border-t-27 border-l-27 max-md:border-t-19 max-md:border-l-19 lg:border-t-32 lg:border-l-32 xl:border-t-35 xl:border-l-35 border-l-transparent`} />
+                            <span className={`absolute top-0.5 right-0.5 text-white text-[10px] max-md:text-[9px] lg:text-[12px] xl:text-[14px] font-semibold leading-none`}>
                                 {eventCount > 9 ? "9+" : eventCount}
                             </span>
                         </div>
@@ -160,18 +160,18 @@ export const Calendar = ({ isAdmin, isArchived, onClose, refreshEvents }: Calend
                 <div className="absolute top-4 right-2 flex justify-end">
                     <CancelButton onClose={onClose!} color="white" />
                 </div>
-                <h2 className="text-xl font-semibold mb-4 text-white">
+                <h2 className="text-xl max-md:text-base max-md:pr-8 font-semibold mb-4 text-white">
                     {monthNames[currentMonth - 1]} {currentYear}
                 </h2>
             </div>
-            <div className="bg-white rounded-b-lg shadow-md p-3 w-full">
+            <div className="bg-white rounded-b-lg shadow-md p-1.5 w-full">
                 {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
-                <div className="flex justify-center items-center gap-2 mb-4">
-                    <button onClick={handlePrevMonth}>
-                        <ChevronLeft className="w-5 h-5" />
+                <div className="flex justify-center items-center gap-2 max-md:gap-1 mb-4">
+                    <button className="max-md:w-5 max-md:h-10 max-md:flex max-md:items-center max-md:justify-center max-md:shrink-0" onClick={handlePrevMonth}>
+                        <ChevronLeft className="w-5 h-5 max-md:w-4 max-md:h-4" />
                     </button>
                     
-                    <div className="w-full grid grid-cols-7 gap-2">
+                    <div className="w-full max-md:min-w-0 grid grid-cols-7 gap-2 max-md:gap-1">
                         <div className="font-semibold text-center text-xs sm:text-sm">Sun</div>
                         <div className="font-semibold text-center text-xs sm:text-sm">Mon</div>
                         <div className="font-semibold text-center text-xs sm:text-sm">Tue</div>
@@ -183,8 +183,8 @@ export const Calendar = ({ isAdmin, isArchived, onClose, refreshEvents }: Calend
                         {renderCalendarDays(currentMonth, currentYear)}
                     </div>
                     
-                    <button onClick={handleNextMonth}>
-                        <ChevronRight className="w-5 h-5" />
+                    <button className="max-md:w-5 max-md:h-10 max-md:flex max-md:items-center max-md:justify-center max-md:shrink-0" onClick={handleNextMonth}>
+                        <ChevronRight className="w-5 h-5 max-md:w-4 max-md:h-4" />
                     </button>
                 </div>
             </div>

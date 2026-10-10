@@ -35,7 +35,7 @@ export const ViewEventCard = ({ event, onClose, onUpdate }: ViewEventCardProps) 
     
     const color = event.isArchived ? "gray-500" : "blue-800";
     return (
-        <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center flex-col justify-center z-30 p-4">
+        <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center flex-col justify-center z-30 p-3">
             <div onClick={(e) => e.stopPropagation()} className={`flex max-w-md w-full rounded-t-lg px-9 py-5 justify-between items-center bg-${color}`}>
                 <p className="font-bold text-2xl text-white w-80 overflow-hidden text-ellipsis whitespace-nowrap">{event.eventName}</p>
                 <CancelButton onClose={onClose} color="white" />

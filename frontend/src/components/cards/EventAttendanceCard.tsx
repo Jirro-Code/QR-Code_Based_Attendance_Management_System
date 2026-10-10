@@ -20,7 +20,7 @@ export const EventAttendanceCard = ({ event, isArchived, onView }: EventAttendan
     return(
         <div onClick={() => onView(event)} className="group relative w-full pt-3 cursor-pointer transition duration-200">
             
-            <div className={`absolute left-0 z-2 -top-1 h-8 w-23 ${isArchived ? 'bg-gray-600' : 'bg-blue-900'} transition-colors duration-200 ${isArchived ? 'group-hover:bg-gray-700' : 'group-hover:bg-blue-950'}`}
+            <div className={`absolute left-0 z-2 -top-1 h-8 w-19 sm:w-23 ${isArchived ? 'bg-gray-600' : 'bg-blue-900'} transition-colors duration-200 ${isArchived ? 'group-hover:bg-gray-700' : 'group-hover:bg-blue-950'}`}
                 style={{ clipPath: ` polygon( 0 0, 81% 0, 100% 50%, 81% 100%, 0 100% )`,}}/>
             
             <div className="relative max-w-62 overflow-hidden rounded-md rounded-tl-none bg-white shadow-sm transition duration-200 group-hover:shadow-xl">
@@ -29,7 +29,7 @@ export const EventAttendanceCard = ({ event, isArchived, onView }: EventAttendan
                     <h3 className="text-[16px] font-bold mt-1 text-white overflow-hidden text-ellipsis whitespace-nowrap">{event.eventName}</h3>
                 </div>
                 
-                <div className="flex items-center gap-1 p-3 mb-6">
+                <div className="flex items-center gap-1 p-3 mb-2 sm:mb-6">
                     <p className="text-sm text-gray-600">{formatDate(event.eventDate)}</p>
                 </div>
             </div>

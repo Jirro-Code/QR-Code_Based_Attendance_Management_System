@@ -131,29 +131,31 @@ export const AttendanceHistoryPage = () => {
                     {error && <p className="text-red-700">{error}</p>}
                 </div>
                 <div>
-                    <div className="bg-gray-100">
-                        <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
+                    <div className="bg-gray-100 max-md:overflow-x-auto">
+                        <div className="min-w-160">
+                            <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
                             <div>#</div>
                             <div>Event</div>
                             <div>Date</div>
                             <div>Location</div>
                             <div>Status</div>
                             <div>Time</div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 divide-y divide-gray-100">
-                            {visibleAttendance.length > 0 ? (
-                                visibleAttendance.map((attendance, index) => (
-                                    <AttendanceHistoryListCell
-                                        key={attendance.id}
-                                        attendance={attendance}
-                                        event={events.get(attendance.eventId)}
-                                        number={index + 1}
-                                    />
-                                ))
-                            ) : (
-                                <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No attendance records found.</p>
-                            )}
+                            </div>
+                            
+                            <div className="grid grid-cols-1 divide-y divide-gray-100">
+                                {visibleAttendance.length > 0 ? (
+                                    visibleAttendance.map((attendance, index) => (
+                                        <AttendanceHistoryListCell
+                                            key={attendance.id}
+                                            attendance={attendance}
+                                            event={events.get(attendance.eventId)}
+                                            number={index + 1}
+                                        />
+                                    ))
+                                ) : (
+                                    <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No attendance records found.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

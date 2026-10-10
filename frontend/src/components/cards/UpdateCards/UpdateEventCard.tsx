@@ -18,9 +18,13 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
     const [formData, setFormData] = useState<Partial<Event>>(() => ({ ...event }));
     const [error, setError] = useState<string>("");
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isEventDateEdited, setIsEventDateEdited] = useState<boolean>(false);
     const hasContent = Object.values(formData).some((value) => String(value ?? "").trim() !== "")
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        if (e.target.name === "eventDate") {
+            setIsEventDateEdited(true);
+        }
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
     }
     
@@ -34,11 +38,17 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
     const handleUpdate = async (data: Partial<Event>) => {
         setIsSubmitting(true);
         try {
-            if (data.eventDate && data.eventDate < localDateString(new Date())) {
+            if (isEventDateEdited && data.eventDate && data.eventDate !== event.eventDate && data.eventDate < localDateString(new Date())) {
                 setError("Date must be today or in the future");
                 return;
             }
-            const updatedEvent = await useUpdateEvent({ ...data, id: event.id! } as Event, setError);
+            const { eventDate, ...dataWithoutDate } = data;
+            const updateData: Partial<Event> = {
+                ...dataWithoutDate,
+                id: event.id!,
+                ...(isEventDateEdited && eventDate !== event.eventDate ? { eventDate } : {}),
+            };
+            const updatedEvent = await useUpdateEvent(updateData, setError);
             onUpdated(updatedEvent);
             onSetNotif({
                 title: "Update Successful",
@@ -94,7 +104,7 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
                         <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded mt-2">
                             Cancel
                         </button>
-                        <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 w-33 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 w-33 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent || isSubmitting}>
+                        <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 w-35 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 w-33 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent || isSubmitting}>
                             {isSubmitting ? "Saving..." : "Save Changes"}
                         </button>
                     </div>

@@ -33,7 +33,7 @@ export const AttendanceListCell = ({ attendance, number, onUpdated, onArchived, 
     }, [attendance.userId]);
     
     return (
-        <div className={`${number % 2 === 0 ? "bg-white" : "bg-gray-50"} grid grid-cols-[0.3fr_repeat(7,1fr)] items-center px-5 py-3.5 text-sm hover:bg-blue-50/50 transition-colors`}>
+        <div className={`${number % 2 === 0 ? "bg-white" : "bg-gray-50"} min-w-160 grid grid-cols-[0.3fr_repeat(7,1fr)] items-center px-5 py-3.5 text-sm hover:bg-blue-50/50 transition-colors`}>
             <div className="text-gray-400 font-medium">{number}</div>
             <div className="font-semibold text-gray-800 px-0.5 overflow-hidden text-ellipsis whitespace-nowrap">{user?.username}</div>
             <div className="text-gray-600 px-0.5">{user?.studentStrand}</div>

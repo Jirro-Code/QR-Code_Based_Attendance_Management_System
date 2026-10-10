@@ -158,7 +158,6 @@ export const RegisterStudent = () => {
                                 <div className="mt-2 flex items-center gap-3 justify-center flex-col">
                                     <img src={previewUrl} alt="Selected profile" className="w-30 h-30 rounded-md object-cover ring-1 ring-gray-200" />
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-sm text-gray-700 truncate max-w-45">{studentData.profilePicture?.name}</span>
                                         <div className="flex gap-3">
                                             <button type="button" onClick={() => fileInputRef.current?.click()} className="text-xs text-blue-800 hover:underline cursor-pointer">
                                                 Change
@@ -178,7 +177,6 @@ export const RegisterStudent = () => {
                                     name="profilePicture"
                                     accept="image/png,image/jpeg,image/webp"
                                     onChange={handleFileSelected}
-                                    required
                                 />
                             )}
                             

@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import { useCreate } from "../../hooks/useCreate.ts";
 import { useView } from "../../hooks/useView.ts";
 import { type User } from "../../services/users.ts";
+import { getProfilePictureById } from "../../services/users.ts";
+import { ApiError } from "../../services/error.ts";
 
 type ScannedStudentCardProps = {
     studentUuid: string;
@@ -14,7 +16,7 @@ type ScannedStudentCardProps = {
 
 export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setShowNotification, eventId, onClose, setError }: ScannedStudentCardProps) => {
     const { useMarkAttendance } = useCreate();
-    const { useViewUser, useViewProfilePicture, useCheckAttendance } = useView();
+    const { useViewUser, useCheckAttendance } = useView();
     const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [isLate, setIsLate] = useState<boolean>(false);
     const [student, setStudent] = useState<Partial<User>>();
@@ -52,8 +54,16 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
                     setStudent(studentData);
                 }
                 
-                const profilePictureData = await useViewProfilePicture(studentUuid, setError);
-                setProfilePicture(profilePictureData);
+                try {
+                    const profilePictureData = await getProfilePictureById(studentUuid);
+                    setProfilePicture(profilePictureData.url as string);
+                }
+                catch (profilePictureError) {
+                    if (!(profilePictureError instanceof ApiError) || profilePictureError.status !== 404) {
+                        console.error("Error fetching scanned student's profile picture:", profilePictureError);
+                    }
+                    setProfilePicture(null);
+                }
             }
             catch (e) {
                 setNotificationMessage({ title: "Error", message: `${e instanceof Error ? e.message : "An unknown error occurred"}` });
@@ -111,10 +121,10 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
         }
     };
     return (
-        <>
-            <div className="fixed inset-0 bg-black/50 backdrop-blur-[2px] z-40"/>
+        
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 p-3 z-50 backdrop-blur-[2px]">
             
-            <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-white rounded-2xl shadow-2xl w-full max-w-sm z-50 overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm z-50 overflow-hidden">
                 
                 <div className="p-6 flex flex-col items-center gap-5">
                     <h2 className="text-lg font-semibold text-gray-900">Student Detected</h2>
@@ -139,15 +149,15 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
                     <div className="w-full flex flex-col divide-y divide-gray-100 border-y border-gray-100">
                         <div className="flex justify-between py-2.5 text-sm">
                             <span className="text-gray-500">Name</span>
-                            <span className="font-medium text-gray-900">{student?.username}</span>
+                            <span className="min-w-0 max-w-[65%] truncate font-medium text-gray-900" title={student?.username}>{student?.username}</span>
                         </div>
                         <div className="flex justify-between py-2.5 text-sm">
                             <span className="text-gray-500">Strand</span>
-                            <span className="font-medium text-gray-900">{student?.studentStrand}</span>
+                            <span className="min-w-0 max-w-[65%] truncate font-medium text-gray-900" title={student?.studentStrand}>{student?.studentStrand}</span>
                         </div>
                         <div className="flex justify-between py-2.5 text-sm">
                             <span className="text-gray-500">Section</span>
-                            <span className="font-medium text-gray-900">{student?.studentSection}</span>
+                            <span className="min-w-0 max-w-[65%] truncate font-medium text-gray-900" title={student?.studentSection}>{student?.studentSection}</span>
                         </div>
                     </div>
                     
@@ -172,6 +182,7 @@ export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setSho
                     </div>
                 </div>
             </div>
-        </>
+        </div>
+        
     )
 }

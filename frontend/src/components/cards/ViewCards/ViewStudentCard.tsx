@@ -46,15 +46,15 @@ export const ViewStudentCard = ({ student, onClose, onUpdate, onLoadHistory }: V
     
     const color = student.isArchived ? "gray-500" : "blue-800";
     return (
-        <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center h-full justify-center z-30 backdrop-blur-[2px]">
-            <div className="flex flex-col w-full max-w-175 items-center justify-center">
+        <div onClick={onClose} className="fixed inset-0 bg-black/40 flex items-center h-full justify-center z-30 backdrop-blur-[2px] p-3">
+            <div className="flex flex-col w-full max-w-175 items-center">
                 
-                <div onClick={(e) => e.stopPropagation()} className={`bg-${color} p-6 rounded-t-lg shadow-md flex items-center justify-between w-3/4 h-20 relative`}>
+                <div onClick={(e) => e.stopPropagation()} className={`bg-${color} p-6 rounded-t-lg shadow-md flex items-center justify-between w-full max-w-150 h-20 relative`}>
                     <p className="text-white text-xl overflow-hidden text-ellipsis whitespace-nowrap"><b>{student.username}</b></p>
                     <CancelButton onClose={() => onClose()} color={"white"} />
                 </div>
                 
-                <div onClick={(e) => e.stopPropagation()}  className="bg-white rounded-b-lg shadow-md flex flex-col w-3/4 px-6 py-6 gap-2">
+                <div onClick={(e) => e.stopPropagation()}  className="bg-white rounded-b-lg shadow-md flex flex-col w-full max-w-150 px-6 py-6 gap-2">
                     
                     <div className="flex justify-center items-center mb-1">
                         {isLoadingPicture ? (

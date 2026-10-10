@@ -124,7 +124,10 @@ export const ImageCropModal = ({ file, onConfirm, onClose }: ImageCropModalProps
     };
     
     return (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+        <div
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={(e) => e.stopPropagation()}
+        >
             <div className="bg-white rounded-lg shadow-lg max-w-sm w-full flex flex-col">
                 <div className="flex items-center justify-between px-5 py-4 border-b border-gray-200">
                     <h2 className="text-base font-semibold text-gray-800">Crop Profile Picture</h2>
@@ -133,14 +136,14 @@ export const ImageCropModal = ({ file, onConfirm, onClose }: ImageCropModalProps
                 
                 <div className="p-5 flex flex-col items-center gap-4">
                     <div
-                        className="relative rounded-md overflow-hidden bg-gray-900 touch-none"
+                        className="image-crop-area relative w-full h-auto max-w-[320px] aspect-square rounded-md overflow-hidden bg-gray-900 touch-none"
                         style={{ width: CANVAS_SIZE, height: CANVAS_SIZE }}
                     >
                         <canvas
                             ref={canvasRef}
                             width={CANVAS_SIZE}
                             height={CANVAS_SIZE}
-                            className="cursor-move"
+                            className="image-crop-canvas max-w-full h-auto cursor-move"
                             onPointerDown={handlePointerDown}
                             onPointerMove={handlePointerMove}
                             onPointerUp={handlePointerUp}

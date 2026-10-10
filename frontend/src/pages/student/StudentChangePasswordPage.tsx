@@ -9,6 +9,9 @@ import { type User } from "../../services/users.ts";
 
 
 export const StudentChangePasswordPage = () => {
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0 });
+    }, []);
     const navigate = useNavigate();
     const location = useLocation();
     const student = location.state?.user as User | undefined;

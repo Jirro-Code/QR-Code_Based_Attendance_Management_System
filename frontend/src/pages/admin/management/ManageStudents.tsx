@@ -194,7 +194,8 @@ export const ManageStudents = () => {
             </div>
             
             
-            <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
+            <div className="overflow-x-auto">
+            <div className="min-w-160 grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
                 <div>#</div>
                 <div>Name</div>
                 <div>Strand</div>
@@ -216,6 +217,7 @@ export const ManageStudents = () => {
             ) : (
                 <p className="text-center bg-gray-100 text-gray-400 text-sm h-50 flex justify-center items-center">No students found.</p>
             )}
+            </div>
             {showFilter && (<StudentFilterOptions onApplyFilters={handleApplyFilters} onClose={() => setShowFilter(false)} selectedOrder={selectedOrder} setSelectedOrder={setSelectedOrder} selectedStrand={selectedStrand} setSelectedStrand={setSelectedStrand} selectedBySection={selectedBySection} setSelectedBySection={setSelectedBySection} /> )}
             {showUpdateCard && selectedUser && <UpdateUserCard student={selectedUser} onUpdated={(updatedUser) => {updateNotification(updatedUser);}} setShowNotification={setShowNotification} onSetNotif={setNotificationMessage} onClose={() => setShowUpdateCard(false)} />}
             {showAttendanceHistoryCard && selectedUser && <AttendanceHistoryCard student={selectedUser} onClose={() => setShowAttendanceHistoryCard(false)} />}

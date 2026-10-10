@@ -139,29 +139,31 @@ export const AttendanceHistoryCard = ({ student, onClose }: AttendanceHistoryCar
                     {error && <p className="text-red-700">{error}</p>}
                 </div>
                 <div>
-                    <div className="scrollable-card bg-gray-50 h-100 overflow-y-auto overscroll-contain">
-                        <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-white sticky top-0 px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide shadow-sm">
+                    <div className="scrollable-card bg-gray-50 h-100 overflow-y-auto overscroll-contain max-md:overflow-x-auto">
+                        <div className="min-w-160">
+                            <div className="grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-white sticky top-0 px-5 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide shadow-sm">
                             <div>#</div>
                             <div>Event</div>
                             <div>Date</div>
                             <div>Location</div>
                             <div>Status</div>
                             <div>Time</div>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 divide-y divide-gray-100">
-                            {visibleAttendance.length > 0 ? (
-                                visibleAttendance.map((attendance, index) => (
-                                    <AttendanceHistoryListCell
-                                        key={attendance.id}
-                                        attendance={attendance}
-                                        event={events.get(attendance.eventId)}
-                                        number={index + 1}
-                                    />
-                                ))
-                            ) : (
-                                <p className="text-center text-gray-400 text-sm py-10">No attendance records found.</p>
-                            )}
+                            </div>
+                            
+                            <div className="grid grid-cols-1 divide-y divide-gray-100">
+                                {visibleAttendance.length > 0 ? (
+                                    visibleAttendance.map((attendance, index) => (
+                                        <AttendanceHistoryListCell
+                                            key={attendance.id}
+                                            attendance={attendance}
+                                            event={events.get(attendance.eventId)}
+                                            number={index + 1}
+                                        />
+                                    ))
+                                ) : (
+                                    <p className="text-center text-gray-400 text-sm py-10">No attendance records found.</p>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>

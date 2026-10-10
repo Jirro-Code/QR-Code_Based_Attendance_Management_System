@@ -2,7 +2,9 @@ import QRCode from "qrcode";
 import { type User } from "../../services/users.ts";
 import { useCurrentUser } from "../../hooks/useCurrentUser.ts"
 import { useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import { Navbar } from "../../components/Navbar.tsx";
+import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
 import { ClipboardClock, Calendar, SquareArrowOutUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -17,9 +19,35 @@ export const StudentDashboard = () => {
         email: "",
         role: "user",
     });
+    const [notification, setNotification] = useState<{ title: string; message: string } | null>(null);
     const qrURl = `ICP|icpsantamaria|${studentData.id}|icpsantamaria|SantaMaria`;
     const navigate = useNavigate();
     useCurrentUser("/student-login", setStudentData);
+
+    useEffect(() => {
+        if (!studentData.id || studentData.role !== "user") return;
+
+        const socket = io("https://10.189.235.57:3000", {
+            withCredentials: true,
+        });
+
+        socket.on("attendance:marked", (data: { eventName?: string; message?: string }) => {
+            setNotification({
+                title: "New Attendance Recorded",
+                message: data.eventName
+                    ? `Your attendance was recorded for ${data.eventName}.`
+                    : data.message ?? "Your attendance was recorded.",
+            });
+        });
+
+        socket.on("connect_error", (error) => {
+            console.error("Student socket connection error:", error.message);
+        });
+
+        return () => {
+            socket.disconnect();
+        };
+    }, [studentData.id, studentData.role]);
     
     useEffect(() => {
         window.scrollTo({ top: 0, left: 0 });
@@ -50,6 +78,13 @@ export const StudentDashboard = () => {
     return (
         <div className="min-h-screen bg-slate-100">
             <Navbar dashPath="/student-dashboard" profilePath="/student-profile" user={studentData} />
+            {notification && (
+                <NotificationCard
+                    title={notification.title}
+                    message={notification.message}
+                    onClose={() => setNotification(null)}
+                />
+            )}
             
             <div className="mx-auto max-w-full px-6 py-10">
                 <div className="mt-2 mb-26 max-w-sm truncate">

@@ -55,7 +55,7 @@ export const UnarchiveAttendanceCard = ({ attendanceId, username, onArchived, se
                     <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded">
                         Cancel
                     </button>
-                    <button type="button" onClick={handleUnarchive} disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 w-32 text-white font-bold py-1.5 px-4 rounded">
+                    <button type="button" onClick={handleUnarchive} disabled={isSubmitting} className="bg-blue-800 hover:bg-blue-900 w-34 text-white font-bold py-1.5 px-4 rounded">
                         {isSubmitting ? 'Unarchiving...' : 'Yes, Unarchive'}
                     </button>
                 </div>
