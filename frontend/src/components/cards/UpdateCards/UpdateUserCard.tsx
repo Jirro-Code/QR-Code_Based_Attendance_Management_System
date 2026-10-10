@@ -175,11 +175,11 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                             </label>
                             
                             {previewUrl ? (
-                                <div className="mt-2 flex items-center gap-4 sm:gap-5">
-                                    <img src={previewUrl} alt="Selected profile" className="w-30 h-30 sm:w-25 sm:h-25 rounded-md object-cover ring-1 ring-gray-200 shrink-0" />
+                                <div className="mt-2 flex flex-col items-center gap-1">
+                                    <img src={previewUrl} alt="Selected profile" className="w-30 h-30 rounded-md object-cover ring-1 ring-gray-200 shrink-0" />
                                     <div className="flex flex-col gap-1 min-w-0">
                                         <span className="text-sm text-gray-700 truncate">{formData.profilePicture?.name}</span>
-                                        <div className="flex gap-3">
+                                        <div className="flex">
                                             <label htmlFor="profilePicture" className="text-xs flex gap-1 items-center text-blue-800 hover:underline cursor-pointer">
                                                 <ArrowLeftRight size={12} /> Change
                                             </label>

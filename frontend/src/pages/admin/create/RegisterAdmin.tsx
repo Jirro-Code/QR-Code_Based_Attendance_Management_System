@@ -118,9 +118,9 @@ export const RegisterAdmin = () => {
             <Header title="Register Admin" path="/admin-dashboard" />
             
             <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col pt-6 sm:pt-10 p-4 sm:p-6">
-                <form className="mt-8 flex-1 flex flex-col gap-3 sm:gap-6" onSubmit={handleSubmit}>
+                <form className="relative mt-3 flex-1 flex flex-col gap-3 sm:gap-6" onSubmit={handleSubmit}>
                     
-                    <div className="flex-1 flex flex-col gap-3 sm:gap-6 pb-16 sm:pb-50">
+                    <div className="min-h-0 flex-1 flex flex-col gap-3 sm:gap-6 pb-16 sm:pb-24">
                         {error && (
                             <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
                                 <strong className="font-bold">Error: </strong>
@@ -134,8 +134,8 @@ export const RegisterAdmin = () => {
                             </label>
                             
                             {previewUrl ? (
-                                <div className="mt-2 flex items-center gap-3">
-                                    <img src={previewUrl} alt="Selected profile" className="w-16 h-16 rounded-md object-cover ring-1 ring-gray-200" />
+                                <div className="mt-2 flex items-center gap-3 justify-center flex-col">
+                                    <img src={previewUrl} alt="Selected profile" className="w-30 h-30 rounded-md object-cover ring-1 ring-gray-200" />
                                     <div className="flex flex-col gap-1">
                                         <span className="text-sm text-gray-700 truncate max-w-45">{adminData.profilePicture?.name}</span>
                                         <div className="flex gap-3">
@@ -173,7 +173,7 @@ export const RegisterAdmin = () => {
                             )}
                         </div>
                         
-                        <div className="w-full grid grid-cols-1 gap-x-8 gap-y-1">
+                        <div className="w-full grid grid-cols-1 gap-x-8 gap-y-2">
                             <Input label="Admin Name" id="adminName" type="text" placeholder="Admin Name" onChange={handleChange} name="username" value={adminData.username} error={error?.includes("name") ? error : undefined} />
                             <Input label="Email" id="adminEmail" type="email" placeholder="Email" onChange={handleChange} name="email" value={adminData.email} error={error?.includes("email") ? error : undefined}/>
                             <div className="relative">
@@ -191,7 +191,7 @@ export const RegisterAdmin = () => {
                         </div>
                     </div>
                     
-                    <div className="flex justify-end">
+                    <div className="flex justify-end pt-6 sm:absolute sm:right-0 sm:bottom-6 sm:pt-0 sm:z-10">
                         <button
                             type="submit"
                             disabled={isSubmitting}

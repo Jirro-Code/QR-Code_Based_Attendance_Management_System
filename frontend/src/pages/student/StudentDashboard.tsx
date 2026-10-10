@@ -52,12 +52,12 @@ export const StudentDashboard = () => {
             <Navbar dashPath="/student-dashboard" profilePath="/student-profile" user={studentData} />
             
             <div className="mx-auto max-w-full px-6 py-10">
-                <div className="mt-5 mb-20 max-w-sm truncate">
-                    <h1 className="text-3xl font-bold tracking-tight text-slate-900">Student Dashboard</h1>
-                    <p className="mt-2 text-slate-500"> Welcome back,{" "} <span className="font-semibold text-blue-800">{studentData.username}</span>!</p>
+                <div className="mt-2 mb-26 max-w-sm truncate">
+                    <h1 className="text-4xl font-bold tracking-tight text-slate-900">Student Dashboard</h1>
+                    <p className="mt-2 text-lg text-slate-500"> Welcome back,{" "} <span className="font-semibold text-blue-800">{studentData.username}</span>!</p>
                 </div>
                 
-                <div className="items-center justify-center grid grid-cols-1 gap-5 lg:grid-cols-2">
+                <div className="mt-1 items-center justify-center grid grid-cols-1 gap-5 lg:grid-cols-2">
                     <div className="flex justify-center items-center gap-4">
                         {isLoading ? (
                             <div className="animate-pulse max-h-115 w-full h-auto rounded-sm bg-gray-100 ring-4 ring-gray-50"></div>

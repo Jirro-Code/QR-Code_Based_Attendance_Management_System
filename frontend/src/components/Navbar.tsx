@@ -18,9 +18,9 @@ export const Navbar = ({ dashPath, profilePath, user }: NavbarProps) => {
                 <img src={icp} alt="Logo" className="h-10 w-10" />
                 <p className="text-2xl font-bold text-gray-800 ">AttendScan</p>
             </div>
-            <ul className="flex gap-4 tracking-tight">
-                <li className="text-slate-700 hover:text-gray-900 font-semibold transition-colors"><button onClick={() => navigate(dashPath)}>Dashboard</button></li>
-                <li className="text-slate-700 hover:text-gray-900 font-semibold transition-colors"><button onClick={() => navigate(profilePath, { state: { user: user } })}>Profile</button></li>
+            <ul className="flex gap-2 tracking-tight">
+                <li className="text-slate-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg py-1.5 px-3 font-semibold transition-colors"><button onClick={() => navigate(dashPath)}>Dashboard</button></li>
+                <li className="text-slate-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg py-1.5 px-3 font-semibold transition-colors"><button onClick={() => navigate(profilePath, { state: { user: user } })}>Profile</button></li>
             </ul>
         </nav>
     )
