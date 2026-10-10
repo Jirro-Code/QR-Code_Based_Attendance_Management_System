@@ -53,7 +53,7 @@ export const sendAccountCreationEmail = async (email: string, password: string, 
     });
 };
 
-export const sendEmailUpdateEmail = async (email: string) => {
+export const sendEmailUpdateEmail = async (email: string, name: string) => {
     return await transporter.sendMail({
         from: env.SMTP_FROM,
         to: email,
@@ -61,6 +61,7 @@ export const sendEmailUpdateEmail = async (email: string) => {
         text: "Your AttendScan account email address has been updated.",
         html: `
             <h2>AttendScan Email Updated</h2>
+            <p>Dear ${name},</p>
             <p>Your AttendScan account email address has been updated successfully.</p>
         `,
     });

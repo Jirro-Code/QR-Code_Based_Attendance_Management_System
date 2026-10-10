@@ -1,6 +1,6 @@
 import type { Response } from "express";
 import type  {AuthenticatedRequest} from "../middlewares/authToken.ts";
-import { users, attendance, userRoleSchema } from "../db/schema.ts";
+import { users, attendance, passwordResetOTP, userRoleSchema } from "../db/schema.ts";
 import { db } from "../db/connections.ts";
 import { comparePassword, hashPassword } from "../utils/password.ts";
 import { eq, and, or, ilike, desc, not} from "drizzle-orm";
@@ -270,11 +270,11 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
                 duplicateFields,
             });
         }
-
+        
         const emailChanged = Boolean(body.email && body.email !== existingUser.email);
         if (emailChanged) {
             try {
-                const result = await sendEmailUpdateEmail(body.email!);
+                const result = await sendEmailUpdateEmail(body.email!, existingUser.username!);
                 if (result.rejected.includes(body.email!)) {
                     return res.status(422).json({
                         message: "This email address could not be verified.",
@@ -295,18 +295,25 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
                 : await uploadProfilePicture(profilePicture);
         }
         
-        const [updated] = await db
-            .update(users)
-            .set({
-                ...safeBody,
-                ...(userPassword && { password: userPassword }),
-                ...(newBlobName && { profilePictureUrl: newBlobName }),
-                ...(userPassword && { passwordChangeAttempts: 0, passwordChangeLockedUntil: null }),
-                ...(userPassword && { passwordChangeLastAttemptAt: null }),
-                updatedAt: new Date(),
-            })
-            .where(eq(users.id, userId))
-            .returning();
+        const [updated] = await db.transaction(async (tx) => {
+            if (emailChanged) {
+                await tx
+                    .delete(passwordResetOTP)
+                    .where(eq(passwordResetOTP.userEmail, existingUser.email));
+            }
+            return tx
+                .update(users)
+                .set({
+                    ...safeBody,
+                    ...(userPassword && { password: userPassword }),
+                    ...(newBlobName && { profilePictureUrl: newBlobName }),
+                    ...(userPassword && { passwordChangeAttempts: 0, passwordChangeLockedUntil: null }),
+                    ...(userPassword && { passwordChangeLastAttemptAt: null }),
+                    updatedAt: new Date(),
+                })
+                .where(eq(users.id, userId))
+                .returning();
+        });
         
         if (!updated) {
             return res.status(500).json({ message: "Failed to update user" });

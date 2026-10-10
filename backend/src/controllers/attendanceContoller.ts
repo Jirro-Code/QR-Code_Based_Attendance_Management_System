@@ -130,6 +130,7 @@ export const getAllEventWithAttendance = async (_req: AuthenticatedRequest, res:
             with: {
                 event: true,
             },
+            orderBy: desc(attendance.attendedAt)
         });
         
         const nonDuplicateEvents = new Map();
@@ -163,6 +164,7 @@ export const getAllArchivedEventWithAttendance = async (_req: AuthenticatedReque
             with: {
                 event: true,
             },
+            orderBy: desc(attendance.attendedAt)
         });
         
         const nonDuplicateEvents = new Map();
