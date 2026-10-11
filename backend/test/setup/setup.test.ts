@@ -1,6 +1,6 @@
 import {createTestUser, createMultipleUser, createTestEvent, createTestAttendance, clearDatabase} from './dbHelpers.ts';
 
-describe("Test Setup", async () => {
+describe("Test Setup", () => {
     let adminId: string;
     let userId: string;
     let testEventId: string;
@@ -60,5 +60,7 @@ describe("Test Setup", async () => {
         expect(testAttendance).toBeDefined();
     })
     
-    await clearDatabase();
+    afterAll(async () => {
+        await clearDatabase();
+    });
 });
