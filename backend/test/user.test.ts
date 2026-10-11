@@ -13,13 +13,13 @@ describe("user controller tests", () => {
             const { testAdminsToken } = await createMultipleUser({}, 5, 5);
             
             const response = await request(app)
-                .get("/api/users/all")
+                .get("/api/users/role/user")
                 .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(200);
             
             console.log("GET all users Response:", response.body);
             expect(response.body).toHaveProperty("message", "Users retrieved successfully");
-            expect(response.body.users).toHaveLength(10);
+            expect(response.body.users).toHaveLength(5);
         })
     })
     
@@ -75,17 +75,17 @@ describe("user controller tests", () => {
         })
     })
     
-    describe("DELETE /api/users/delete/:id", () => {
-        it("should return 200 and delete the user for admin", async () => {
+    describe("PATCH /api/users/archive/:id", () => {
+        it("should return 200 and archive the user for admin", async () => {
             const { testUsers, testAdminsToken } = await createMultipleUser({}, 3, 1);
             
             const response = await request(app)
-                .delete(`/api/users/delete/${testUsers[0]!.id}`)
+                .patch(`/api/users/archive/${testUsers[0]!.id}`)
                 .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(200);
             
             console.log("DELETE user Response:", response.body);
-            expect(response.body).toHaveProperty("message", "User deleted successfully");
+            expect(response.body).toHaveProperty("message", "User archived successfully");
         })
     })
     
@@ -188,7 +188,7 @@ describe("user controller tests", () => {
             const { testAdminsToken } = await createMultipleUser({}, 3, 1);
             
             const response = await request(app)
-                .delete("/api/users/delete/not-a-uuid")
+                .patch("/api/users/archive/not-a-uuid")
                 .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(400);
             
@@ -200,12 +200,12 @@ describe("user controller tests", () => {
             const { testAdminsToken } = await createMultipleUser({}, 3, 1);
             
             const response = await request(app)
-                .delete(`/api/users/delete/${uuid()}`)
+                .patch(`/api/users/archive/${uuid()}`)
                 .set("Cookie", `token=${testAdminsToken[0] ?? ""}`)
                 .expect(404);
             
             console.log("DELETE user Response:", response.body);
-            expect(response.body).toHaveProperty("message", "User not found or unauthorized to delete");
+            expect(response.body).toHaveProperty("message", "User not found");
         })
     })
 })

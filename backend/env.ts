@@ -10,6 +10,20 @@ if (isDevelopment) {
     loadEnv();
 } else if (isTesting) {
     loadEnv("test");
+
+    process.env.NODE_ENV ||= "test";
+    if (!process.env.DATABASE_URL?.startsWith("postgresql://") || process.env.DATABASE_URL.includes("******")) {
+        process.env.DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/attendscan_test";
+    }
+    process.env.JWT_SECRET ||= "attendscan-test-only-jwt-secret-do-not-use-in-production";
+    process.env.AZURE_STORAGE_CONNECTION_STRING ||= "UseDevelopmentStorage=true";
+    process.env.AZURE_STORAGE_CONTAINER_NAME ||= "attendscan-test";
+    process.env.AZURE_STORAGE_ACCOUNT_NAME ||= "devstoreaccount1";
+    process.env.AZURE_STORAGE_ACCOUNT_KEY ||= "test-only-storage-key";
+    process.env.SMTP_HOST ||= "127.0.0.1";
+    process.env.SMTP_USER ||= "test@example.com";
+    process.env.SMTP_API_KEY ||= "test-only-smtp-key";
+    process.env.SMTP_FROM ||= "test@example.com";
 }
 
 const SENSITIVE_KEYS = [`DATABASE_URL`, `JWT_SECRET`, "AZURE_STORAGE_CONNECTION_STRING", "AZURE_STORAGE_ACCOUNT_KEY", "SMTP_API_KEY"];

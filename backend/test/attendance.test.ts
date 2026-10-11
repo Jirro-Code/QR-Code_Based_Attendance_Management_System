@@ -15,7 +15,7 @@ describe("attendance controller tests", () => {
             await createTestAttendance({}, testUser.id, testEvent.id);
             
             const response = await request(app)
-                .get("/api/attendance/myAttendance")
+                .get(`/api/attendance/userId/${testUser.id}`)
                 .set("Cookie", buildAuthCookie(userToken))
                 .expect(200);
             
@@ -34,7 +34,7 @@ describe("attendance controller tests", () => {
             }
             
             const response = await request(app)
-                .get("/api/attendance/all")
+                .get(`/api/attendance/eventId/${testEvent.id}`)
                 .set("Cookie", buildAuthCookie(testAdminsToken[0]))
                 .expect(200);
             
@@ -63,10 +63,10 @@ describe("attendance controller tests", () => {
         it("should return 200 when updating attendance", async () => {
             const { testUser, adminToken, testAdmin } = await createTestUser();
             const { testEvent } = await createTestEvent({}, testAdmin.id);
-            await createTestAttendance({}, testUser.id, testEvent.id);
+            const { testAttendance } = await createTestAttendance({}, testUser.id, testEvent.id);
             
             const response = await request(app)
-                .put(`/api/attendance/update/${testUser.id}`)
+                .put(`/api/attendance/update/${testAttendance.id}`)
                 .set("Cookie", buildAuthCookie(adminToken))
                 .send({ isLate: true })
                 .expect(200);
@@ -75,25 +75,25 @@ describe("attendance controller tests", () => {
             expect(response.body).toHaveProperty("message", "Attendance updated successfully");
         })
         
-        it("should return 200 when deleting attendance", async () => {
+        it("should return 200 when archiving attendance", async () => {
             const { testUser, adminToken, testAdmin } = await createTestUser();
             const { testEvent } = await createTestEvent({}, testAdmin.id);
-            await createTestAttendance({}, testUser.id, testEvent.id);
+            const { testAttendance } = await createTestAttendance({}, testUser.id, testEvent.id);
             
             const response = await request(app)
-                .delete(`/api/attendance/delete/${testUser.id}`)
+                .patch(`/api/attendance/archive/${testAttendance.id}`)
                 .set("Cookie", buildAuthCookie(adminToken))
                 .expect(200);
             
             console.log("DELETE attendance Response:", response.body);
-            expect(response.body).toHaveProperty("message", "User attendance deleted successfully");
+            expect(response.body).toHaveProperty("message", "User attendance archived successfully");
         })
     })
     
     describe("Error handling tests for attendance controller", () => {
         it("should return 401 when no token is provided", async () => {
             const response = await request(app)
-                .get("/api/attendance/myAttendance")
+                .get(`/api/attendance/userId/${uuid()}`)
                 .expect(401);
             
             console.log("GET my attendance Response:", response.body);
@@ -102,7 +102,7 @@ describe("attendance controller tests", () => {
         
         it("should return 401 for a malformed token", async () => {
             const response = await request(app)
-                .get("/api/attendance/myAttendance")
+                .get(`/api/attendance/userId/${uuid()}`)
                 .set("Cookie", buildAuthCookie("invalid.token.value"))
                 .expect(401);
             
@@ -114,7 +114,7 @@ describe("attendance controller tests", () => {
             const { userToken } = await createTestUser();
             
             const response = await request(app)
-                .get("/api/attendance/all")
+                .get(`/api/attendance/eventId/${uuid()}`)
                 .set("Cookie", buildAuthCookie(userToken))
                 .expect(403);
             
@@ -135,7 +135,7 @@ describe("attendance controller tests", () => {
                     eventId: testEvent.id,
                     isLate: false
                 })
-                .expect(400);
+                .expect(409);
             
             console.log("POST duplicate attendance Response:", response.body);
             expect(response.body).toHaveProperty("message", "Attendance already marked for this user and event");
@@ -221,14 +221,14 @@ describe("attendance controller tests", () => {
                 .expect(404);
             
             console.log("PUT update attendance Response:", response.body);
-            expect(response.body).toHaveProperty("message", "Attendance not found for this user");
+            expect(response.body).toHaveProperty("message", "Attendance not found");
         })
         
         it("should return 400 for an invalid user ID when deleting attendance", async () => {
             const { adminToken } = await createTestUser();
             
             const response = await request(app)
-                .delete("/api/attendance/delete/not-a-uuid")
+                .patch("/api/attendance/archive/not-a-uuid")
                 .set("Cookie", buildAuthCookie(adminToken))
                 .expect(400);
             
@@ -240,12 +240,12 @@ describe("attendance controller tests", () => {
             const { adminToken } = await createTestUser();
             
             const response = await request(app)
-                .delete(`/api/attendance/delete/${uuid()}`)
+                .patch(`/api/attendance/archive/${uuid()}`)
                 .set("Cookie", buildAuthCookie(adminToken))
                 .expect(404);
             
             console.log("DELETE attendance Response:", response.body);
-            expect(response.body).toHaveProperty("message", "User not found");
+            expect(response.body).toHaveProperty("message", "Attendance not found");
         })
     })
 })

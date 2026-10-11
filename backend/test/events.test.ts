@@ -10,7 +10,8 @@ describe("event controller tests", () => {
     
     describe("GET /api/events/all", () => {
         it("should return 200 and a list of events for admin", async () => {
-            const { adminToken } = await createTestUser();
+            const { adminToken, testAdmin } = await createTestUser();
+            await createTestEvent({}, testAdmin.id);
             
             const response = await request(app)
                 .get("/api/events/all")
@@ -69,18 +70,18 @@ describe("event controller tests", () => {
         })
     })
     
-    describe("DELETE /api/events/delete/:id", () => {
-        it("should return 200 and delete an event for admin", async () => {
+    describe("PATCH /api/events/archive/:id", () => {
+        it("should return 200 and archive an event for admin", async () => {
             const { testAdmin, adminToken } = await createTestUser();
             const {testEvent} = await createTestEvent({}, testAdmin.id);
             
             const response = await request(app)
-                .delete(`/api/events/delete/${testEvent.id}`)
+                .patch(`/api/events/archive/${testEvent.id}`)
                 .set("Cookie", `token=${adminToken}`)
                 .expect(200);
             
             console.log("DELETE event Response:", response.body);
-            expect(response.body).toHaveProperty("message", "Event deleted successfully");
+            expect(response.body).toHaveProperty("message", "Event archived successfully");
         })
     })
     
@@ -98,8 +99,13 @@ describe("event controller tests", () => {
             const { userToken } = await createTestUser();
             
             const response = await request(app)
-                .get("/api/events/all")
+                .post("/api/events/create")
                 .set("Cookie", `token=${userToken}`)
+                .send({
+                    eventName: "Unauthorized Event",
+                    eventDate: "2099-01-01",
+                    eventLocation: "Test Location",
+                })
                 .expect(403);
             
             console.log("GET all events Response:", response.body);
@@ -191,7 +197,7 @@ describe("event controller tests", () => {
             const { adminToken } = await createTestUser();
             
             const response = await request(app)
-                .delete("/api/events/delete/not-a-uuid")
+                .patch("/api/events/archive/not-a-uuid")
                 .set("Cookie", `token=${adminToken}`)
                 .expect(400);
             
@@ -203,7 +209,7 @@ describe("event controller tests", () => {
             const { adminToken } = await createTestUser();
             
             const response = await request(app)
-                .delete(`/api/events/delete/${uuid()}`)
+                .patch(`/api/events/archive/${uuid()}`)
                 .set("Cookie", `token=${adminToken}`)
                 .expect(404);
             

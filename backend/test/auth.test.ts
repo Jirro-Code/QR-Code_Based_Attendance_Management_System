@@ -4,6 +4,8 @@ import { buildAdminLoginBody, buildAuthCookie, buildUserLoginBody, createTestUse
 
 
 describe("Authentication Tests", () => {
+    const adminCookie = async () => buildAuthCookie((await createTestUser()).adminToken);
+
     afterEach(async () => {
         await clearDatabase();
     });
@@ -21,13 +23,12 @@ describe("Authentication Tests", () => {
             
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send(adminData)
                 .expect(201);
             
             console.log("Register Response:", response.body);
-            expect(response.body).toHaveProperty("token");
             expect(response.body).toHaveProperty("user");
-            expect(response.headers["set-cookie"]).toBeDefined();
             expect(response.body.user).toMatchObject({
                 username: adminData.username,
                 email: adminData.email,
@@ -46,7 +47,6 @@ describe("Authentication Tests", () => {
                 .expect(201);
             
             console.log("Login Response:", response.body);
-            expect(response.body).toHaveProperty("token");
             expect(response.body).toHaveProperty("user");
             expect(response.headers["set-cookie"]).toBeDefined();
             expect(response.body.user).toMatchObject({
@@ -69,7 +69,6 @@ describe("Authentication Tests", () => {
                 .expect(201);
             
             console.log("Login Response:", response.body);
-            expect(response.body).toHaveProperty("token");
             expect(response.body).toHaveProperty("user");
             expect(response.headers["set-cookie"]).toBeDefined();
             expect(response.body.user).toMatchObject({
@@ -121,6 +120,7 @@ describe("Authentication Tests", () => {
             
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send({})
                 .expect(400);
             
@@ -137,6 +137,7 @@ describe("Authentication Tests", () => {
             };
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send(userData)
                 .expect(400);
             
@@ -298,6 +299,7 @@ describe("Authentication Tests", () => {
         it("should return an error for invalid register email format", async () => {
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send({
                     username: "testuser",
                     email: "invalid-email",
@@ -313,6 +315,7 @@ describe("Authentication Tests", () => {
         it("should return an error for invalid register password format", async () => {
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send({
                     username: "testuser",
                     email: "testuser@example.com",
@@ -332,6 +335,7 @@ describe("Authentication Tests", () => {
         it("should return an error for invalid register username format", async () => {
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send({
                     username: "a",
                     email: "testuser@example.com",
@@ -351,6 +355,7 @@ describe("Authentication Tests", () => {
         it("should return an error for invalid register student ID format", async () => {
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send({
                     username: "testuser",
                     email: "testuser@example.com",
@@ -370,6 +375,7 @@ describe("Authentication Tests", () => {
         it("should return an error for invalid register student LRN format", async () => {
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send({
                     username: "testuser",
                     email: "testuser@example.com",
@@ -389,6 +395,7 @@ describe("Authentication Tests", () => {
         it("should return an error for invalid register student strand format", async () => {
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", await adminCookie())
                 .send({
                     username: "testuser",
                     email: "testuser@example.com",
@@ -407,10 +414,11 @@ describe("Authentication Tests", () => {
         })
         
         it("should return an error for duplicate email", async () => {
-            const { testUser } = await createTestUser();
+            const { testUser, adminToken } = await createTestUser();
             
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({
                     username: "testuser2",
                     email: testUser.email,
@@ -421,17 +429,18 @@ describe("Authentication Tests", () => {
                     studentStrand: "ICT" as const,
                     studentSection: "ICT-12-5"
                 })
-                .expect(500);
+                .expect(409);
             
             console.log("Register Response:", response.body);
-            expect(response.body).toHaveProperty("message", "Internal server error");
+            expect(response.body).toHaveProperty("message", "Duplicate data found for: email");
         })
         
         it("should return an error for duplicate student ID", async () => {
-            const { testUser } = await createTestUser();
+            const { testUser, adminToken } = await createTestUser();
             
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({
                     username: "testuser2",
                     email: "testuser2@example.com",
@@ -445,14 +454,15 @@ describe("Authentication Tests", () => {
                 .expect(409);
             
             console.log("Register Response:", response.body);
-            expect(response.body).toHaveProperty("message", "User already exists");
+            expect(response.body).toHaveProperty("message", "Duplicate data found for: studentId");
         })
         
         it("should return an error for duplicate student LRN", async () => {
-            const { testUser } = await createTestUser();
+            const { testUser, adminToken } = await createTestUser();
             
             const response = await request(app)
                 .post("/api/auth/register")
+                .set("Cookie", buildAuthCookie(adminToken))
                 .send({
                     username: "testuser2",
                     email: "testuser2@example.com",
@@ -463,10 +473,10 @@ describe("Authentication Tests", () => {
                     studentStrand: "ICT" as const,
                     studentSection: "ICT-12-5"
                 })
-                .expect(500);
+                .expect(409);
             
             console.log("Register Response:", response.body);
-            expect(response.body).toHaveProperty("message", "Internal server error");
+            expect(response.body).toHaveProperty("message", "Duplicate data found for: studentLRN");
         })
     })
 })

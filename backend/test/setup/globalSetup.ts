@@ -14,7 +14,7 @@ export default async function setUp() {
         };
         
         console.log("Pushing schema using drizzle...");
-        execSync("npx drizzle-kit push", {
+        execSync("npx drizzle-kit push --force", {
             // inherit used to visually see the normal output of the command in the console
             stdio: "inherit",
             cwd: process.cwd()
@@ -35,7 +35,7 @@ export default async function setUp() {
                 await db.execute(sql`DROP TABLE IF EXISTS ${table} CASCADE`);
             };
             
-            process.exit(0);
+            console.log("Test environment cleanup complete.");
         }
         catch (e){
             console.error("Error during test environment cleanup:", e);
