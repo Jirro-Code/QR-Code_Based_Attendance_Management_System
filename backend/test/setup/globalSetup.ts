@@ -3,10 +3,27 @@ import { users, events, attendance } from "../../src/db/schema.ts";
 import { sql } from "drizzle-orm";
 import { execSync } from "child_process"; 
 
+const testDatabaseUrl = process.env.TEST_DATABASE_URL;
+
+const assertIsolatedTestDatabase = () => {
+    if (!testDatabaseUrl || !testDatabaseUrl.startsWith("postgresql://") || testDatabaseUrl.includes("******")) {
+        throw new Error("TEST_DATABASE_URL must be set to an isolated PostgreSQL test database before running integration tests.");
+    }
+    
+    const databaseName = new URL(testDatabaseUrl).pathname.slice(1);
+    if (databaseName !== "attendscan_test") {
+        throw new Error(`Refusing destructive test setup for database "${databaseName}". TEST_DATABASE_URL must target attendscan_test.`);
+    }
+};
+
 export default async function setUp() {
     console.log("Setting up test environment...");
     
+    assertIsolatedTestDatabase();
+    
     try{
+        await db.execute(sql`select 1`);
+        
         const tablestToDrop = [attendance, events, users];
         
         for (const table of tablestToDrop) {

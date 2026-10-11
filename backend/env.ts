@@ -8,11 +8,15 @@ const isTesting = process.env.APP_STAGE === `test`;
 
 if (isDevelopment) {
     loadEnv();
-} else if (isTesting) {
+}
+else if (isTesting) {
     loadEnv("test");
 
     process.env.NODE_ENV ||= "test";
-    if (!process.env.DATABASE_URL?.startsWith("postgresql://") || process.env.DATABASE_URL.includes("******")) {
+    const testDatabaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+    if (testDatabaseUrl && testDatabaseUrl.startsWith("postgresql://") && !testDatabaseUrl.includes("******")) {
+        process.env.DATABASE_URL = testDatabaseUrl;
+    } else {
         process.env.DATABASE_URL = "postgresql://postgres:postgres@localhost:5432/attendscan_test";
     }
     process.env.JWT_SECRET ||= "attendscan-test-only-jwt-secret-do-not-use-in-production";
@@ -32,17 +36,17 @@ const envSchema = z.object({
     NODE_ENV: z.enum([`production`, `development`, `test`]).default(`development`),
     APP_STAGE: z.enum([`production`, `development`, `test`]).default(`development`),
     PORT: z.coerce.number().positive().default(3000),
-    
+
     DATABASE_URL: z.string().startsWith(`postgresql://`),
     JWT_SECRET: z.string().min(32, `must be at least 32 characters long`),
     JWT_EXPIRES_IN: z.string().default(`5h`),
     BCRYPT_ROUNDS: z.coerce.number().min(10).max(14).default(12),
-    
+
     AZURE_STORAGE_CONNECTION_STRING: z.string().min(1),
     AZURE_STORAGE_CONTAINER_NAME: z.string().min(1),
     AZURE_STORAGE_ACCOUNT_NAME: z.string().min(1),
     AZURE_STORAGE_ACCOUNT_KEY: z.string().min(1),
-    
+
     SMTP_HOST: z.string().min(1),
     SMTP_PORT: z.coerce.number().positive().default(465),
     SMTP_USER: z.string().min(1),
@@ -56,7 +60,7 @@ let env: Env;
 
 function redact(value: unknown): unknown {
     if (typeof value !== `object` || value === null) return value;
-    
+
     const clone: Record<string, unknown> = {...(value as Record<string, unknown>)};
     for (const key of SENSITIVE_KEYS) {
         if (key in clone) clone[key] = `[REDACTED]`;
@@ -66,7 +70,7 @@ function redact(value: unknown): unknown {
 
 try{
     env = envSchema.parse(process.env);
-} 
+}
 catch (e){
     if (e instanceof z.ZodError) { 
         console.error(`Invalid environment variables:`);
@@ -80,7 +84,7 @@ catch (e){
         
         process.exit(1);
     }
-    
+
     throw e;
 }
 
