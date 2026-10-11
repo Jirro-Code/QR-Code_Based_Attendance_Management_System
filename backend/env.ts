@@ -13,7 +13,7 @@ else if (isTesting) {
     loadEnv("test");
 
     process.env.NODE_ENV ||= "test";
-    const testDatabaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL;
+    const testDatabaseUrl = process.env.TEST_DATABASE_URL;
     if (testDatabaseUrl && testDatabaseUrl.startsWith("postgresql://") && !testDatabaseUrl.includes("******")) {
         process.env.DATABASE_URL = testDatabaseUrl;
     } else {
