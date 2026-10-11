@@ -12,6 +12,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: attendscan_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d attendscan_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     permissions:
       contents: read #This is required for actions/checkout
 
@@ -25,6 +39,9 @@ jobs:
 
       - name: npm install, build, and test
         working-directory: backend
+        env:
+          APP_STAGE: test
+          TEST_DATABASE_URL: postgresql://postgres:postgres@localhost:5432/attendscan_test
         run: |
           npm ci
           npm run build
