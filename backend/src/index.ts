@@ -1,17 +1,18 @@
 import app from "./server.ts";
-import env from "../env.ts";
+import env, { isProd } from "../env.ts";
+import http from "http";
 import https from "https";
 import fs from "fs";
 import { Server } from "socket.io";
 import { verifyToken } from "./utils/jwt.ts";
 import { initializeDatabase } from "./db/connections.ts";
 
-const httpsOptions = {
-  key: fs.readFileSync("./certs/localhost+1-key.pem"),
-  cert: fs.readFileSync("./certs/localhost+1.pem")
-};
-
-const httpServer = https.createServer(httpsOptions, app);
+const httpServer = isProd()
+  ? http.createServer(app)
+  : https.createServer({
+      key: fs.readFileSync("./certs/localhost+1-key.pem"),
+      cert: fs.readFileSync("./certs/localhost+1.pem")
+    }, app);
 
 
 // io will be used as a server variable to handle socket connections and events
@@ -83,7 +84,8 @@ const startServer = async () => {
   try {
     await initializeDatabase();
     httpServer.listen(env.PORT, "0.0.0.0", () => {
-      console.log(`Server is running on https://localhost:${env.PORT}`);
+      const protocol = isProd() ? "http" : "https";
+      console.log(`Server is running on ${protocol}://localhost:${env.PORT}`);
     });
   }
   catch (error) {
