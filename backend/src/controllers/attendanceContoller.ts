@@ -91,6 +91,7 @@ export const markAttendance = async (req: AuthenticatedRequest, res: Response) =
             return res.status(404).json({message: "Event not found"});
         }
         
+        
         const attendanceExist = await db.query.attendance.findFirst({
             where: 
                 and(eq(attendance.userId, req.body.userId), eq(attendance.eventId, req.body.eventId))
