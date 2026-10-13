@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { CancelButton } from "./Button";
 import { useView } from "../hooks/useView.ts";
 import { type Event } from "../services/events.ts";
-import { EventDayViewCard } from "./Cards/ViewCards/EventDayViewCard.tsx";
+import { EventDayViewCard } from "./cards/ViewCards/EventDayViewCard.tsx";
 
 type CalendarProps = {
     isAdmin: boolean;

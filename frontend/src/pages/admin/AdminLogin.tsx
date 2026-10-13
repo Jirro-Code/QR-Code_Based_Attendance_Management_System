@@ -3,7 +3,7 @@ import { Input } from "../../components/Input/Input.tsx";
 import { useLogin } from "../../hooks/useLogin";
 import { CircleAlert, Eye, EyeOff} from "lucide-react";
 import { useNavigate, useLocation} from "react-router-dom";
-import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
+import { NotificationCard } from "../../components/cards/NotificationCard.tsx";
 import icp from "../../assets/icp.png";
 
 export const AdminLoginPage = () => {

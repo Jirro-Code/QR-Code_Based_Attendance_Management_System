@@ -4,7 +4,7 @@ import { useCurrentUser } from "../../hooks/useCurrentUser.ts"
 import { useEffect, useState } from "react";
 import { io } from "socket.io-client";
 import { Navbar } from "../../components/Navbar.tsx";
-import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
+import { NotificationCard } from "../../components/cards/NotificationCard.tsx";
 import { ClipboardClock, Calendar, SquareArrowOutUpRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 

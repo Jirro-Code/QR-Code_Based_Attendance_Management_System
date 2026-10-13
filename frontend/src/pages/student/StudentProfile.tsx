@@ -5,7 +5,7 @@ import { useView } from "../../hooks/useView.ts";
 import { getSelf, type User } from "../../services/users.ts";
 import { logout } from "../../services/auth.ts";
 import { KeyRound } from "lucide-react";
-import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
+import { NotificationCard } from "../../components/cards/NotificationCard.tsx";
 
 export const StudentProfilePage = () => {
     const location = useLocation();

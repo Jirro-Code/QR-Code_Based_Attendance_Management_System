@@ -3,9 +3,9 @@ import { type User } from "../../services/users.ts";
 import { useView } from "../../hooks/useView.ts";
 import { useEffect, useState } from "react";
 import { Archive, ArchiveRestore, SquarePen } from "lucide-react";
-import { UpdateAttendanceCard } from "../Cards/UpdateCards/UpdateAttendanceCard.tsx";
-import { ArchiveAttendanceCard } from "../Cards/ArchiveCards/ArchiveAttendanceCard.tsx";
-import { UnarchiveAttendanceCard } from "../Cards/UnarchiveCards/UnarchiveAttendanceCard.tsx";
+import { UpdateAttendanceCard } from "../cards/UpdateCards/UpdateAttendanceCard.tsx";
+import { ArchiveAttendanceCard } from "../cards/ArchiveCards/ArchiveAttendanceCard.tsx";
+import { UnarchiveAttendanceCard } from "../cards/UnarchiveCards/UnarchiveAttendanceCard.tsx";
 
 type ListCellProps = {
     attendance: Partial<Attendance>;

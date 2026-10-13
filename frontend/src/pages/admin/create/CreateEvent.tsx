@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { useCreate } from "../../../hooks/useCreate.ts"
-import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx"
+import { NotificationCard } from "../../../components/cards/NotificationCard.tsx"
 import { Header } from "../../../components/Header.tsx"
 import { Input } from "../../../components/Input/Input.tsx"
 import { type CreateEventData } from "../../../services/events.ts"

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
 import { Header } from "../../components/Header.tsx";
-import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
+import { NotificationCard } from "../../components/cards/NotificationCard.tsx";
 import { ImageCropModal } from "../../components/ImageCrop.tsx";
 import { Input } from "../../components/Input/Input.tsx";
 import { getPasswordChangeStatus, getProfilePictureById, getSelf, updateUser, type User } from "../../services/users.ts";

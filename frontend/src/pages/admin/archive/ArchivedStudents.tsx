@@ -3,14 +3,14 @@ import { type User } from "../../../services/users.ts";
 import { useEffect, useState } from "react";
 import { SearchBar } from "../../../components/SearchBar.tsx";
 import { UserListCell } from "../../../components/ListCells/UserListCell.tsx";
-import { UpdateUserCard } from "../../../components/Cards/UpdateCards/UpdateUserCard.tsx";
-import { UnarchiveUserCard } from "../../../components/Cards/UnarchiveCards/UnarchiveUserCard.tsx";
-import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
-import { ViewStudentCard } from "../../../components/Cards/ViewCards/ViewStudentCard.tsx";
+import { UpdateUserCard } from "../../../components/cards/UpdateCards/UpdateUserCard.tsx";
+import { UnarchiveUserCard } from "../../../components/cards/UnarchiveCards/UnarchiveUserCard.tsx";
+import { NotificationCard } from "../../../components/cards/NotificationCard.tsx";
+import { ViewStudentCard } from "../../../components/cards/ViewCards/ViewStudentCard.tsx";
 import { Header } from "../../../components/Header.tsx";
 import { StudentFilterOptions } from "../../../components/Filters/StudentFilter.tsx";
 import { ArchiveRestore, Ellipsis } from "lucide-react";
-import { AttendanceHistoryCard } from "../../../components/Cards/ViewCards/ViewAttendanceHistoryCard.tsx";
+import { AttendanceHistoryCard } from "../../../components/cards/ViewCards/ViewAttendanceHistoryCard.tsx";
 import { useNavigate } from "react-router-dom";
 
 export const ArchivedStudents = () => {

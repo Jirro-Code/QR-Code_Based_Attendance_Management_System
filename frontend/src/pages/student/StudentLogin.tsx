@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLogin } from "../../hooks/useLogin";
 import { Input } from "../../components/Input/Input";
-import { NotificationCard } from "../../components/Cards/NotificationCard.tsx";
+import { NotificationCard } from "../../components/cards/NotificationCard.tsx";
 import { CircleAlert, EyeOff, Eye} from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import icp from "../../assets/icp.png";

@@ -2,7 +2,7 @@ import { useCurrentUser } from "../../hooks/useCurrentUser.ts";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { type User } from "../../services/users.ts";
-import { SelectionCard } from "../../components/Cards/RegisterSelectionCard.tsx";
+import { SelectionCard } from "../../components/cards/RegisterSelectionCard.tsx";
 import { Navbar } from "../../components/Navbar.tsx";
 import { UserPlus, ScanSquare, CalendarPlus2, Calendars, Users, SquareArrowOutUpRight, Folders } from 'lucide-react';
 

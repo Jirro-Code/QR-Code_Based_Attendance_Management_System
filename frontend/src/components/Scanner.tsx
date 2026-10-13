@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Html5Qrcode, type CameraDevice } from "html5-qrcode";
-import { ScannedStudentCard } from "./Cards/ScannedStudentCard.tsx";
-import { NotificationCard } from "./Cards/NotificationCard.tsx";
+import { ScannedStudentCard } from "./cards/ScannedStudentCard.tsx";
+import { NotificationCard } from "./cards/NotificationCard.tsx";
 import { RefreshCw, X } from "lucide-react";
 
 type ScannerProps = {

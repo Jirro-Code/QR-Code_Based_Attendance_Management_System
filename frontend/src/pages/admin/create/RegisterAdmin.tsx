@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Header } from "../../../components/Header.tsx";
-import { NotificationCard } from "../../../components/Cards/NotificationCard.tsx";
+import { NotificationCard } from "../../../components/cards/NotificationCard.tsx";
 import { Input } from "../../../components/Input/Input.tsx";
 import { useCreate } from "../../../hooks/useCreate.ts";
 import { type AdminRegisterPayload } from "../../../services/auth.ts";
