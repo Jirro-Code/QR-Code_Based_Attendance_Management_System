@@ -1,6 +1,6 @@
 import { ApiError } from "./error";
 
-const API_BASE_URL = "https://attendscan-api-dff6e5hzd0gwhzb7.southeastasia-01.azurewebsites.net";
+const API_BASE_URL = "https://attendscan-api-dff6e5hzd0gwhzb7.southeastasia-01.azurewebsites.net/api";
 
 export const apiFetch = async (path: string, init: RequestInit = {}) => {
     const headers = new Headers(init.headers);
