@@ -12,10 +12,12 @@ import { env } from "../../env.ts";
 import { z } from "zod";
 import ms from "ms";
 
+const isProduction = process.env.NODE_ENV === "production";
+
 const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax" as const,
+    secure: isProduction,
+    sameSite: isProduction ? "none" as const : "lax" as const,
     path: "/",
     maxAge: ms(env.JWT_EXPIRES_IN as ms.StringValue)
 };
@@ -148,8 +150,8 @@ export const logoutUser = async (_req: AuthenticatedRequest, res: Response) => {
     try {
         res.clearCookie("token", {
             httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
+            secure: isProduction,
+            sameSite: isProduction ? "none" : "lax",
             path: "/"
         });
         
