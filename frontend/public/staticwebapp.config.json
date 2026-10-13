@@ -3,8 +3,20 @@
     "navigationFallback": {
         "rewrite": "/index.html",
         "exclude": [
-            "/assets/*",
-            "/*.{css,js,ico,png,svg,jpg,jpeg,webp}"
+        "/assets/*",
+        "/*.js",
+        "/*.mjs",
+        "/*.css",
+        "/*.png",
+        "/*.svg",
+        "/*.ico",
+        "/*.json"
         ]
+    },
+    "mimeTypes": {
+        ".js": "application/javascript",
+        ".mjs": "application/javascript",
+        ".css": "text/css",
+        ".json": "application/json"
     }
 }
