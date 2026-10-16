@@ -81,8 +81,6 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                                     return;
                                 }
                                 
-                                setStudent(studentData);
-                                
                                 const checkAttendanceResult = await useCheckAttendance(eventId, uuid.trim(), setError);
                                 
                                 if (!checkAttendanceResult) {
@@ -117,13 +115,12 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                                 setShowNotification(true);
                                 return;
                             }
+                            
+                            setShowNotification(false);
+                            setShowIsDetected(true);
                         }
                         
                         fetchStudentData();        
-                        
-                        
-                        setShowNotification(false);
-                        setShowIsDetected(true);
                         
                     },
                     () => {
