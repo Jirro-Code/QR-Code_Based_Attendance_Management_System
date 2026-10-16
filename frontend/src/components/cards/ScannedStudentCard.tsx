@@ -78,7 +78,7 @@ export const ScannedStudentCard = ({ student, profilePicture, setNotificationMes
                                 className="w-40 h-40 rounded-md object-cover ring-4 ring-gray-100"
                             />
                         ) : (
-                            <div className="w-40 h-40 rounded-full bg-gray-100 ring-4 ring-gray-50 flex items-center justify-center">
+                            <div className="w-40 h-40 rounded-md bg-gray-100 ring-4 ring-gray-50 flex items-center justify-center">
                                 <span className="text-gray-400 text-sm">No Photo</span>
                             </div>
                         )}
