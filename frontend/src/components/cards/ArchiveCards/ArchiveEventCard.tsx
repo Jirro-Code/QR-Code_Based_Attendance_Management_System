@@ -55,7 +55,7 @@ export const ArchiveEventCard = ({ id, eventName, onArchived, setShowNotificatio
                 
                 <p className="text-red-600 text-sm">{error}</p>
                 
-                <p className="text-gray-700 text-sm overflow-hidden text-ellipsis">
+                <p className="text-gray-700 text-sm overflow-hidden truncate">
                     Are you sure you want to archive <b >{eventName}</b>?
                 </p>
                 

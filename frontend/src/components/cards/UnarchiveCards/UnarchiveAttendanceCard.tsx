@@ -47,7 +47,7 @@ export const UnarchiveAttendanceCard = ({ attendanceId, username, onArchived, se
                 
                 <p className="text-red-800 text-sm">{error}</p>
                 
-                <p className="text-gray-700 text-sm">
+                <p className="text-gray-700 text-sm overflow-hidden truncate">
                     Are you sure you want to unarchive <b>{username}</b>'s attendance record?
                 </p>
                 

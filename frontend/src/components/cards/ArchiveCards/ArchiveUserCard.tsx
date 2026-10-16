@@ -51,7 +51,7 @@ export const ArchiveUserCard = ({ userId, username, onArchived, setShowNotificat
                 
                 <p className="text-red-600 text-sm">{error}</p>
                 
-                <p className="text-gray-700 text-sm">
+                <p className="text-gray-700 text-sm overflow-hidden truncate">
                     Are you sure you want to archive <b>{username}</b>?
                 </p>
                 
