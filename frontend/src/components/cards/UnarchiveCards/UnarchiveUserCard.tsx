@@ -52,7 +52,8 @@ export const UnarchiveUserCard = ({ userId, username, onRestored, setShowNotific
                 <p className="text-red-800 text-sm">{error}</p>
                 
                 <p className="text-gray-700 text-sm overflow-hidden truncate">
-                    Are you sure you want to unarchive <b>{username}</b>?
+                    Are you sure you want to unarchive <br/>
+                    <b className="truncate">{username}</b>?
                 </p>
                 
                 <div className="flex justify-between items-center mt-1">

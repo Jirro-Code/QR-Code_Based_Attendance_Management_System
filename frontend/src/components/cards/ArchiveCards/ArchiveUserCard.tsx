@@ -52,7 +52,8 @@ export const ArchiveUserCard = ({ userId, username, onArchived, setShowNotificat
                 <p className="text-red-600 text-sm">{error}</p>
                 
                 <p className="text-gray-700 text-sm overflow-hidden truncate">
-                    Are you sure you want to archive <b>{username}</b>?
+                    Are you sure you want to archive <br/>
+                    <b className="truncate">{username}</b>?
                 </p>
                 
                 <div className="flex justify-between items-center mt-1">
