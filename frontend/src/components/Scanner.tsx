@@ -71,59 +71,55 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                             console.error("Error stopping QR scanner:", error);
                         }
                         
-                        useEffect(() => {
-                            const fetchStudentData = async () => {
-                                try {
-                                    const studentData = await useViewUser(uuid.trim(), setError);
-                                    
-                                    if (studentData.isArchived) {
-                                        setNotificationMessage({ title: "Error", message: "This student is archived and cannot be marked present." });
-                                        setShowNotification(true);
-                                        return;
-                                    }
-                                    
-                                    setStudent(studentData);
-                                    
-                                    const checkAttendanceResult = await useCheckAttendance(eventId, uuid.trim(), setError);
-                                    
-                                    if (!checkAttendanceResult) {
-                                        setNotificationMessage({ title: "Error", message: "Unable to check attendance for this student." });
-                                        setShowNotification(true);
-                                        return;
-                                    }
-                                    
-                                    if (checkAttendanceResult.canMark === false) {
-                                        setNotificationMessage({ title: "Attendance Already Marked", message: "This student has already been marked present for this event." });
-                                        setShowNotification(true);
-                                        return;
-                                    }
-                                    
-                                    if (checkAttendanceResult.canMark === true) {
-                                        setStudent(studentData);
-                                    }
-                                    
-                                    try {
-                                        const profilePictureData = await getProfilePictureById(uuid.trim());
-                                        setProfilePicture(profilePictureData.url as string);
-                                    }
-                                    catch (profilePictureError) {
-                                        if (!(profilePictureError instanceof ApiError) || profilePictureError.status !== 404) {
-                                            console.error("Error fetching scanned student's profile picture:", profilePictureError);
-                                        }
-                                        setProfilePicture(null);
-                                    }
-                                }
-                                catch (e) {
-                                    setNotificationMessage({ title: "Error", message: `${e instanceof Error ? e.message : "An unknown error occurred"}` });
+                        const fetchStudentData = async () => {
+                            try {
+                                const studentData = await useViewUser(uuid.trim(), setError);
+                                
+                                if (studentData.isArchived) {
+                                    setNotificationMessage({ title: "Error", message: "This student is archived and cannot be marked present." });
                                     setShowNotification(true);
-                                    onClose();
                                     return;
                                 }
+                                
+                                setStudent(studentData);
+                                
+                                const checkAttendanceResult = await useCheckAttendance(eventId, uuid.trim(), setError);
+                                
+                                if (!checkAttendanceResult) {
+                                    setNotificationMessage({ title: "Error", message: "Unable to check attendance for this student." });
+                                    setShowNotification(true);
+                                    return;
+                                }
+                                
+                                if (checkAttendanceResult.canMark === false) {
+                                    setNotificationMessage({ title: "Attendance Already Marked", message: "This student has already been marked present for this event." });
+                                    setShowNotification(true);
+                                    return;
+                                }
+                                
+                                if (checkAttendanceResult.canMark === true) {
+                                    setStudent(studentData);
+                                }
+                                
+                                try {
+                                    const profilePictureData = await getProfilePictureById(uuid.trim());
+                                    setProfilePicture(profilePictureData.url as string);
+                                }
+                                catch (profilePictureError) {
+                                    if (!(profilePictureError instanceof ApiError) || profilePictureError.status !== 404) {
+                                        console.error("Error fetching scanned student's profile picture:", profilePictureError);
+                                    }
+                                    setProfilePicture(null);
+                                }
                             }
-                            
-                            fetchStudentData();        
-                            
-                        }, [uuid.trim(), eventId, setError]);
+                            catch (e) {
+                                setNotificationMessage({ title: "Error", message: `${e instanceof Error ? e.message : "An unknown error occurred"}` });
+                                setShowNotification(true);
+                                return;
+                            }
+                        }
+                        
+                        fetchStudentData();        
                         
                         
                         setShowNotification(false);
