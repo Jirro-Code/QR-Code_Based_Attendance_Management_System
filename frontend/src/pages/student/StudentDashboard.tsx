@@ -23,14 +23,14 @@ export const StudentDashboard = () => {
     const qrURl = `ICP|icpsantamaria|${studentData.id}|icpsantamaria|SantaMaria`;
     const navigate = useNavigate();
     useCurrentUser("/student-login", setStudentData);
-
+    
     useEffect(() => {
         if (!studentData.id || studentData.role !== "user") return;
-
-        const socket = io("https://10.189.235.57:3000", {
+        
+        const socket = io("https://attendscan-api-dff6e5hzd0gwhzb7.southeastasia-01.azurewebsites.net", {
             withCredentials: true,
         });
-
+        
         socket.on("attendance:marked", (data: { eventName?: string; message?: string }) => {
             setNotification({
                 title: "New Attendance Recorded",
@@ -39,11 +39,11 @@ export const StudentDashboard = () => {
                     : data.message ?? "Your attendance was recorded.",
             });
         });
-
+        
         socket.on("connect_error", (error) => {
             console.error("Student socket connection error:", error.message);
         });
-
+        
         return () => {
             socket.disconnect();
         };
