@@ -78,6 +78,7 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                                 if (studentData.isArchived) {
                                     setNotificationMessage({ title: "Error", message: "This student is archived and cannot be marked present." });
                                     setShowNotification(true);
+                                    setRestartScanner((prev) => !prev);
                                     return;
                                 }
                                 
@@ -86,12 +87,14 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                                 if (!checkAttendanceResult) {
                                     setNotificationMessage({ title: "Error", message: "Unable to check attendance for this student." });
                                     setShowNotification(true);
+                                    setRestartScanner((prev) => !prev);
                                     return;
                                 }
                                 
                                 if (checkAttendanceResult.canMark === false) {
                                     setNotificationMessage({ title: "Attendance Already Marked", message: "This student has already been marked present for this event." });
                                     setShowNotification(true);
+                                    setRestartScanner((prev) => !prev);
                                     return;
                                 }
                                 
