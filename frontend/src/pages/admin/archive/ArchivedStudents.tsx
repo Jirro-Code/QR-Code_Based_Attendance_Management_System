@@ -189,7 +189,7 @@ export const ArchivedStudents = () => {
             
             
             <div className="overflow-x-auto">
-            <div className="min-w-120 grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
+            <div className="min-w-160 grid grid-cols-[0.3fr_repeat(5,1fr)] border-b border-gray-200 bg-gray-400 px-5 py-3 text-xs font-semibold text-white uppercase tracking-wide shadow-sm">
                 <div>#</div>
                 <div>Name</div>
                 <div>Strand</div>

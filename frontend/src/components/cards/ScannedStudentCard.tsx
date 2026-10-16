@@ -1,12 +1,11 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useCreate } from "../../hooks/useCreate.ts";
-import { useView } from "../../hooks/useView.ts";
 import { type User } from "../../services/users.ts";
-import { getProfilePictureById } from "../../services/users.ts";
-import { ApiError } from "../../services/error.ts";
+
 
 type ScannedStudentCardProps = {
-    studentUuid: string;
+    student: Partial<User>;
+    profilePicture: string | null;
     eventId: string;
     setNotificationMessage: React.Dispatch<React.SetStateAction<{ title: string; message: string}>>;
     setShowNotification: React.Dispatch<React.SetStateAction<boolean>>;
@@ -14,74 +13,18 @@ type ScannedStudentCardProps = {
     onClose: () => void;
 };
 
-export const ScannedStudentCard = ({ studentUuid, setNotificationMessage, setShowNotification, eventId, onClose, setError }: ScannedStudentCardProps) => {
+export const ScannedStudentCard = ({ student, profilePicture, setNotificationMessage, setShowNotification, eventId, onClose, setError }: ScannedStudentCardProps) => {
     const { useMarkAttendance } = useCreate();
-    const { useViewUser, useCheckAttendance } = useView();
-    const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [isLate, setIsLate] = useState<boolean>(false);
-    const [student, setStudent] = useState<Partial<User>>();
     const [ loading, setLoading ] = useState<boolean>(false);
     
-    useEffect(() => {
-        const fetchStudentData = async () => {
-            try {
-                const studentData = await useViewUser(studentUuid, setError);
-                
-                if (studentData.isArchived) {
-                    setNotificationMessage({ title: "Error", message: "This student is archived and cannot be marked present." });
-                    setShowNotification(true);
-                    onClose();
-                    return;
-                }
-                
-                const checkAttendanceResult = await useCheckAttendance(eventId, studentUuid, setError);
-                
-                if (!checkAttendanceResult) {
-                    setNotificationMessage({ title: "Error", message: "Unable to check attendance for this student." });
-                    setShowNotification(true);
-                    onClose();
-                    return;
-                }
-                
-                if (checkAttendanceResult.canMark === false) {
-                    setNotificationMessage({ title: "Attendance Already Marked", message: "This student has already been marked present for this event." });
-                    setShowNotification(true);
-                    onClose();
-                    return;
-                }
-                
-                if (checkAttendanceResult.canMark === true) {
-                    setStudent(studentData);
-                }
-                
-                try {
-                    const profilePictureData = await getProfilePictureById(studentUuid);
-                    setProfilePicture(profilePictureData.url as string);
-                }
-                catch (profilePictureError) {
-                    if (!(profilePictureError instanceof ApiError) || profilePictureError.status !== 404) {
-                        console.error("Error fetching scanned student's profile picture:", profilePictureError);
-                    }
-                    setProfilePicture(null);
-                }
-            }
-            catch (e) {
-                setNotificationMessage({ title: "Error", message: `${e instanceof Error ? e.message : "An unknown error occurred"}` });
-                setShowNotification(true);
-                onClose();
-                return;
-            }
-        }
-        
-        fetchStudentData();        
-        
-    }, [studentUuid, eventId, setError]);
+    
     
     const handleMarkPresent = async () => {
         setLoading(true);
         try {
-            if (!studentUuid || !eventId) return;
-            const result = await useMarkAttendance( { uuid: studentUuid, eventId, isLate, setError } );
+            if (!student?.id || !eventId) return;
+            const result = await useMarkAttendance( { uuid: student.id, eventId, isLate, setError } );
             
             if (result.result?.includes("invalid_data")) {
                 const errorMessage = result.result.split("|")[1] || "Invalid attendance data.";

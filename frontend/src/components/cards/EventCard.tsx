@@ -23,7 +23,7 @@ export const EventCard = ({ event, onArchive, onRestore, onLoadView, isOnArchive
     const color = event.isArchived ? "bg-gray-500 hover:bg-gray-600" : "bg-blue-800 hover:bg-blue-900";
     
     return (
-        <div className="group w-[95%] flex flex-col border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow bg-white">
+        <div className="group w-full flex flex-col border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow bg-white">
             <h3 className="font-semibold text-gray-900 truncate" title={event.eventName}>
                 {event.eventName}
             </h3>

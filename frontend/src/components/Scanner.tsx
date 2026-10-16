@@ -3,6 +3,10 @@ import { Html5Qrcode, type CameraDevice } from "html5-qrcode";
 import { ScannedStudentCard } from "./cards/ScannedStudentCard.tsx";
 import { NotificationCard } from "./cards/NotificationCard.tsx";
 import { RefreshCw, X } from "lucide-react";
+import { type User } from "../services/users.ts";
+import { getProfilePictureById } from "../services/users.ts";
+import { ApiError } from "../services/error.ts";
+import { useView } from "../hooks/useView.ts";
 
 type ScannerProps = {
     onClose: () => void;
@@ -11,7 +15,10 @@ type ScannerProps = {
 }
 
 export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
+    const { useViewUser, useCheckAttendance } = useView();
     const [error, setError] = useState<string>("");
+    const [student, setStudent] = useState<Partial<User | null>>();
+    const [profilePicture, setProfilePicture] = useState<string | null>(null);
     const [orderedCameras, setOrderedCameras] = useState<CameraDevice[]>(cameras);
     const [showIsDetected, setShowIsDetected] = useState<boolean>(false);
     const [restartScanner, setRestartScanner] = useState<boolean>(false);
@@ -20,11 +27,11 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
         title: "",
         message: ""
     });
-    const [scannedStudent, setScannedStudent] = useState<string | null>(null);
     
     const onCloseScannedStudentCard = () => {
         setShowIsDetected(false);
-        setScannedStudent(null);
+        setStudent(null);
+        setProfilePicture(null);
         setRestartScanner((prev) => !prev);
     }
     
@@ -64,7 +71,60 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                             console.error("Error stopping QR scanner:", error);
                         }
                         
-                        setScannedStudent(uuid.trim());
+                        useEffect(() => {
+                            const fetchStudentData = async () => {
+                                try {
+                                    const studentData = await useViewUser(uuid.trim(), setError);
+                                    
+                                    if (studentData.isArchived) {
+                                        setNotificationMessage({ title: "Error", message: "This student is archived and cannot be marked present." });
+                                        setShowNotification(true);
+                                        return;
+                                    }
+                                    
+                                    setStudent(studentData);
+                                    
+                                    const checkAttendanceResult = await useCheckAttendance(eventId, uuid.trim(), setError);
+                                    
+                                    if (!checkAttendanceResult) {
+                                        setNotificationMessage({ title: "Error", message: "Unable to check attendance for this student." });
+                                        setShowNotification(true);
+                                        return;
+                                    }
+                                    
+                                    if (checkAttendanceResult.canMark === false) {
+                                        setNotificationMessage({ title: "Attendance Already Marked", message: "This student has already been marked present for this event." });
+                                        setShowNotification(true);
+                                        return;
+                                    }
+                                    
+                                    if (checkAttendanceResult.canMark === true) {
+                                        setStudent(studentData);
+                                    }
+                                    
+                                    try {
+                                        const profilePictureData = await getProfilePictureById(uuid.trim());
+                                        setProfilePicture(profilePictureData.url as string);
+                                    }
+                                    catch (profilePictureError) {
+                                        if (!(profilePictureError instanceof ApiError) || profilePictureError.status !== 404) {
+                                            console.error("Error fetching scanned student's profile picture:", profilePictureError);
+                                        }
+                                        setProfilePicture(null);
+                                    }
+                                }
+                                catch (e) {
+                                    setNotificationMessage({ title: "Error", message: `${e instanceof Error ? e.message : "An unknown error occurred"}` });
+                                    setShowNotification(true);
+                                    onClose();
+                                    return;
+                                }
+                            }
+                            
+                            fetchStudentData();        
+                            
+                        }, [uuid.trim(), eventId, setError]);
+                        
                         
                         setShowNotification(false);
                         setShowIsDetected(true);
@@ -138,7 +198,7 @@ export const Scanner = ({ onClose, eventId, cameras }: ScannerProps) => {
                 </div>
             </div>
             
-            {showIsDetected && <ScannedStudentCard studentUuid={scannedStudent || ""} setNotificationMessage={setNotificationMessage} setShowNotification={setShowNotification} eventId={eventId} setError={setError} onClose={onCloseScannedStudentCard}/> }
+            {showIsDetected && <ScannedStudentCard student={student!} profilePicture={profilePicture || null} setNotificationMessage={setNotificationMessage} setShowNotification={setShowNotification} eventId={eventId} setError={setError} onClose={onCloseScannedStudentCard}/> }
             {showNotification && <NotificationCard title={notificationMessage.title} message={notificationMessage.message} onClose={() => setShowNotification(false)} />}
         </div>
     );
