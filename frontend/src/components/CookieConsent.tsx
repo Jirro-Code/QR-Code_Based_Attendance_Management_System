@@ -3,12 +3,28 @@ import { useEffect, useState } from "react";
 
 const TEST_COOKIE = "attendscan-cookie-test";
 
+const canUseCookies = () => {
+    if (!navigator.cookieEnabled) return false;
+    
+    const probeValue = `${Date.now()}-${Math.random()}`;
+    try {
+        document.cookie = `${TEST_COOKIE}=${probeValue}; Max-Age=60; Path=/; SameSite=Lax`;
+        const cookieWasStored = document.cookie
+            .split("; ")
+            .some((cookie) => cookie === `${TEST_COOKIE}=${probeValue}`);
+        document.cookie = `${TEST_COOKIE}=; Max-Age=0; Path=/; SameSite=Lax`;
+        return cookieWasStored;
+    } catch {
+        return false;
+    }
+};
+
 export const CookieConsent = () => {
     const [visible, setVisible] = useState(false);
     const [cookiesBlocked, setCookiesBlocked] = useState(false);
     
     useEffect(() => {
-        const blocked = !navigator.cookieEnabled;
+        const blocked = !canUseCookies();
         setCookiesBlocked(blocked);
         setVisible(blocked);
     }, []);

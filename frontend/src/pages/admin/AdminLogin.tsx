@@ -75,6 +75,7 @@ export const AdminLoginPage = () => {
                         </div>
                         <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={isLoading}> {isLoading ? "Logging in..." : "Log In"}</button>
                         <p className="text-sm text-gray-500 mt-4">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: true } })} className="text-blue-500 hover:underline">Click here</button></p>
+                        <p className="mt-2 text-sm text-gray-500">Make sure you have enabled cookies in your browser settings.</p>
                     </form>
                 </div>
             </div>
