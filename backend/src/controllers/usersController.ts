@@ -7,6 +7,7 @@ import { eq, and, or, ilike, desc, not} from "drizzle-orm";
 import z from "zod";
 import { generateProfilePictureSASUrl, updateProfilePicture, uploadProfilePicture } from "../services/azureBlob.ts";
 import { sendEmailUpdateEmail } from "../services/email.ts";
+import { userStrandSchema } from "../db/schema.ts";
 
 const getPasswordLockMinutes = (attempts: number) => {
     if (attempts >= 17 && (attempts - 17) % 3 === 0) return 60;
@@ -187,6 +188,8 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
             email: z.string().email().optional(),
             studentId: z.string().min(1).optional(),
             studentLRN: z.string().min(1).optional(),
+            studentStrand: userStrandSchema.optional(),
+            studentSection: z.string().min(1).optional(),
             password: z.string().min(6).optional(),
             currentPassword: z.string().min(1).optional(),
         });
@@ -309,6 +312,8 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
                     ...(newBlobName && { profilePictureUrl: newBlobName }),
                     ...(userPassword && { passwordChangeAttempts: 0, passwordChangeLockedUntil: null }),
                     ...(userPassword && { passwordChangeLastAttemptAt: null }),
+                    studentStrand: body.studentStrand ?? existingUser.studentStrand,
+                    studentSection: body.studentSection ?? existingUser.studentSection,
                     updatedAt: new Date(),
                 })
                 .where(eq(users.id, userId))
