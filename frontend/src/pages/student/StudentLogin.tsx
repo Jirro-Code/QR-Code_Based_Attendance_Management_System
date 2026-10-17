@@ -9,8 +9,8 @@ import icp from "../../assets/icp.png";
 export const StudentLoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [notify, setNotify] = useState(!!location.state?.notify || new URLSearchParams(location.search).get("reason") === "unauthorized");
-    const isUnauthorized = new URLSearchParams(location.search).get("reason") === "unauthorized";
+    const reason = location.state?.reason ?? new URLSearchParams(location.search).get("reason");
+    const [notify, setNotify] = useState(!!location.state?.notify || reason === "unauthorized" || reason === "cookies-disabled");
     const [form, setForm] = useState({studentId: "", password: ""});
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -82,8 +82,12 @@ export const StudentLoginPage = () => {
                 </div>
             </div>
             {notify && <NotificationCard
-                title={isUnauthorized ? "Unauthorized" : "Password Reset"}
-                message={isUnauthorized ? "Your session expired or is no longer authorized. Please log in again." : "You have successfully reset your password."}
+                title={reason === "cookies-disabled" ? "Cookies Disabled" : reason === "unauthorized" ? "Unauthorized" : "Password Reset"}
+                message={reason === "cookies-disabled"
+                    ? "Cookies are disabled or unavailable in your browser. Enable cookies to continue."
+                    : reason === "unauthorized"
+                        ? "Your session expired or is no longer authorized. Please log in again."
+                        : "You have successfully reset your password."}
                 onClose={() => { setNotify(false); navigate(location.pathname, { replace: true, state: {} }); }}
             />}
         </div>

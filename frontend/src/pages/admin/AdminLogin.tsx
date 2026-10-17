@@ -13,8 +13,8 @@ export const AdminLoginPage = () => {
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [isHidden, setIsHidden] = useState(true);
-    const [notify, setNotify] = useState(!!location.state?.notify || new URLSearchParams(location.search).get("reason") === "unauthorized");
-    const isUnauthorized = new URLSearchParams(location.search).get("reason") === "unauthorized";
+    const reason = location.state?.reason ?? new URLSearchParams(location.search).get("reason");
+    const [notify, setNotify] = useState(!!location.state?.notify || reason === "unauthorized" || reason === "cookies-disabled");
     const { useLoginUser } = useLogin("/admin-dashboard", setError);
     
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,8 +80,12 @@ export const AdminLoginPage = () => {
                 </div>
             </div>
             {notify && <NotificationCard
-                title={isUnauthorized ? "Unauthorized" : "Password Reset"}
-                message={isUnauthorized ? "Your session expired or is no longer authorized. Please log in again." : "You have successfully reset your password."}
+                title={reason === "cookies-disabled" ? "Cookies Disabled" : reason === "unauthorized" ? "Unauthorized" : "Password Reset"}
+                message={reason === "cookies-disabled"
+                    ? "Cookies are disabled or unavailable in your browser. Enable cookies to continue."
+                    : reason === "unauthorized"
+                        ? "Your session expired or is no longer authorized. Please log in again."
+                        : "You have successfully reset your password."}
                 onClose={() => { setNotify(false); navigate(location.pathname, { replace: true, state: {} }); }}
             />}
         </div>

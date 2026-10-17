@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 const TEST_COOKIE = "attendscan-cookie-test";
 
-const canUseCookies = () => {
+export const canUseCookies = () => {
     if (!navigator.cookieEnabled) return false;
     
     const probeValue = `${Date.now()}-${Math.random()}`;
