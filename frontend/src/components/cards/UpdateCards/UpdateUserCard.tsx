@@ -31,16 +31,16 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     const [previewUrl, setPreviewUrl] = useState<string | null>(null);
     const [isHidden, setIsHidden] = useState(true);
     const [isHidden2, setIsHidden2] = useState(true);
-
+    
     useEffect(() => {
         let isMounted = true;
-
+        
         const loadProfilePicture = async () => {
             if (!student.id || !student.profilePictureUrl) {
                 setPreviewUrl(null);
                 return;
             }
-
+            
             try {
                 const pictureUrl = await useViewProfilePicture(student.id, () => {});
                 if (isMounted) {
@@ -51,16 +51,18 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                 console.error("Error loading profile picture:", pictureError);
             }
         };
-
+        
         loadProfilePicture();
-
+        
         return () => {
             isMounted = false;
         };
     }, [student.id, student.profilePictureUrl]);
-
+    
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setFormData((current) => ({...current, [e.target.name]: e.target.value}));
+        setError(""); 
+        
         if (e.target.name === "confirmPassword") {
             setConfirmPassword(e.target.value);
         }
@@ -85,6 +87,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
     
     const handleUpdate = async (data: Partial<User>) => {
         setIsSubmitting(true);
+        
         try {
             if (data.username && data.username.trim().length < 2) {
                 useScrollToTopOverflow(updateCardRef);
@@ -131,7 +134,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
             
             setError("");
             const filteredData = Object.fromEntries(
-            Object.entries(data).filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "")
+                Object.entries(data).filter(([, value]) => value !== undefined && value !== null && String(value).trim() !== "")
             ) as Partial<User>;
             
             const updatedUser = await useUpdateUser({ ...filteredData, id: student.id! } as User, setError);
@@ -154,6 +157,12 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
         }
     };
     
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!hasContent || isSubmitting) return;
+        handleUpdate(formData);
+    }
+    
     const color = student.isArchived ? "gray-500" : "blue-800";
     
     return (
@@ -168,7 +177,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                 <div ref={updateCardRef} id="update-user-card" className="scrollable-card bg-white px-4 py-4 sm:px-6 sm:py-5 flex-1 overflow-y-auto overscroll-contain">
                     {error && <p className="text-red-600 text-sm mb-3">{error}</p>}
                     
-                    <form className="flex flex-col gap-3">
+                    <form id="updateForm" onSubmit={handleSubmit} className="flex flex-col gap-3">
                         <div className="flex flex-col mb-2 sm:col-span-2 lg:col-span-1">
                             <label className="block text-sm font-medium text-gray-700" htmlFor="profilePicture">
                                 Profile Picture:
@@ -231,7 +240,7 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                     <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded">
                         Cancel
                     </button>
-                    <button type="button" onClick={() => handleUpdate(formData)} className={`w-35 text-white py-1.5 px-4 rounded ${hasContent ? "bg-blue-800 hover:bg-blue-900" : "bg-gray-500"}`} disabled={!hasContent || isSubmitting}>
+                    <button type="submit" form="updateForm" onClick={() => handleUpdate(formData)} className={`w-35 text-white py-1.5 px-4 rounded ${hasContent ? "bg-blue-800 hover:bg-blue-900" : "bg-gray-500"}`} disabled={!hasContent || isSubmitting}>
                         {isSubmitting ? "Saving..." : "Save Changes"}
                     </button>
                 </div>

@@ -72,6 +72,7 @@ export const RegisterStudent = () => {
     
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        console.log("Submit Clicked");
         setIsSubmitting(true);
         try {
             if(studentData.username.trim().length < 2) {

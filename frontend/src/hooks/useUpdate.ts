@@ -34,7 +34,7 @@ export const useUpdate = () => {
             throw e;
         }
     };
-
+    
     const useUpdateUser = async (data: User, setError: React.Dispatch<React.SetStateAction<string>>) => {
         try {
             const responseData = await updateUser(data.id, data);

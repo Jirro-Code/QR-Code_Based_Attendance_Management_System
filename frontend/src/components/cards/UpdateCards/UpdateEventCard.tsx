@@ -20,7 +20,7 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isEventDateEdited, setIsEventDateEdited] = useState<boolean>(false);
     const hasContent = Object.values(formData).some((value) => String(value ?? "").trim() !== "")
-
+    
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         if (e.target.name === "eventDate") {
             setIsEventDateEdited(true);
@@ -68,6 +68,12 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
         }
     };
     
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        if (!hasContent || isSubmitting) return;
+        handleUpdate(formData);
+    }
+    
     const color = event.isArchived ? "gray-500" : "blue-800";
     
     const descriptionClassName = "mt-1 flex-1 w-full h-100 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-slate-400 focus:border-slate-400";
@@ -83,7 +89,7 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
             <div onClick={(e) => e.stopPropagation()} className="bg-white max-w-200 w-full rounded-b-lg shadow-lg p-6 relative flex flex-col gap-3 max-h-[90vh] overflow-y-auto">
                 <p className="text-red-600 text-sm">{error}</p>
                 
-                <form className="flex flex-col gap-3 sm:gap-6">
+                <form id="updateForm" onSubmit={handleSubmit} className="flex flex-col gap-3 sm:gap-6">
                     <div className="flex flex-col sm:flex-row gap-3 sm:gap-6">
                         
                         <div className="flex flex-col gap-3 sm:w-1/2">
@@ -104,7 +110,7 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
                         <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded mt-2">
                             Cancel
                         </button>
-                        <button type="button" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 w-35 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 w-33 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent || isSubmitting}>
+                        <button type="button" form="updateForm" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 w-35 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 w-33 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent || isSubmitting}>
                             {isSubmitting ? "Saving..." : "Save Changes"}
                         </button>
                     </div>
