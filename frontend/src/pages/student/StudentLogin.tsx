@@ -9,7 +9,8 @@ import icp from "../../assets/icp.png";
 export const StudentLoginPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const [notify, setNotify] = useState(!!location.state?.notify);
+    const [notify, setNotify] = useState(!!location.state?.notify || new URLSearchParams(location.search).get("reason") === "unauthorized");
+    const isUnauthorized = new URLSearchParams(location.search).get("reason") === "unauthorized";
     const [form, setForm] = useState({studentId: "", password: ""});
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -79,7 +80,11 @@ export const StudentLoginPage = () => {
                     </form>
                 </div>
             </div>
-            {notify && <NotificationCard title="Password Reset" message="You have successfully reset your password." onClose={() => { setNotify(false); navigate(location.pathname, { replace: true, state: {} }); }} />}
+            {notify && <NotificationCard
+                title={isUnauthorized ? "Unauthorized" : "Password Reset"}
+                message={isUnauthorized ? "Your session expired or is no longer authorized. Please log in again." : "You have successfully reset your password."}
+                onClose={() => { setNotify(false); navigate(location.pathname, { replace: true, state: {} }); }}
+            />}
         </div>
     )
 }

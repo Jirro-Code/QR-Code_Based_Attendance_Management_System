@@ -2,6 +2,22 @@ import { ApiError } from "./error";
 
 //const API_BASE_URL = "https://attendscan-api-dff6e5hzd0gwhzb7.southeastasia-01.azurewebsites.net/api";
 const API_BASE_URL = "https://localhost:3000/api";
+let redirectingAfterUnauthorized = false;
+
+const handleUnauthorized = () => {
+    if (redirectingAfterUnauthorized || window.location.pathname.endsWith("-login")) return;
+    redirectingAfterUnauthorized = true;
+    const loginPath = window.location.pathname.startsWith("/admin") || window.location.pathname.startsWith("/manage")
+        || window.location.pathname.startsWith("/create") || window.location.pathname.startsWith("/archived")
+        || window.location.pathname === "/scanner"
+        ? "/admin-login"
+        : "/student-login";
+    
+    void fetch(`${API_BASE_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+    }).finally(() => window.location.replace(`${loginPath}?reason=unauthorized`));
+};
 
 export const apiFetch = async (path: string, init: RequestInit = {}) => {
     const headers = new Headers(init.headers);
@@ -15,6 +31,9 @@ export const apiFetch = async (path: string, init: RequestInit = {}) => {
     });
     
     if (!response.ok) {
+        if (response.status === 401 && !path.startsWith("/auth/login") && !path.startsWith("/auth/logout")) {
+            handleUnauthorized();
+        }
         let message = "";
         const contentType = response.headers.get("content-type") ?? "";
         

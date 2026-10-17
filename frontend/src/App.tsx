@@ -20,6 +20,8 @@ import { StudentProfilePage } from "./pages/student/StudentProfile.tsx";
 import { AdminProfilePage } from "./pages/admin/AdminProfile.tsx";
 import { AdminEditPage } from "./pages/admin/AdminEditPage.tsx";
 import { StudentChangePasswordPage } from "./pages/student/StudentChangePasswordPage.tsx";
+import { CookieConsent } from "./components/CookieConsent.tsx";
+import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
 
 export const App = () => {
     return (
@@ -27,26 +29,27 @@ export const App = () => {
             <Routes>
                 <Route path="/admin-login" element={<AdminLoginPage />} />
                 <Route path="/student-login" element={<StudentLoginPage />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/admin-profile" element={<AdminProfilePage />} />
-                <Route path="/admin-edit" element={<AdminEditPage />} />
-                <Route path="/student-dashboard" element={<StudentDashboard />} />
-                <Route path="/student-profile" element={<StudentProfilePage />} />
-                <Route path="/student-change-password" element={<StudentChangePasswordPage />} />
-                <Route path="/attendance-history" element={<AttendanceHistoryPage />} />
-                <Route path="/events-page" element={<EventsPage />} />
-                <Route path="/create-student" element={<RegisterStudent />} />
-                <Route path="/create-admin" element={<RegisterAdmin />} />
-                <Route path="/manage-students" element={<ManageStudents />} />
-                <Route path="/manage-events" element={<ManageEvents />} />
-                <Route path="/create-event" element={<CreateEvent />} />
-                <Route path="/scanner" element={<ScannerPage />} />
-                <Route path="/manage-attendances" element={<ManageAttendances />} />
-                <Route path="/archived-students" element={<ArchivedStudents />} />
-                <Route path="/archived-events" element={<ArchivedEvents />} />
-                <Route path="/archived-attendances" element={<ArchivedAttendances />} />
+                <Route path="/admin-dashboard" element={<ProtectedRoute allowedRole="admin"><AdminDashboard /></ProtectedRoute>} />
+                <Route path="/admin-profile" element={<ProtectedRoute allowedRole="admin"><AdminProfilePage /></ProtectedRoute>} />
+                <Route path="/admin-edit" element={<ProtectedRoute allowedRole="admin"><AdminEditPage /></ProtectedRoute>} />
+                <Route path="/create-student" element={<ProtectedRoute allowedRole="admin"><RegisterStudent /></ProtectedRoute>} />
+                <Route path="/create-admin" element={<ProtectedRoute allowedRole="admin"><RegisterAdmin /></ProtectedRoute>} />
+                <Route path="/manage-students" element={<ProtectedRoute allowedRole="admin"><ManageStudents /></ProtectedRoute>} />
+                <Route path="/manage-events" element={<ProtectedRoute allowedRole="admin"><ManageEvents /></ProtectedRoute>} />
+                <Route path="/create-event" element={<ProtectedRoute allowedRole="admin"><CreateEvent /></ProtectedRoute>} />
+                <Route path="/scanner" element={<ProtectedRoute allowedRole="admin"><ScannerPage /></ProtectedRoute>} />
+                <Route path="/manage-attendances" element={<ProtectedRoute allowedRole="admin"><ManageAttendances /></ProtectedRoute>} />
+                <Route path="/archived-students" element={<ProtectedRoute allowedRole="admin"><ArchivedStudents /></ProtectedRoute>} />
+                <Route path="/archived-events" element={<ProtectedRoute allowedRole="admin"><ArchivedEvents /></ProtectedRoute>} />
+                <Route path="/archived-attendances" element={<ProtectedRoute allowedRole="admin"><ArchivedAttendances /></ProtectedRoute>} />
+                <Route path="/student-dashboard" element={<ProtectedRoute allowedRole="user"><StudentDashboard /></ProtectedRoute>} />
+                <Route path="/student-profile" element={<ProtectedRoute allowedRole="user"><StudentProfilePage /></ProtectedRoute>} />
+                <Route path="/student-change-password" element={<ProtectedRoute allowedRole="user"><StudentChangePasswordPage /></ProtectedRoute>} />
+                <Route path="/attendance-history" element={<ProtectedRoute allowedRole="user"><AttendanceHistoryPage /></ProtectedRoute>} />
+                <Route path="/events-page" element={<ProtectedRoute allowedRole="user"><EventsPage /></ProtectedRoute>} />
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>} />
             </Routes>
+            <CookieConsent />
         </div>
     );
 }
