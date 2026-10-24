@@ -47,7 +47,7 @@ export const sendAccountCreationEmail = async (email: string, password: string, 
             ${isStudent ? `<p><strong>Student ID:</strong> ${studentId}</p>` : `<p><strong>Email:</strong> ${email}</p>`}
             <p><strong>Password:</strong> ${password}</p>
             
-            
+            ${isStudent ? `<p>You can log in at <a href="https://www.attendscan.app/student-login">https://www.attendscan.app/student-login</a></p>` : `<p>You can log in at <a href="https://www.attendscan.app/admin-login">https://www.attendscan.app/admin-login</a></p>`}
             <p>If you have any questions, please contact the administrator.</p>
         `,
     });

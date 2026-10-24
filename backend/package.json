@@ -60,9 +60,9 @@
   "allowScripts": {
     "esbuild@0.28.1": true,
     "bcrypt@6.0.0": true,
-    "esbuild@0.18.20": true,
     "esbuild@0.25.12": true,
-    "unrs-resolver@1.12.2": true
+    "unrs-resolver@1.12.2": true,
+    "esbuild@0.28.2": true
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -76,5 +76,10 @@
     "@types/nodemailer": "^8.0.1",
     "@types/pg": "^8.20.3",
     "@types/supertest": "^7.2.1"
+  },
+  "overrides": {
+    "@esbuild-kit/core-utils": {
+      "esbuild": "0.28.2"
+    }
   }
 }

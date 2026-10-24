@@ -12,13 +12,8 @@ const app = express();
 
 //:method :status - :response-time ms swap this in production 
 app.use(morgan("dev"));
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: "cross-origin" }
-}));
-app.use(cors({
-  credentials: true,
-  origin: true
-}));
+app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" }}));
+app.use(cors({ credentials: true, origin: true}));
 app.use(express.json());
 app.use(cookieParser());
 

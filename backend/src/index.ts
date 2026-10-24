@@ -71,12 +71,6 @@ io.on("connection", (socket) => {
   
   //join a room specific to the userId to send targeted notifications
   socket.join(`userId-${userId}`);
-  console.log(`User ${userId} joined room: userId-${userId}`);
-  
-  //disconnection event listener for socket.io
-  socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
-  });
 });
 
 
