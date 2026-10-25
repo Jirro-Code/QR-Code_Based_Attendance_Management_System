@@ -85,16 +85,9 @@ export const getEventById = async (req: AuthenticatedRequest, res: Response) => 
 export const searchEvents = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const term = z.string().parse(req.query.search);
-        // If the term looks like a date (YYYY-MM-DD), search by exact date as well.
-        const maybeDate = (() => {
-            const d = new Date(term);
-            return !Number.isNaN(d.getTime()) ? d.toISOString().split("T")[0] : null;
-        })();
         
         const whereClause = term ? or(
-            ilike(events.eventName, `%${term}%`),
-            ilike(events.eventLocation, `%${term}%`),
-            maybeDate ? eq(events.eventDate, maybeDate) : undefined
+            ilike(events.eventName, `%${term}%`)
         ) : undefined;
         
         const eventsList = await db.select({ eventName: events.eventName,
