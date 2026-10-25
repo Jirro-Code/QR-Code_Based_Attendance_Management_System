@@ -110,7 +110,7 @@ export const UpdateEventCard = ({ event, isDisabled, onUpdated, setShowNotificat
                         <button type="button" onClick={onClose} className="bg-gray-100 border border-gray-400 hover:bg-gray-200 text-gray-500 font-bold py-1.5 px-4 rounded mt-2">
                             Cancel
                         </button>
-                        <button type="button" form="updateForm" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 w-35 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 w-33 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent || isSubmitting}>
+                        <button type="submit" form="updateForm" onClick={() => handleUpdate(formData)} className={hasContent ? "bg-blue-800 hover:bg-blue-900 w-35 text-white py-1.5 px-4 rounded mt-2" : "bg-gray-500 w-33 text-white py-1.5 px-4 rounded mt-2"} disabled={!hasContent || isSubmitting}>
                             {isSubmitting ? "Saving..." : "Save Changes"}
                         </button>
                     </div>
