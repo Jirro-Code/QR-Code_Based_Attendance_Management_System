@@ -377,7 +377,7 @@ export const ForgotPasswordPage = () => {
                                 ))}
                             </div>
                             <button type="submit" className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-6 hover:bg-blue-900 transition-colors" disabled={otpLoading || lockSeconds > 0}>
-                                {otpLoading ? "Verifying..." : "Send"}
+                                {otpLoading ? "Verifying..." : "Verify OTP"}
                             </button>
                             <p className="text-sm text-gray-500 text-center">Didn't receive the code? <button type="button" disabled={resendSeconds > 0 || lockSeconds > 0} className="text-blue-500 hover:underline disabled:text-gray-400 disabled:no-underline" onClick={handleResendOtp}>{lockSeconds > 0 ? "Resend unavailable" : resendSeconds > 0 ? `Resend in ${resendSeconds}s` : "Resend"}</button></p>
                             {!isFromProfile && <button type="button" onClick={goBackToEmail} className="text-sm text-blue-500 hover:underline">Back to email</button>}
