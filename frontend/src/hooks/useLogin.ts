@@ -24,6 +24,9 @@ export const useLogin = (path: string, setError: React.Dispatch<React.SetStateAc
                 if (e.status === 404) {
                     setError(e?.message ?? "User not found.");
                 }
+                if (e.status === 423) {
+                    setError(e?.message ?? "Login is temporarily locked. Please try again later.");
+                }
                 if (e.status >= 500) {
                     alert("Server error. Please try again later.");
                     setError("Server error. Please try again later.");
