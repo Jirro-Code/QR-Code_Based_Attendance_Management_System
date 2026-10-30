@@ -22,6 +22,37 @@ const cookieOptions = {
     maxAge: ms(env.JWT_EXPIRES_IN as ms.StringValue)
 };
 
+const LOGIN_ATTEMPT_RESET_AFTER_MS = 4 * 24 * 60 * 60 * 1000;
+
+const getLoginLockMinutes = (attempts: number) => {
+    const lockDurations = new Map([
+        [5, 3],
+        [8, 5],
+        [11, 10],
+        [14, 15],
+        [17, 30],
+        [20, 60],
+        [23, 180],
+        [26, 1440],
+        [29, 4320]
+    ]);
+    
+    return lockDurations.get(attempts) ?? 0;
+};
+
+const getLoginAttemptState = (user: {
+    loginFailedAttempts: number;
+    loginLastFailedAt: Date | null;
+}, now: Date) => {
+    const shouldReset = user.loginLastFailedAt !== null
+        && now.getTime() - user.loginLastFailedAt.getTime() >= LOGIN_ATTEMPT_RESET_AFTER_MS;
+    
+    return {
+        attempts: shouldReset ? 0 : user.loginFailedAttempts,
+        shouldReset
+    };
+};
+
 
 export const registerUser = async (req: Request, res: Response) => {
     try{
@@ -117,9 +148,50 @@ export const loginUser = async (req: Request, res: Response) => {
             return res.status(404).json({message: "User not found"});
         }
         
+        const now = new Date();
+        const attemptState = getLoginAttemptState(user, now);
+        
+        if (attemptState.shouldReset) {
+            await db.update(users).set({
+                loginFailedAttempts: 0,
+                loginLockedUntil: null,
+                loginLastFailedAt: null
+            }).where(eq(users.id, user.id));
+        }
+        
+        if (!attemptState.shouldReset && user.loginLockedUntil && user.loginLockedUntil > now) {
+            return res.status(423).json({
+                message: "Too many incorrect login attempts. Please try again later.",
+                lockedUntil: user.loginLockedUntil.toISOString()
+            });
+        }
+        
+        if (!attemptState.shouldReset && user.loginLockedUntil && user.loginLockedUntil <= now) {
+            await db.update(users).set({ loginLockedUntil: null }).where(eq(users.id, user.id));
+        }
+        
         const isPasswordValid = await comparePassword(req.body.password, user.password);
         
         if(!isPasswordValid){
+            const failedAttempts = attemptState.attempts + 1;
+            const lockMinutes = getLoginLockMinutes(failedAttempts);
+            const lockedUntil = lockMinutes
+                ? new Date(now.getTime() + lockMinutes * 60 * 1000)
+                : null;
+            
+            await db.update(users).set({
+                loginFailedAttempts: failedAttempts,
+                loginLockedUntil: lockedUntil,
+                loginLastFailedAt: now
+            }).where(eq(users.id, user.id));
+            
+            if (lockedUntil) {
+                return res.status(423).json({
+                    message: `Too many incorrect login attempts. Try again in ${lockMinutes >= 60 ? `${lockMinutes / 60} hours` : `${lockMinutes} minutes`}.`,
+                    lockedUntil: lockedUntil.toISOString()
+                });
+            }
+            
             return res.status(401).json({message: "Invalid Credentials"});
         }
         

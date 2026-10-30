@@ -89,7 +89,7 @@ describe("Authentication Tests", () => {
                     password: testUserPassword
                 })
                 .expect(201);
-
+                
             const response = await request(app)
                 .post("/api/auth/logout")
                 .set("Cookie", loginResponse.headers["set-cookie"]?.[0] ?? buildAuthCookie(loginResponse.body.token))
@@ -100,7 +100,7 @@ describe("Authentication Tests", () => {
             expect(response.headers["set-cookie"]?.[0]).toContain("token=");
         });
     })
-
+    
     describe("POST /api/auth/forgotPassword", () => {
         it("should not send a reset OTP for an unregistered email", async () => {
             const response = await request(app)
@@ -110,7 +110,7 @@ describe("Authentication Tests", () => {
                     role: "user"
                 })
                 .expect(404);
-
+                
             expect(response.body).toHaveProperty("message", "User not found");
         });
     });
@@ -172,6 +172,40 @@ describe("Authentication Tests", () => {
             console.log("Login Response:", response2.body);
             expect(response2.body).toHaveProperty("message", "Invalid Credentials");
         })
+        
+        it("should progressively lock admin and student logins after repeated failures", async () => {
+            const { testUser, testAdmin } = await createTestUser();
+            
+            for (let attempt = 1; attempt <= 4; attempt++) {
+                await request(app)
+                    .post("/api/auth/login")
+                    .send(buildAdminLoginBody(testAdmin.email, "wrongpassword"))
+                    .expect(401);
+            }
+            
+            const adminLockedResponse = await request(app)
+                .post("/api/auth/login")
+                .send(buildAdminLoginBody(testAdmin.email, "wrongpassword"))
+                .expect(423);
+            
+            expect(adminLockedResponse.body).toHaveProperty("lockedUntil");
+            expect(adminLockedResponse.body.message).toContain("3 minutes");
+            
+            for (let attempt = 1; attempt <= 4; attempt++) {
+                await request(app)
+                    .post("/api/auth/login")
+                    .send(buildUserLoginBody(testUser.studentId!, "wrongpassword"))
+                    .expect(401);
+            }
+            
+            const studentLockedResponse = await request(app)
+                .post("/api/auth/login")
+                .send(buildUserLoginBody(testUser.studentId!, "wrongpassword"))
+                .expect(423);
+            
+            expect(studentLockedResponse.body).toHaveProperty("lockedUntil");
+            expect(studentLockedResponse.body.message).toContain("3 minutes");
+        });
         
         it("should return an error for non-existing admin", async () => {
             const response = await request(app)
