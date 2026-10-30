@@ -18,7 +18,7 @@ const httpServer = isProd()
 // io will be used as a server variable to handle socket connections and events
 export const io = new Server(httpServer, {
   cors: {
-    origin: "https://www.attendscan.app",
+    origin: ["https://www.attendscan.app", "https://attendscan.app"],
     credentials: true,
   }
 });
