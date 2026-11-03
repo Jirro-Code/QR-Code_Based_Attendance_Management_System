@@ -23,6 +23,23 @@ const cookieOptions = {
     maxAge: ms(env.JWT_EXPIRES_IN as ms.StringValue)
 };
 
+const LOGIN_ATTEMPT_RESET_AFTER_MS = 4 * 24 * 60 * 60 * 1000;
+
+const getLoginLockMinutes = (attempts: number) => new Map([
+    [5, 3],
+    [8, 5],
+    [11, 10],
+    [14, 15],
+    [17, 30],
+    [20, 60],
+    [23, 180],
+    [26, 1440],
+    [29, 4320]
+]).get(attempts) ?? 0;
+
+const hasValidDeviceCookie = (req: Request) =>
+    typeof req.cookies?.device_id === "string" && /^[a-f0-9]{64}$/.test(req.cookies.device_id);
+
 export const registerUser = async (req: Request, res: Response) => {
     try{
         
@@ -107,6 +124,7 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const loginUser = async (req: Request, res: Response) => {
     try{
+        const usesLegacyAccountLockout = !hasValidDeviceCookie(req);
         const deviceId = await prepareDeviceRequest(req, res);
         const user = await db.query.users.findFirst({
             where: req.body.role === "user" ? 
@@ -137,6 +155,19 @@ export const loginUser = async (req: Request, res: Response) => {
                 restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
             });
         }
+
+        const now = new Date();
+        const attemptState = {
+            attempts: user.loginLastFailedAt && now.getTime() - user.loginLastFailedAt.getTime() < LOGIN_ATTEMPT_RESET_AFTER_MS
+                ? user.loginFailedAttempts
+                : 0,
+        };
+        if (usesLegacyAccountLockout && user.loginLockedUntil && user.loginLockedUntil > now) {
+            return res.status(423).json({
+                message: `Too many incorrect login attempts. Try again in ${getLoginLockMinutes(user.loginFailedAttempts)} minutes.`,
+                lockedUntil: user.loginLockedUntil.toISOString(),
+            });
+        }
         
         const isPasswordValid = await comparePassword(req.body.password, user.password);
         
@@ -152,6 +183,24 @@ export const loginUser = async (req: Request, res: Response) => {
                     message: "Too many login attempts from this device. Please try again later.",
                     restrictedUntil: deviceLockedUntil.toISOString(),
                 });
+            }
+            if (usesLegacyAccountLockout) {
+                const failedAttempts = attemptState.attempts + 1;
+                const lockMinutes = getLoginLockMinutes(failedAttempts);
+                const lockedUntil = lockMinutes
+                    ? new Date(now.getTime() + lockMinutes * 60 * 1000)
+                    : null;
+                await db.update(users).set({
+                    loginFailedAttempts: failedAttempts,
+                    loginLockedUntil: lockedUntil,
+                    loginLastFailedAt: now,
+                }).where(eq(users.id, user.id));
+                if (lockedUntil) {
+                    return res.status(423).json({
+                        message: `Too many incorrect login attempts. Try again in ${lockMinutes} minutes.`,
+                        lockedUntil: lockedUntil.toISOString(),
+                    });
+                }
             }
             return res.status(401).json({message: "Invalid Credentials"});
         }
