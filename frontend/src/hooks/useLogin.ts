@@ -2,6 +2,23 @@ import { useNavigate } from "react-router-dom";
 import { login, type LoginPayload } from "../services/auth.ts";
 import { ApiError } from "../services/error.ts";
 
+const getRestrictionMessage = (message: string, details: Record<string, unknown>) => {
+    const restrictedUntil = details.restrictedUntil ?? details.lockedUntil;
+    if (typeof restrictedUntil !== "string") return message;
+    
+    const expiry = new Date(restrictedUntil);
+    if (Number.isNaN(expiry.getTime())) return message;
+    
+    const remainingSeconds = Math.max(0, Math.ceil((expiry.getTime() - Date.now()) / 1000));
+    const remainingMinutes = Math.ceil(remainingSeconds / 60);
+    if (remainingMinutes < 60) {
+        return `${message} Please try again in ${remainingMinutes} ${remainingMinutes === 1 ? "minute" : "minutes"}.`;
+    }
+    
+    const remainingHours = Math.ceil(remainingMinutes / 60);
+    return `${message} Please try again in ${remainingHours} ${remainingHours === 1 ? "hour" : "hours"}.`;
+};
+
 export const useLogin = (path: string, setError: React.Dispatch<React.SetStateAction<string>>) => {
     const navigate = useNavigate();
     
@@ -25,7 +42,9 @@ export const useLogin = (path: string, setError: React.Dispatch<React.SetStateAc
                     setError(e?.message ?? "User not found.");
                 }
                 if (e.status === 423) {
-                    setError(e?.message ?? "Login is temporarily locked. Please try again later.");
+                    const restrictionMessage = getRestrictionMessage(e.message || "Login is temporarily locked.", e.details);
+                    setError(restrictionMessage);
+                    throw new ApiError(restrictionMessage, e.status, e.details);
                 }
                 if (e.status >= 500) {
                     alert("Server error. Please try again later.");

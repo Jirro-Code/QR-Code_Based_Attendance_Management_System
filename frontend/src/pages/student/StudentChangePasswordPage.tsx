@@ -76,7 +76,7 @@ export const StudentChangePasswordPage = () => {
         }
         catch (changeError) {
             if (changeError instanceof ApiError && changeError.status === 423) {
-                const lock = changeError.details.lockedUntil;
+                const lock = changeError.details.lockedUntil ?? changeError.details.restrictedUntil;
                 if (typeof lock === "string") setLockedUntil(lock);
             }
         }

@@ -134,7 +134,7 @@ export const AdminEditPage = () => {
         } catch (submitError) {
             console.error("Error updating admin profile:", submitError);
             if (submitError instanceof ApiError && submitError.status === 423) {
-                const lock = submitError.details.lockedUntil;
+                const lock = submitError.details.lockedUntil ?? submitError.details.restrictedUntil;
                 if (typeof lock === "string") setLockedUntil(lock);
             }
             setError(submitError instanceof Error ? submitError.message : "Unable to update your profile.");
