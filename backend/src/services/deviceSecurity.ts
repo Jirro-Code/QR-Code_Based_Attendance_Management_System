@@ -8,7 +8,7 @@ const DEVICE_COOKIE = "device_id";
 const DEVICE_MAX_AGE = 365 * 24 * 60 * 60 * 1000;
 const isProduction = process.env.NODE_ENV === "production";
 const restrictionMinutes = [10, 60, 12 * 60, 24 * 60, 3 * 24 * 60] as const;
-const failureThreshold = 5;
+const failureThreshold = 3;
 
 const deviceCookieOptions = {
     httpOnly: true,
@@ -55,9 +55,13 @@ export const prepareDeviceRequest = async (req: Request, res: Response) => {
     return deviceId;
 };
 
-export const getDeviceRestriction = async (deviceId: string) => {
+export const getDeviceRestriction = async (accountId: string, deviceId: string) => {
     const restriction = await db.query.deviceRestrictions.findFirst({
-        where: and(eq(deviceRestrictions.deviceId, deviceId), gt(deviceRestrictions.restrictedUntil, new Date())),
+        where: and(
+            eq(deviceRestrictions.accountId, accountId),
+            eq(deviceRestrictions.deviceId, deviceId),
+            gt(deviceRestrictions.restrictedUntil, new Date())
+        ),
     });
     return restriction ?? null;
 };
@@ -73,20 +77,21 @@ export const recordSecurityAttempt = async (params: {
 };
 
 export const recordDeviceFailure = async (params: {
-    accountId?: string;
+    accountId: string;
     deviceId: string;
     ipAddress: string | null;
     action: "login" | "change_password";
 }) => {
     const now = new Date();
     return db.transaction(async (tx) => {
+        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${params.accountId}:${params.deviceId}`}))`);
         const result = await tx.execute<{
             failed_attempts: number;
             escalation_level: number;
             restricted_until: Date | null;
         }>(sql`SELECT failed_attempts, escalation_level, restricted_until
             FROM device_restrictions
-            WHERE device_id = ${params.deviceId}
+            WHERE account_id = ${params.accountId} AND device_id = ${params.deviceId}
             FOR UPDATE`);
         const existing = result.rows[0];
         const failedAttempts = (existing?.failed_attempts ?? 0) + 1;
@@ -106,6 +111,7 @@ export const recordDeviceFailure = async (params: {
             createdAt: now,
         });
         await tx.insert(deviceRestrictions).values({
+            accountId: params.accountId,
             deviceId: params.deviceId,
             reason: params.action,
             failedAttempts,
@@ -113,7 +119,7 @@ export const recordDeviceFailure = async (params: {
             restrictedUntil,
             updatedAt: now,
         }).onConflictDoUpdate({
-            target: deviceRestrictions.deviceId,
+            target: [deviceRestrictions.accountId, deviceRestrictions.deviceId],
             set: {
                 failedAttempts,
                 escalationLevel: shouldRestrict ? escalationLevel + 1 : escalationLevel,
@@ -130,6 +136,20 @@ export const recordDeviceSuccess = async (params: {
     deviceId: string;
     ipAddress: string | null;
     action: "login" | "change_password";
-}) => recordSecurityAttempt({ ...params, result: "success" });
+}) => {
+    if (params.accountId) {
+        await db.update(deviceRestrictions)
+            .set({
+                failedAttempts: 0,
+                restrictedUntil: null,
+                updatedAt: new Date(),
+            })
+            .where(and(
+                eq(deviceRestrictions.accountId, params.accountId),
+                eq(deviceRestrictions.deviceId, params.deviceId),
+            ));
+    }
+    await recordSecurityAttempt({ ...params, result: "success" });
+};
 
 export const getDeviceCookieName = () => DEVICE_COOKIE;

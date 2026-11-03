@@ -302,13 +302,6 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
 export const changePassword = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const deviceId = await prepareDeviceRequest(req, res);
-        const deviceRestriction = await getDeviceRestriction(deviceId);
-        if (deviceRestriction) {
-            return res.status(423).json({
-                message: "Too many password attempts from this device. Please try again later.",
-                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
-            });
-        }
         const currentPassword = z.string().min(1).parse(req.body.currentPassword);
         const newPassword = z.string().min(6).parse(req.body.newPassword);
         const userId = z.string().parse(req.user!.id);
@@ -319,6 +312,13 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
         }
         if (user.isArchived) {
             return res.status(403).json({ message: "This account is archived. Please contact the administrator." });
+        }
+        const deviceRestriction = await getDeviceRestriction(userId, deviceId);
+        if (deviceRestriction) {
+            return res.status(423).json({
+                message: "Too many password attempts from this device. Please try again later.",
+                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+            });
         }
         
         const now = new Date();
@@ -417,18 +417,18 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
 export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const deviceId = await prepareDeviceRequest(req, res);
-        const deviceRestriction = await getDeviceRestriction(deviceId);
-        if (deviceRestriction) {
-            return res.status(423).json({
-                message: "Too many password attempts from this device. Please try again later.",
-                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
-            });
-        }
         const currentPassword = z.string().min(1).parse(req.body.currentPassword);
         const userId = z.string().parse(req.user!.id);
         const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
+        }
+        const deviceRestriction = await getDeviceRestriction(userId, deviceId);
+        if (deviceRestriction) {
+            return res.status(423).json({
+                message: "Too many password attempts from this device. Please try again later.",
+                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+            });
         }
         
         const now = new Date();

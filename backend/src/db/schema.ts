@@ -61,7 +61,8 @@ export const deviceRegistrations = pgTable("device_registrations", {
 
 export const deviceRestrictions = pgTable("device_restrictions", {
     id: uuid("id").primaryKey().defaultRandom(),
-    deviceId: varchar("device_id", { length: 64 }).notNull().references(() => deviceRegistrations.deviceId, { onDelete: "cascade" }).unique(),
+    accountId: uuid("account_id").references(() => users.id, { onDelete: "cascade" }),
+    deviceId: varchar("device_id", { length: 64 }).notNull().references(() => deviceRegistrations.deviceId, { onDelete: "cascade" }),
     reason: varchar("reason", { length: 100 }).notNull(),
     failedAttempts: integer("failed_attempts").notNull().default(0),
     escalationLevel: integer("escalation_level").notNull().default(0),
@@ -69,6 +70,7 @@ export const deviceRestrictions = pgTable("device_restrictions", {
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [
+    unique("device_restrictions_account_device_unique").on(table.accountId, table.deviceId),
     index("device_restrictions_until_idx").on(table.restrictedUntil),
 ]);
 
