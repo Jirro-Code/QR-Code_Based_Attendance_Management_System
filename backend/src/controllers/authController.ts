@@ -11,6 +11,7 @@ import { and, eq } from "drizzle-orm";
 import { env } from "../../env.ts";
 import { z } from "zod";
 import ms from "ms";
+import { getDeviceRestriction, prepareDeviceRequest, recordDeviceFailure, recordDeviceSuccess, recordSecurityAttempt } from "../services/deviceSecurity.ts";
 
 const isProduction = process.env.NODE_ENV === "production";
 
@@ -138,6 +139,20 @@ export const registerUser = async (req: Request, res: Response) => {
 
 export const loginUser = async (req: Request, res: Response) => {
     try{
+        const deviceId = await prepareDeviceRequest(req, res);
+        const deviceRestriction = await getDeviceRestriction(deviceId);
+        if (deviceRestriction) {
+            await recordSecurityAttempt({
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "login",
+                result: "blocked",
+            });
+            return res.status(423).json({
+                message: "Too many login attempts from this device. Please try again later.",
+                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+            });
+        }
         
         const user = await db.query.users.findFirst({
             where: req.body.role === "user" ? 
@@ -145,6 +160,11 @@ export const loginUser = async (req: Request, res: Response) => {
         })
         
         if(!user){
+            await recordDeviceFailure({
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "login",
+            });
             return res.status(404).json({message: "User not found"});
         }
         
@@ -173,6 +193,18 @@ export const loginUser = async (req: Request, res: Response) => {
         const isPasswordValid = await comparePassword(req.body.password, user.password);
         
         if(!isPasswordValid){
+            const deviceLockedUntil = await recordDeviceFailure({
+                accountId: user.id,
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "login",
+            });
+            if (deviceLockedUntil) {
+                return res.status(423).json({
+                    message: "Too many login attempts from this device. Please try again later.",
+                    restrictedUntil: deviceLockedUntil.toISOString(),
+                });
+            }
             const failedAttempts = attemptState.attempts + 1;
             const lockMinutes = getLoginLockMinutes(failedAttempts);
             const lockedUntil = lockMinutes
@@ -198,6 +230,13 @@ export const loginUser = async (req: Request, res: Response) => {
         if(user.isArchived){
             return res.status(403).json({message: "This account is archived. Please contact the administrator."});
         }
+        
+        await recordDeviceSuccess({
+            accountId: user.id,
+            deviceId,
+            ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+            action: "login",
+        });
         
         const token = await generateToken({
             id: user.id,

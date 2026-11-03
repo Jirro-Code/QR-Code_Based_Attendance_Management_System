@@ -8,6 +8,7 @@ import z from "zod";
 import { generateProfilePictureSASUrl, updateProfilePicture, uploadProfilePicture } from "../services/azureBlob.ts";
 import { sendEmailUpdateEmail } from "../services/email.ts";
 import { userStrandSchema } from "../db/schema.ts";
+import { getDeviceRestriction, prepareDeviceRequest, recordDeviceFailure, recordDeviceSuccess } from "../services/deviceSecurity.ts";
 
 const getPasswordLockMinutes = (attempts: number) => {
     if (attempts >= 17 && (attempts - 17) % 3 === 0) return 60;
@@ -198,7 +199,10 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         const profilePicture = req.file;
         
         const body = updateUserSchema.parse(req.body ?? {});
-        const { password: rawPassword, currentPassword, ...safeBody } = body;
+        const rawPassword = body.password;
+        const safeBody = { ...body };
+        delete safeBody.password;
+        delete safeBody.currentPassword;
         const userPassword = rawPassword ? await hashPassword(rawPassword) : undefined;
         
         const existingUser = await db.query.users.findFirst({
@@ -206,48 +210,6 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
         });
         if (!existingUser) {
             return res.status(404).json({ message: "User not found" });
-        }
-        
-        if (rawPassword) {
-            if (!currentPassword) {
-                return res.status(400).json({ message: "Current password is required to change the password" });
-            }
-            
-            const now = new Date();
-            const attemptState = getPasswordAttemptState(existingUser, now);
-            if (attemptState.shouldReset) {
-                await db.update(users).set({
-                    passwordChangeAttempts: 0,
-                    passwordChangeLockedUntil: null,
-                    passwordChangeLastAttemptAt: null
-                }).where(eq(users.id, existingUser.id));
-            }
-            if (existingUser.passwordChangeLockedUntil && existingUser.passwordChangeLockedUntil > now) {
-                return res.status(423).json({
-                    message: "Password change is temporarily locked",
-                    lockedUntil: existingUser.passwordChangeLockedUntil.toISOString()
-                });
-            }
-            
-            const isCurrentPasswordValid = await comparePassword(currentPassword, existingUser.password);
-            if (!isCurrentPasswordValid) {
-                const failedAttempts = attemptState.attempts + 1;
-                const lockMinutes = getPasswordLockMinutes(failedAttempts);
-                const lockedUntil = lockMinutes ? new Date(now.getTime() + lockMinutes * 60 * 1000) : null;
-                await db.update(users).set({
-                    passwordChangeAttempts: failedAttempts,
-                    passwordChangeLockedUntil: lockedUntil,
-                    passwordChangeLastAttemptAt: now
-                }).where(eq(users.id, existingUser.id));
-                
-                if (lockedUntil) {
-                    return res.status(423).json({
-                        message: `Too many incorrect attempts. Try again in ${lockMinutes} minutes.`,
-                        lockedUntil: lockedUntil.toISOString()
-                    });
-                }
-                return res.status(401).json({ message: "Current password is incorrect" });
-            }
         }
         
         const [emailConflict, studentIdConflict, studentLRNConflict] = await Promise.all([
@@ -339,6 +301,14 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
 
 export const changePassword = async (req: AuthenticatedRequest, res: Response) => {
     try {
+        const deviceId = await prepareDeviceRequest(req, res);
+        const deviceRestriction = await getDeviceRestriction(deviceId);
+        if (deviceRestriction) {
+            return res.status(423).json({
+                message: "Too many password attempts from this device. Please try again later.",
+                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+            });
+        }
         const currentPassword = z.string().min(1).parse(req.body.currentPassword);
         const newPassword = z.string().min(6).parse(req.body.newPassword);
         const userId = z.string().parse(req.user!.id);
@@ -381,6 +351,18 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
         
         const isCurrentPasswordValid = await comparePassword(currentPassword, user.password);
         if (!isCurrentPasswordValid) {
+            const deviceLockedUntil = await recordDeviceFailure({
+                accountId: user.id,
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "change_password",
+            });
+            if (deviceLockedUntil) {
+                return res.status(423).json({
+                    message: "Too many password attempts from this device. Please try again later.",
+                    restrictedUntil: deviceLockedUntil.toISOString(),
+                });
+            }
             const failedAttempts = attemptState.attempts + 1;
             const lockMinutes = getPasswordLockMinutes(failedAttempts);
             const lockedUntil = lockMinutes
@@ -414,6 +396,12 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
             passwordChangeLastAttemptAt: null,
             updatedAt: now
         }).where(eq(users.id, user.id));
+        await recordDeviceSuccess({
+            accountId: user.id,
+            deviceId,
+            ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+            action: "change_password",
+        });
         
         return res.status(200).json({ message: "Password changed successfully" });
     }
@@ -428,6 +416,14 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
 
 export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Response) => {
     try {
+        const deviceId = await prepareDeviceRequest(req, res);
+        const deviceRestriction = await getDeviceRestriction(deviceId);
+        if (deviceRestriction) {
+            return res.status(423).json({
+                message: "Too many password attempts from this device. Please try again later.",
+                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+            });
+        }
         const currentPassword = z.string().min(1).parse(req.body.currentPassword);
         const userId = z.string().parse(req.user!.id);
         const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
@@ -455,6 +451,18 @@ export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Resp
         
         const isValid = await comparePassword(currentPassword, user.password);
         if (!isValid) {
+            const deviceLockedUntil = await recordDeviceFailure({
+                accountId: user.id,
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "change_password",
+            });
+            if (deviceLockedUntil) {
+                return res.status(423).json({
+                    message: "Too many password attempts from this device. Please try again later.",
+                    restrictedUntil: deviceLockedUntil.toISOString(),
+                });
+            }
             const failedAttempts = attemptState.attempts + 1;
             const lockMinutes = getPasswordLockMinutes(failedAttempts);
             const lockedUntil = lockMinutes ? new Date(now.getTime() + lockMinutes * 60 * 1000) : null;
@@ -474,6 +482,12 @@ export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Resp
             return res.status(401).json({ message: "Current password is incorrect." });
         }
         
+        await recordDeviceSuccess({
+            accountId: user.id,
+            deviceId,
+            ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+            action: "change_password",
+        });
         return res.status(200).json({ message: "Current password confirmed" });
     }
     catch (e) {

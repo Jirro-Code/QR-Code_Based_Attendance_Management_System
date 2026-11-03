@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, timestamp, date, boolean, integer, unique, pgEnum} from "drizzle-orm/pg-core";
+import { pgTable, uuid, varchar, text, timestamp, date, boolean, integer, unique, pgEnum, index} from "drizzle-orm/pg-core";
 import { relations} from "drizzle-orm";
 import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 import z from "zod";
@@ -8,6 +8,8 @@ const userStrandEnum = ["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"] as
 
 export const userRoles = pgEnum("role", roleEnum);
 export const userStrands = pgEnum("student_strand", userStrandEnum);
+export const securityAction = pgEnum("security_action", ["login", "change_password"]);
+export const securityResult = pgEnum("security_result", ["success", "failure", "blocked"]);
 export const userRoleSchema = z.enum(roleEnum, "Invalid user role");
 export const userStrandSchema = z.enum(userStrandEnum, "Invalid student strand");
 
@@ -47,6 +49,41 @@ export const passwordResetOTP = pgTable("password_reset_otp", {
     lockedUntil: timestamp("locked_until", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
 });
+
+export const deviceRegistrations = pgTable("device_registrations", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    deviceId: varchar("device_id", { length: 64 }).notNull().unique(),
+    firstSeenAt: timestamp("first_seen_at", { withTimezone: true }).defaultNow().notNull(),
+    lastSeenAt: timestamp("last_seen_at", { withTimezone: true }).defaultNow().notNull(),
+    lastIpAddress: varchar("last_ip_address", { length: 255 }),
+    userAgent: varchar("user_agent", { length: 500 }),
+});
+
+export const deviceRestrictions = pgTable("device_restrictions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    deviceId: varchar("device_id", { length: 64 }).notNull().references(() => deviceRegistrations.deviceId, { onDelete: "cascade" }).unique(),
+    reason: varchar("reason", { length: 100 }).notNull(),
+    failedAttempts: integer("failed_attempts").notNull().default(0),
+    escalationLevel: integer("escalation_level").notNull().default(0),
+    restrictedUntil: timestamp("restricted_until", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+    index("device_restrictions_until_idx").on(table.restrictedUntil),
+]);
+
+export const securityAttempts = pgTable("security_attempts", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    accountId: uuid("account_id").references(() => users.id, { onDelete: "set null" }),
+    deviceId: varchar("device_id", { length: 64 }).notNull().references(() => deviceRegistrations.deviceId, { onDelete: "cascade" }),
+    ipAddress: varchar("ip_address", { length: 255 }),
+    action: securityAction("action").notNull(),
+    result: securityResult("result").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+    index("security_attempts_device_created_idx").on(table.deviceId, table.createdAt),
+    index("security_attempts_account_created_idx").on(table.accountId, table.createdAt),
+]);
 
 
 export const events = pgTable("events", {
