@@ -24,10 +24,7 @@ export const SearchBar = ({ handleSearch, setSearchQuery, searchQuery, isOnSearc
     };
     
     return(
-        <form 
-            className="flex items-center gap-1 relative" 
-            onSubmit={onSubmit}
-        >
+        <form className="flex items-center gap-1 relative"  onSubmit={onSubmit}>
             <input
                 ref={inputRef}
                 onFocus={() => setIsFocused(true)}

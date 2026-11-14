@@ -31,7 +31,7 @@ export const apiFetch = async (path: string, init: RequestInit = {}) => {
     });
     
     if (!response.ok) {
-        if (response.status === 401 && !path.startsWith("/auth/login") && !path.startsWith("/auth/logout")) {
+        if (response.status === 401 && !path.startsWith("/auth/login") && !path.startsWith("/auth/logout") && !path.startsWith("/auth/forgot-password") && !path.startsWith("/auth/reset-password") && !path.startsWith("/auth/verifyOtp")) {
             handleUnauthorized();
         }
         let message = "";
