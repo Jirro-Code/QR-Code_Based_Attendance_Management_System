@@ -19,6 +19,7 @@ const httpServer = isProd()
 export const io = new Server(httpServer, {
   cors: {
     origin: ["https://www.attendscan.app", "https://attendscan.app"],
+    // origin: "https://localhost:5173",
     credentials: true,
   }
 });

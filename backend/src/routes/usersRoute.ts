@@ -35,13 +35,8 @@ router.patch("/update-password/:email", validateParams(z.object({ email: z.strin
 router.use(authToken);
 router.get("/me", getSelf);
 router.get("/profile-picture/:id", validateParams(uuidSchema), getProfilePictureById);
-router.post("/change-password", validateBody(z.object({
-    currentPassword: z.string().min(1),
-    newPassword: z.string().min(6)
-})), changePassword);
-router.post("/change-password/verify", validateBody(z.object({
-    currentPassword: z.string().min(1)
-})), verifyCurrentPassword);
+router.post("/change-password", validateBody(z.object({currentPassword: z.string().min(1), newPassword: z.string().min(6)})), changePassword);
+router.post("/change-password/verify", validateBody(z.object({currentPassword: z.string().min(1)})), verifyCurrentPassword);
 router.get("/change-password/status", getPasswordChangeStatus);
 
 

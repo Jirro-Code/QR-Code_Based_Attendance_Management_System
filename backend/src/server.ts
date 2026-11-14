@@ -16,6 +16,7 @@ app.set("trust proxy", env.TRUST_PROXY);
 app.use(morgan("dev"));
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" }}));
 app.use(cors({ credentials: true, origin: ["https://www.attendscan.app", "https://attendscan.app"], methods: ["GET", "POST", "PUT", "PATCH"], allowedHeaders: ["Content-Type", "Authorization"] }));
+//app.use(cors({ credentials: true, origin: "https://localhost:5173", methods: ["GET", "POST", "PUT", "PATCH"], allowedHeaders: ["Content-Type", "Authorization"] }));
 app.use(express.json());
 app.use(cookieParser());
 

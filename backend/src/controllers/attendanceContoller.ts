@@ -63,6 +63,7 @@ export const checkAttendance = async (req: AuthenticatedRequest, res: Response) 
     }
 }
 
+
 export const markAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{      
         const studentExist = await db.query.users.findFirst({
@@ -323,6 +324,7 @@ export const updateAttendance = async (req: AuthenticatedRequest, res: Response)
     }
 }
 
+
 export const unarchiveAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{
         const attendanceId = z.uuid().parse(req.params.id);
@@ -368,6 +370,7 @@ export const unarchiveAttendance = async (req: AuthenticatedRequest, res: Respon
         res.status(500).json({message: "Error archiving attendance"})
     }
 }
+
 
 export const archiveAttendance = async (req: AuthenticatedRequest, res: Response) => {
     try{

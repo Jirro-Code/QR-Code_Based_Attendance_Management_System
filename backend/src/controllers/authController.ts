@@ -37,8 +37,7 @@ const getLoginLockMinutes = (attempts: number) => new Map([
     [29, 4320]
 ]).get(attempts) ?? 0;
 
-const hasValidDeviceCookie = (req: Request) =>
-    typeof req.cookies?.device_id === "string" && /^[a-f0-9]{64}$/.test(req.cookies.device_id);
+const hasValidDeviceCookie = (req: Request) => typeof req.cookies?.device_id === "string" && /^[a-f0-9]{64}$/.test(req.cookies.device_id);
 
 export const registerUser = async (req: Request, res: Response) => {
     try{
@@ -155,13 +154,13 @@ export const loginUser = async (req: Request, res: Response) => {
                 restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
             });
         }
-
+        
         const now = new Date();
         const attemptState = {
             attempts: user.loginLastFailedAt && now.getTime() - user.loginLastFailedAt.getTime() < LOGIN_ATTEMPT_RESET_AFTER_MS
-                ? user.loginFailedAttempts
-                : 0,
+                ? user.loginFailedAttempts : 0,
         };
+        
         if (usesLegacyAccountLockout && user.loginLockedUntil && user.loginLockedUntil > now) {
             return res.status(423).json({
                 message: `Too many incorrect login attempts. Try again in ${getLoginLockMinutes(user.loginFailedAttempts)} minutes.`,
@@ -187,14 +186,15 @@ export const loginUser = async (req: Request, res: Response) => {
             if (usesLegacyAccountLockout) {
                 const failedAttempts = attemptState.attempts + 1;
                 const lockMinutes = getLoginLockMinutes(failedAttempts);
-                const lockedUntil = lockMinutes
-                    ? new Date(now.getTime() + lockMinutes * 60 * 1000)
-                    : null;
+                
+                const lockedUntil = lockMinutes ? new Date(now.getTime() + lockMinutes * 60 * 1000) : null;
+                
                 await db.update(users).set({
                     loginFailedAttempts: failedAttempts,
                     loginLockedUntil: lockedUntil,
                     loginLastFailedAt: now,
                 }).where(eq(users.id, user.id));
+                
                 if (lockedUntil) {
                     return res.status(423).json({
                         message: `Too many incorrect login attempts. Try again in ${lockMinutes} minutes.`,
@@ -215,6 +215,7 @@ export const loginUser = async (req: Request, res: Response) => {
             ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
             action: "login",
         });
+        
         await db.update(users).set({
             loginFailedAttempts: 0,
             loginLockedUntil: null,
@@ -399,7 +400,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
             return res.status(410).json({message: "OTP expired. Please request a new one"});
         }
         
-        const isOtpValid = await verifyPasswordResetOTP(otp, otpRecord.tokenHash);
+        const isOtpValid = verifyPasswordResetOTP(otp, otpRecord.tokenHash);
         
         if(!isOtpValid){
             const failedAttempts = userOtpAttempts + 1;
