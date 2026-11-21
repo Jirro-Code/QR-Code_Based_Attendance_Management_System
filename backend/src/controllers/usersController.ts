@@ -19,7 +19,9 @@ const getPasswordLockMinutes = (attempts: number) => {
     return 0;
 };
 
-const ATTEMPT_RESET_AFTER_MS = 90 * 60 * 1000;
+const ATTEMPT_RESET_AFTER_MS = 4 * 24 * 60 * 60 * 1000;
+const hasValidDeviceCookie = (req: AuthenticatedRequest) =>
+    typeof req.cookies?.device_id === "string" && /^[a-f0-9]{64}$/.test(req.cookies.device_id);
 
 const getPasswordAttemptState = (user: {
     passwordChangeAttempts: number;
@@ -301,6 +303,7 @@ export const updateUser = async (req: AuthenticatedRequest, res: Response) => {
 
 export const changePassword = async (req: AuthenticatedRequest, res: Response) => {
     try {
+        const usesLegacyAccountLockout = !hasValidDeviceCookie(req);
         const deviceId = await prepareDeviceRequest(req, res);
         const currentPassword = z.string().min(1).parse(req.body.currentPassword);
         const newPassword = z.string().min(6).parse(req.body.newPassword);
@@ -313,7 +316,7 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
         if (user.isArchived) {
             return res.status(403).json({ message: "This account is archived. Please contact the administrator." });
         }
-        const deviceRestriction = await getDeviceRestriction(userId, deviceId);
+        const deviceRestriction = await getDeviceRestriction(userId, deviceId, "change_password");
         if (deviceRestriction) {
             return res.status(423).json({
                 message: "Too many password attempts from this device. Please try again later.",
@@ -332,7 +335,7 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
             user.passwordChangeAttempts = 0;
             user.passwordChangeLockedUntil = null;
         }
-        if (user.passwordChangeLockedUntil && user.passwordChangeLockedUntil > now) {
+        if (usesLegacyAccountLockout && user.passwordChangeLockedUntil && user.passwordChangeLockedUntil > now) {
             return res.status(423).json({
                 message: "Password change is temporarily locked",
                 lockedUntil: user.passwordChangeLockedUntil.toISOString()
@@ -368,12 +371,14 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
             const lockedUntil = lockMinutes
                 ? new Date(now.getTime() + lockMinutes * 60 * 1000)
                 : null;
-                
-            await db.update(users).set({
-                passwordChangeAttempts: failedAttempts,
-                passwordChangeLockedUntil: lockedUntil,
-                passwordChangeLastAttemptAt: now
-            }).where(eq(users.id, user.id));
+            
+            if (usesLegacyAccountLockout) {
+                await db.update(users).set({
+                    passwordChangeAttempts: failedAttempts,
+                    passwordChangeLockedUntil: lockedUntil,
+                    passwordChangeLastAttemptAt: now
+                }).where(eq(users.id, user.id));
+            }
             
             if (lockedUntil) {
                 return res.status(423).json({
@@ -416,6 +421,7 @@ export const changePassword = async (req: AuthenticatedRequest, res: Response) =
 
 export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Response) => {
     try {
+        const usesLegacyAccountLockout = !hasValidDeviceCookie(req);
         const deviceId = await prepareDeviceRequest(req, res);
         const currentPassword = z.string().min(1).parse(req.body.currentPassword);
         const userId = z.string().parse(req.user!.id);
@@ -423,7 +429,7 @@ export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Resp
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
-        const deviceRestriction = await getDeviceRestriction(userId, deviceId);
+        const deviceRestriction = await getDeviceRestriction(userId, deviceId, "change_password");
         if (deviceRestriction) {
             return res.status(423).json({
                 message: "Too many password attempts from this device. Please try again later.",
@@ -442,7 +448,7 @@ export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Resp
             user.passwordChangeAttempts = 0;
             user.passwordChangeLockedUntil = null;
         }
-        if (user.passwordChangeLockedUntil && user.passwordChangeLockedUntil > now) {
+        if (usesLegacyAccountLockout && user.passwordChangeLockedUntil && user.passwordChangeLockedUntil > now) {
             return res.status(423).json({
                 message: "Password change is temporarily locked",
                 lockedUntil: user.passwordChangeLockedUntil.toISOString()
@@ -467,11 +473,13 @@ export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Resp
             const lockMinutes = getPasswordLockMinutes(failedAttempts);
             const lockedUntil = lockMinutes ? new Date(now.getTime() + lockMinutes * 60 * 1000) : null;
             
-            await db.update(users).set({
-                passwordChangeAttempts: failedAttempts,
-                passwordChangeLockedUntil: lockedUntil,
-                passwordChangeLastAttemptAt: now
-            }).where(eq(users.id, user.id));
+            if (usesLegacyAccountLockout) {
+                await db.update(users).set({
+                    passwordChangeAttempts: failedAttempts,
+                    passwordChangeLockedUntil: lockedUntil,
+                    passwordChangeLastAttemptAt: now
+                }).where(eq(users.id, user.id));
+            }
             
             if (lockedUntil) {
                 return res.status(423).json({
@@ -502,15 +510,20 @@ export const verifyCurrentPassword = async (req: AuthenticatedRequest, res: Resp
 export const getPasswordChangeStatus = async (req: AuthenticatedRequest, res: Response) => {
     try {
         const userId = z.string().parse(req.user!.id);
-        const user = await db.query.users.findFirst({
-            where: eq(users.id, userId),
-            columns: { passwordChangeLockedUntil: true }
-        });
+        const usesLegacyAccountLockout = !hasValidDeviceCookie(req);
+        const deviceId = await prepareDeviceRequest(req, res);
+        const user = await db.query.users.findFirst({ where: eq(users.id, userId) });
         if (!user) {
             return res.status(404).json({ message: "User not found" });
         }
+        const deviceRestriction = await getDeviceRestriction(userId, deviceId, "change_password");
+        const lockedUntil = deviceRestriction?.restrictedUntil?.toISOString()
+            ?? (usesLegacyAccountLockout && user.passwordChangeLockedUntil && user.passwordChangeLockedUntil > new Date()
+                ? user.passwordChangeLockedUntil.toISOString()
+                : null);
         return res.status(200).json({
-            lockedUntil: user.passwordChangeLockedUntil?.toISOString() ?? null
+            lockedUntil,
+            restrictedUntil: deviceRestriction?.restrictedUntil?.toISOString() ?? null
         });
     }
     catch (e) {

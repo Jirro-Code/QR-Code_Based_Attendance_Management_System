@@ -8,7 +8,7 @@ const userStrandEnum = ["ICT", "HRCTO", "GAS", "HUMSS", "ABM", "STEM", "AAD"] as
 
 export const userRoles = pgEnum("role", roleEnum);
 export const userStrands = pgEnum("student_strand", userStrandEnum);
-export const securityAction = pgEnum("security_action", ["login", "change_password"]);
+export const securityAction = pgEnum("security_action", ["login", "change_password", "otp"]);
 export const securityResult = pgEnum("security_result", ["success", "failure", "blocked"]);
 export const userRoleSchema = z.enum(roleEnum, "Invalid user role");
 export const userStrandSchema = z.enum(userStrandEnum, "Invalid student strand");
@@ -27,6 +27,8 @@ export const users = pgTable("users", {
     studentSection: varchar("student_section", { length: 255 }),
     isArchived: boolean("is_archived").notNull().default(false),
     otpAttempts: integer("otp_attempts").notNull().default(0),
+    otpLockedUntil: timestamp("otp_locked_until", { withTimezone: true }),
+    otpLastAttemptAt: timestamp("otp_last_attempt_at", { withTimezone: true }),
     passwordChangeAttempts: integer("password_change_attempts").notNull().default(0),
     passwordChangeLockedUntil: timestamp("password_change_locked_until", { withTimezone: true }),
     passwordChangeLastAttemptAt: timestamp("password_change_last_attempt_at", { withTimezone: true }),
@@ -69,8 +71,8 @@ export const deviceRestrictions = pgTable("device_restrictions", {
     restrictedUntil: timestamp("restricted_until", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-}, (table) => [
-    unique("device_restrictions_account_device_unique").on(table.accountId, table.deviceId),
+    }, (table) => [
+    unique("device_restrictions_account_device_reason_unique").on(table.accountId, table.deviceId, table.reason),
     index("device_restrictions_until_idx").on(table.restrictedUntil),
 ]);
 
@@ -82,7 +84,7 @@ export const securityAttempts = pgTable("security_attempts", {
     action: securityAction("action").notNull(),
     result: securityResult("result").notNull(),
     createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-}, (table) => [
+    }, (table) => [
     index("security_attempts_device_created_idx").on(table.deviceId, table.createdAt),
     index("security_attempts_account_created_idx").on(table.accountId, table.createdAt),
 ]);

@@ -9,6 +9,8 @@ const DEVICE_MAX_AGE = 365 * 24 * 60 * 60 * 1000;
 const isProduction = process.env.NODE_ENV === "production";
 const restrictionMinutes = [10, 60, 12 * 60, 24 * 60, 3 * 24 * 60] as const;
 const failureThreshold = 3;
+const ATTEMPT_RESET_AFTER_MS = 4 * 24 * 60 * 60 * 1000;
+type SecurityAction = "login" | "change_password" | "otp";
 
 const deviceCookieOptions = {
     httpOnly: true,
@@ -55,22 +57,39 @@ export const prepareDeviceRequest = async (req: Request, res: Response) => {
     return deviceId;
 };
 
-export const getDeviceRestriction = async (accountId: string, deviceId: string) => {
+export const getDeviceRestriction = async (
+    accountId: string,
+    deviceId: string,
+    action: SecurityAction,
+) => {
+    const now = new Date();
     const restriction = await db.query.deviceRestrictions.findFirst({
         where: and(
             eq(deviceRestrictions.accountId, accountId),
             eq(deviceRestrictions.deviceId, deviceId),
+            eq(deviceRestrictions.reason, action),
             gt(deviceRestrictions.restrictedUntil, new Date())
         ),
     });
-    return restriction ?? null;
+    if (!restriction) return null;
+    if (now.getTime() - restriction.updatedAt.getTime() >= ATTEMPT_RESET_AFTER_MS) {
+        await db.update(deviceRestrictions)
+            .set({ failedAttempts: 0, escalationLevel: 0, restrictedUntil: null, updatedAt: new Date() })
+            .where(and(
+                eq(deviceRestrictions.accountId, accountId),
+                eq(deviceRestrictions.deviceId, deviceId),
+                eq(deviceRestrictions.reason, action),
+            ));
+        return null;
+    }
+    return restriction;
 };
 
 export const recordSecurityAttempt = async (params: {
     accountId?: string;
     deviceId: string;
     ipAddress: string | null;
-    action: "login" | "change_password";
+    action: SecurityAction;
     result: "success" | "failure" | "blocked";
 }) => {
     await db.insert(securityAttempts).values(params);
@@ -80,23 +99,27 @@ export const recordDeviceFailure = async (params: {
     accountId: string;
     deviceId: string;
     ipAddress: string | null;
-    action: "login" | "change_password";
+    action: SecurityAction;
 }) => {
     const now = new Date();
     return db.transaction(async (tx) => {
-        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${params.accountId}:${params.deviceId}`}))`);
+        await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`${params.accountId}:${params.deviceId}:${params.action}`}))`);
         const result = await tx.execute<{
             failed_attempts: number;
             escalation_level: number;
             restricted_until: Date | null;
-        }>(sql`SELECT failed_attempts, escalation_level, restricted_until
+            updated_at: Date;
+        }>(sql`SELECT failed_attempts, escalation_level, restricted_until, updated_at
             FROM device_restrictions
-            WHERE account_id = ${params.accountId} AND device_id = ${params.deviceId}
+            WHERE account_id = ${params.accountId} AND device_id = ${params.deviceId} AND reason = ${params.action}
             FOR UPDATE`);
         const existing = result.rows[0];
-        const failedAttempts = (existing?.failed_attempts ?? 0) + 1;
+        const shouldResetExisting = existing?.updated_at
+            ? now.getTime() - new Date(existing.updated_at).getTime() >= ATTEMPT_RESET_AFTER_MS
+            : false;
+        const failedAttempts = (shouldResetExisting ? 0 : (existing?.failed_attempts ?? 0)) + 1;
         const shouldRestrict = failedAttempts % failureThreshold === 0;
-        const escalationLevel = existing?.escalation_level ?? 0;
+        const escalationLevel = shouldResetExisting ? 0 : (existing?.escalation_level ?? 0);
         const duration = restrictionMinutes[Math.min(escalationLevel, restrictionMinutes.length - 1)] ?? 3 * 24 * 60;
         const restrictedUntil = shouldRestrict
             ? new Date(now.getTime() + duration * 60 * 1000)
@@ -119,7 +142,7 @@ export const recordDeviceFailure = async (params: {
             restrictedUntil,
             updatedAt: now,
         }).onConflictDoUpdate({
-            target: [deviceRestrictions.accountId, deviceRestrictions.deviceId],
+            target: [deviceRestrictions.accountId, deviceRestrictions.deviceId, deviceRestrictions.reason],
             set: {
                 failedAttempts,
                 escalationLevel: shouldRestrict ? escalationLevel + 1 : escalationLevel,
@@ -131,22 +154,19 @@ export const recordDeviceFailure = async (params: {
     });
 };
 
-export const recordDeviceSuccess = async (params: {
-    accountId?: string;
-    deviceId: string;
-    ipAddress: string | null;
-    action: "login" | "change_password";
-}) => {
+export const recordDeviceSuccess = async (params: {accountId?: string; deviceId: string; ipAddress: string | null; action: SecurityAction;}) => {
     if (params.accountId) {
         await db.update(deviceRestrictions)
             .set({
                 failedAttempts: 0,
+                escalationLevel: 0,
                 restrictedUntil: null,
                 updatedAt: new Date(),
             })
             .where(and(
                 eq(deviceRestrictions.accountId, params.accountId),
                 eq(deviceRestrictions.deviceId, params.deviceId),
+                eq(deviceRestrictions.reason, params.action),
             ));
     }
     await recordSecurityAttempt({ ...params, result: "success" });

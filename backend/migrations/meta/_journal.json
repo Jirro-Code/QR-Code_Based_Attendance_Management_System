@@ -43,6 +43,20 @@
       "when": 1793717849705,
       "tag": "0005_narrow_alex_wilder",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1795286300000,
+      "tag": "0006_action_specific_device_restrictions",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1795287300000,
+      "tag": "0007_separate_otp_attempts",
+      "breakpoints": true
     }
   ]
 }

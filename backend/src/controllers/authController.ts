@@ -23,9 +23,9 @@ const cookieOptions = {
     maxAge: ms(env.JWT_EXPIRES_IN as ms.StringValue)
 };
 
-const LOGIN_ATTEMPT_RESET_AFTER_MS = 4 * 24 * 60 * 60 * 1000;
+const LOGIN_OTP_ATTEMPT_RESET_AFTER_MS = 4 * 24 * 60 * 60 * 1000;
 
-const getLoginLockMinutes = (attempts: number) => new Map([
+const getLoginAndOTPLockMinutes = (attempts: number) => new Map([
     [5, 3],
     [8, 5],
     [11, 10],
@@ -140,7 +140,7 @@ export const loginUser = async (req: Request, res: Response) => {
             return res.status(404).json({message: "User not found"});
         }
         
-        const deviceRestriction = await getDeviceRestriction(user.id, deviceId);
+        const deviceRestriction = await getDeviceRestriction(user.id, deviceId, "login");
         if (deviceRestriction) {
             await recordSecurityAttempt({
                 accountId: user.id,
@@ -157,13 +157,16 @@ export const loginUser = async (req: Request, res: Response) => {
         
         const now = new Date();
         const attemptState = {
-            attempts: user.loginLastFailedAt && now.getTime() - user.loginLastFailedAt.getTime() < LOGIN_ATTEMPT_RESET_AFTER_MS
+            attempts: user.loginLastFailedAt && now.getTime() - user.loginLastFailedAt.getTime() < LOGIN_OTP_ATTEMPT_RESET_AFTER_MS
                 ? user.loginFailedAttempts : 0,
         };
         
+        
+        
+        
         if (usesLegacyAccountLockout && user.loginLockedUntil && user.loginLockedUntil > now) {
             return res.status(423).json({
-                message: `Too many incorrect login attempts. Try again in ${getLoginLockMinutes(user.loginFailedAttempts)} minutes.`,
+                message: `Too many incorrect login attempts. Try again in ${getLoginAndOTPLockMinutes(user.loginFailedAttempts)} minutes.`,
                 lockedUntil: user.loginLockedUntil.toISOString(),
             });
         }
@@ -185,7 +188,7 @@ export const loginUser = async (req: Request, res: Response) => {
             }
             if (usesLegacyAccountLockout) {
                 const failedAttempts = attemptState.attempts + 1;
-                const lockMinutes = getLoginLockMinutes(failedAttempts);
+                const lockMinutes = getLoginAndOTPLockMinutes(failedAttempts);
                 
                 const lockedUntil = lockMinutes ? new Date(now.getTime() + lockMinutes * 60 * 1000) : null;
                 
@@ -261,7 +264,8 @@ export const logoutUser = async (_req: AuthenticatedRequest, res: Response) => {
 export const forgotPassword = async (req: Request, res: Response) => {
     try{
         const email = z.string().email().parse(req.body.email);
-        const role = z.enum(["user", "admin"]).parse(req.body.role);
+        const role = z.enum(["user", "admin"]).parse(req.body.role);        
+        const deviceId = await prepareDeviceRequest(req, res);
         const user = await db.query.users.findFirst({
             where: and(eq(users.email, email), eq(users.role, role))
         });
@@ -270,21 +274,31 @@ export const forgotPassword = async (req: Request, res: Response) => {
             return res.status(404).json({message: "User not found"});
         }
         
+        const now = new Date();
+        
         if(user.isArchived){
             return res.status(403).json({message: "This account is archived. Please contact the administrator."});
+        }
+        
+        const deviceRestriction = await getDeviceRestriction(user.id, deviceId, "otp");
+        if (deviceRestriction) {
+            await recordSecurityAttempt({
+                accountId: user.id,
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "otp",
+                result: "blocked",
+            });
+            return res.status(423).json({
+                message: "OTP verification is temporarily locked for this device",
+                lockedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+            });
         }
         
         const existingOtp = await db.query.passwordResetOTP.findFirst({
             where: eq(passwordResetOTP.userEmail, user.email)
         });
-        const now = new Date();
-        
-        if (existingOtp?.lockedUntil && existingOtp.lockedUntil > now) {
-            return res.status(423).json({
-                message: "OTP verification is temporarily locked",
-                lockedUntil: existingOtp.lockedUntil.toISOString()
-            });
-        }
         
         if (existingOtp?.resendAvailableAt && existingOtp.resendAvailableAt > now) {
             return res.status(429).json({
@@ -354,9 +368,63 @@ export const verifyOtp = async (req: Request, res: Response) => {
         const otp = z.string().length(6).parse(req.body.otp);
         const now = new Date();
         
+        const usesLegacyAccountLockout = !hasValidDeviceCookie(req);
+        const deviceId = await prepareDeviceRequest(req, res);
+        
         const user = await db.query.users.findFirst({
             where: and(eq(users.email, email), eq(users.role, role))
         });
+        
+        if(!user){
+            await recordSecurityAttempt({
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "otp",
+                result: "failure",
+            });
+            return res.status(404).json({message: "User not found"});
+        }
+        
+        const deviceRestriction = await getDeviceRestriction(user.id, deviceId, "otp");
+        if (deviceRestriction) {
+            await recordSecurityAttempt({
+                accountId: user.id,
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "otp",
+                result: "blocked",
+            });
+            return res.status(423).json({
+                message: "Too many incorrect OTP attempts from this device.",
+                lockedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+                restrictedUntil: deviceRestriction.restrictedUntil?.toISOString(),
+            });
+        }
+        
+        const attemptState = {
+            attempts: user.otpLastAttemptAt && now.getTime() - user.otpLastAttemptAt.getTime() < LOGIN_OTP_ATTEMPT_RESET_AFTER_MS
+            ? user.otpAttempts : 0,
+        };
+        if (attemptState.attempts === 0 && (
+            user.otpAttempts !== 0 ||
+            user.otpLockedUntil ||
+            user.otpLastAttemptAt
+        ) && user.otpLastAttemptAt && now.getTime() - user.otpLastAttemptAt.getTime() >= LOGIN_OTP_ATTEMPT_RESET_AFTER_MS) {
+            await db.update(users).set({
+                otpAttempts: 0,
+                otpLockedUntil: null,
+                otpLastAttemptAt: null,
+            }).where(eq(users.id, user.id));
+            user.otpAttempts = 0;
+            user.otpLockedUntil = null;
+        }
+        
+        if (usesLegacyAccountLockout && user.otpLockedUntil && user.otpLockedUntil > now) {
+            return res.status(423).json({
+                message: `Too many incorrect otp attempts. Try again in ${getLoginAndOTPLockMinutes(user.otpAttempts)} minutes.`,
+                lockedUntil: user.otpLockedUntil.toISOString(),
+            });
+        }
         
         if(!user){
             return res.status(404).json({message: "User not found"});
@@ -374,26 +442,7 @@ export const verifyOtp = async (req: Request, res: Response) => {
             return res.status(404).json({message: "OTP expired. Please request a new one"});
         }
         
-        const otpAgeInMilliseconds = now.getTime() - otpRecord.createdAt.getTime();
-        const fourDaysInMilliseconds = 4 * 24 * 60 * 60 * 1000;
-        let userOtpAttempts = user.otpAttempts;
-        
-        if (otpAgeInMilliseconds >= fourDaysInMilliseconds) {
-            await db.update(users).set({ otpAttempts: 0 }).where(eq(users.email, email));
-            userOtpAttempts = 0;
-        }
-        
-        if (otpRecord.lockedUntil && otpRecord.lockedUntil > now) {
-            return res.status(423).json({
-                message: "OTP verification is temporarily locked",
-                lockedUntil: otpRecord.lockedUntil.toISOString()
-            });
-        }
-        
-        if (otpRecord.lockedUntil && otpRecord.lockedUntil <= now) {            
-            await db.update(passwordResetOTP).set({ lockedUntil: null }).where(eq(passwordResetOTP.id, otpRecord.id));
-            otpRecord.lockedUntil = null;
-        }
+        let userOtpAttempts = attemptState.attempts;
         
         if (otpRecord.expiresAt <= now) {
             await db.delete(passwordResetOTP).where(eq(passwordResetOTP.id, otpRecord.id));
@@ -404,46 +453,58 @@ export const verifyOtp = async (req: Request, res: Response) => {
         
         if(!isOtpValid){
             const failedAttempts = userOtpAttempts + 1;
-            
-            let lockedUntil;
-            
-            switch (failedAttempts >= 15 ? 15 : failedAttempts) {
-                case 3:
-                    lockedUntil = new Date(now.getTime() + 10 * 60 * 1000);
-                    break;
-                case 6:
-                    lockedUntil = new Date(now.getTime() + 15 * 60 * 1000);
-                    break;
-                case 9:
-                    lockedUntil = new Date(now.getTime() + 60 * 60 * 1000);
-                    break;
-                case 12:
-                    lockedUntil = new Date(now.getTime() + 1440 * 60 * 1000);
-                    break;
-                case 15:
-                    lockedUntil = new Date(now.getTime() + 4320 * 60 * 1000);
-                    break;
-                default:
-                    lockedUntil = null;
+            const deviceLockedUntil = await recordDeviceFailure({
+                accountId: user.id,
+                deviceId,
+                ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+                action: "otp",
+            });
+            if (deviceLockedUntil) {
+                return res.status(423).json({
+                    message: "Too many otp attempts from this device. Please try again later.",
+                    restrictedUntil: deviceLockedUntil.toISOString(),
+                });
             }
-            
-            if (lockedUntil) {
-                await db.update(users)
-                    .set({ otpAttempts: failedAttempts })
-                    .where(eq(users.email, email));
-                await db.update(passwordResetOTP)
-                    .set({ lockedUntil })
-                    .where(eq(passwordResetOTP.id, otpRecord.id));
-                return res.status(423).json({ message: "OTP verification is temporarily locked", lockedUntil: lockedUntil.toISOString()});
+            if (usesLegacyAccountLockout) {
+                const failedAttempts = attemptState.attempts + 1;
+                const lockMinutes = getLoginAndOTPLockMinutes(failedAttempts);
+                
+                const lockedUntil = lockMinutes ? new Date(now.getTime() + lockMinutes * 60 * 1000) : null;
+                
+                await db.update(users).set({
+                    otpAttempts: failedAttempts,
+                    otpLockedUntil: lockedUntil,
+                    otpLastAttemptAt: now,
+                }).where(eq(users.id, user.id));
+                
+                if (lockedUntil) {
+                    return res.status(423).json({
+                        message: `Too many incorrect otp attempts. Try again in ${lockMinutes} minutes.`,
+                        lockedUntil: lockedUntil.toISOString(),
+                    });
+                }
             }
-            
-            
-            await db.update(users).set({ otpAttempts: failedAttempts }).where(eq(users.email, email));
             return res.status(401).json({message: "Invalid OTP", attemptsRemaining: failedAttempts >= 3 ? 0 : 3 - failedAttempts});
         }
         
+        if(user.isArchived){
+            return res.status(403).json({message: "This account is archived. Please contact the administrator."});
+        }
+        
+        await recordDeviceSuccess({
+            accountId: user.id,
+            deviceId,
+            ipAddress: req.ip ?? req.socket.remoteAddress ?? null,
+            action: "otp",
+        });
+        
+        await db.update(users).set({
+            otpAttempts: 0,
+            otpLockedUntil: null,
+            otpLastAttemptAt: null
+        }).where(eq(users.id, user.id));
+        
         await db.delete(passwordResetOTP).where(eq(passwordResetOTP.userEmail, email)).execute();
-        await db.update(users).set({ otpAttempts: 0 }).where(eq(users.email, email)).execute();
         
         res.status(200).json({message: "OTP confirmed. You can now reset your password."});
     } 
@@ -461,6 +522,7 @@ export const getOtpStatus = async (req: Request, res: Response) => {
     try {
         const email = z.string().email().parse(req.query.email);
         const role = z.enum(["user", "admin"]).parse(req.query.role);
+        const deviceId = await prepareDeviceRequest(req, res);
         const user = await db.query.users.findFirst({
             where: and(eq(users.email, email), eq(users.role, role))
         });
@@ -483,12 +545,16 @@ export const getOtpStatus = async (req: Request, res: Response) => {
             return res.status(410).json({message: "OTP expired. Please request a new one"});
         }
         
+        const deviceRestriction = await getDeviceRestriction(user.id, deviceId, "otp");
+        const restrictedUntil = deviceRestriction?.restrictedUntil && deviceRestriction.restrictedUntil > now
+            ? deviceRestriction.restrictedUntil.toISOString()
+            : null;
+        
         res.status(200).json({
             expiresAt: otpRecord.expiresAt.toISOString(),
             resendAvailableAt: otpRecord.resendAvailableAt?.toISOString() ?? null,
-            lockedUntil: otpRecord.lockedUntil && otpRecord.lockedUntil > now
-                ? otpRecord.lockedUntil.toISOString()
-                : null
+            lockedUntil: restrictedUntil,
+            restrictedUntil
         });
     }
     catch (e) {
