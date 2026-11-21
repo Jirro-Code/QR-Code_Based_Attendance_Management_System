@@ -37,6 +37,11 @@ export const ForgotPasswordPage = () => {
     const [lockSeconds, setLockSeconds] = useState(0);
     const { useForgotPassword, useVerifyOtp, useGetOtpStatus, useResetPassword } = useUpdate();
     
+    const getLockTimestamp = (details: Record<string, unknown>) => {
+        const lock = details.lockedUntil ?? details.restrictedUntil;
+        return typeof lock === "string" ? lock : null;
+    };
+    
     useEffect(() => {
         if (!email) {
             setIsAutoSending(false);
@@ -50,14 +55,16 @@ export const ForgotPasswordPage = () => {
                         const responseData = await useForgotPassword(email, role, setError);
                         setStep1Completed(true);
                         setResendAvailableAt(responseData?.resendAvailableAt ?? null);
-                        setLockedUntil(null);
+                        const status = await useGetOtpStatus(email, role);
+                        setResendAvailableAt(status.resendAvailableAt);
+                        setLockedUntil(status.lockedUntil ?? status.restrictedUntil ?? null);
                     }
                     catch (sendError) {
                         if (sendError instanceof ApiError && [423, 429].includes(sendError.status)) {
                             const status = await useGetOtpStatus(email, role);
                             setStep1Completed(true);
                             setResendAvailableAt(status.resendAvailableAt);
-                            setLockedUntil(status.lockedUntil);
+                            setLockedUntil(status.lockedUntil ?? status.restrictedUntil ?? null);
                             setError("");
                             setIsAutoSending(false);
                             return;
@@ -70,7 +77,7 @@ export const ForgotPasswordPage = () => {
                 const status = await useGetOtpStatus(email, role);
                 setStep1Completed(true);
                 setResendAvailableAt(status.resendAvailableAt);
-                setLockedUntil(status.lockedUntil);
+                setLockedUntil(status.lockedUntil ?? status.restrictedUntil ?? null);
             }
             catch (statusError) {
                 if (statusError instanceof ApiError && [404, 410].includes(statusError.status)) {
@@ -117,6 +124,27 @@ export const ForgotPasswordPage = () => {
         return () => window.clearInterval(timer);
     }, [lockedUntil]);
     
+    useEffect(() => {
+        if (!step1Completed || step2Completed || step3Completed || !email) return;
+        
+        const refreshOtpStatus = async () => {
+            try {
+                const status = await useGetOtpStatus(email, role);
+                setResendAvailableAt(status.resendAvailableAt);
+                setLockedUntil(status.lockedUntil ?? status.restrictedUntil ?? null);
+            } catch (statusError) {
+                if (statusError instanceof ApiError && [404, 410].includes(statusError.status)) {
+                    setLockedUntil(null);
+                    setResendAvailableAt(null);
+                }
+            }
+        };
+        
+        void refreshOtpStatus();
+        const timer = window.setInterval(() => void refreshOtpStatus(), 5 * 1000);
+        return () => window.clearInterval(timer);
+    }, [step1Completed, step2Completed, step3Completed, email, role]);
+    
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEmail(e.target.value);
     }
@@ -138,7 +166,7 @@ export const ForgotPasswordPage = () => {
                 const status = await useGetOtpStatus(email, role);
                 setStep1Completed(true);
                 setResendAvailableAt(status.resendAvailableAt);
-                setLockedUntil(status.lockedUntil);
+                setLockedUntil(status.lockedUntil ?? status.restrictedUntil ?? null);
                 return;
             }
             catch (statusError) {
@@ -164,8 +192,8 @@ export const ForgotPasswordPage = () => {
                 }
             }
             if (error instanceof ApiError && error.status === 423) {
-                const lock = error.details.lockedUntil;
-                if (typeof lock === "string") {
+                const lock = getLockTimestamp(error.details);
+                if (lock) {
                     setStep1Completed(true);
                     setLockedUntil(lock);
                 }
@@ -191,8 +219,8 @@ export const ForgotPasswordPage = () => {
         } catch (error) {
             console.error("Error resending OTP:", error);
             if (error instanceof ApiError && error.status === 423) {
-                const lock = error.details.lockedUntil;
-                if (typeof lock === "string") {
+                const lock = getLockTimestamp(error.details);
+                if (lock) {
                     setLockedUntil(lock);
                 }
             }
@@ -250,8 +278,8 @@ export const ForgotPasswordPage = () => {
         catch (error) {
             console.error("Error verifying OTP:", error);
             if (error instanceof ApiError && error.status === 423) {
-                const lock = error.details.lockedUntil;
-                if (typeof lock === "string") {
+                const lock = getLockTimestamp(error.details);
+                if (lock) {
                     setLockedUntil(lock);
                 }
             }
