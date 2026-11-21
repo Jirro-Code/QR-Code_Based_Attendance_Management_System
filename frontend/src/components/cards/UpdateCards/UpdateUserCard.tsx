@@ -222,13 +222,13 @@ export const UpdateUserCard = ({ student, onUpdated, setShowNotification, onSetN
                             <Input label="Section" id="studentSection" type="text" placeholder="Section" onChange={handleFormChange} name="studentSection" value={formData.studentSection ?? ""} isRequired={false} />
                             <div className="relative">
                                 <Input label="Password" id="studentPassword" type={isHidden ? "password" : "text" } placeholder="Password" onChange={handleFormChange} name="password" value={formData.password ?? ""} isRequired={false} error={error?.includes("password") || error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
-                                <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-none">
                                     {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
                                 </button>
                             </div>
                             <div className="relative">
                                 <Input label="Confirm Password" id="confirmPassword" type={isHidden2 ? "password" : "text" } placeholder="Confirm Password" onChange={handleFormChange} name="confirmPassword" value={confirmPassword ?? ""} isRequired={false} error={error?.includes("Password") || error?.includes("Passwords") ? error : undefined} />
-                                <button type="button" onClick={() => setIsHidden2(!isHidden2)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                                <button type="button" onClick={() => setIsHidden2(!isHidden2)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-none">
                                     {isHidden2 ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
                                 </button>
                             </div>

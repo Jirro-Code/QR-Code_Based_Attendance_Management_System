@@ -52,13 +52,13 @@ export const AdminEditPage = () => {
     useEffect(() => () => {
         if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     }, [previewUrl]);
-
+    
     useEffect(() => {
         getPasswordChangeStatus()
             .then((status) => setLockedUntil(status.lockedUntil))
             .catch((statusError) => console.error("Error loading password lock status:", statusError));
     }, []);
-
+    
     useEffect(() => {
         if (!lockedUntil) {
             setLockSeconds(0);
@@ -195,15 +195,15 @@ export const AdminEditPage = () => {
                     <Input label="Email" id="adminEmail" type="email" placeholder="Email" name="email" value={email} onChange={(event) => setEmail(event.target.value)} error={error?.includes("email") ? error : undefined} />
                     <div className="relative">
                         <Input label="Old Password" id="currentPassword" type={hiddenFields.current ? "password" : "text"} placeholder="Old Password" name="currentPassword" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} isRequired={false} error={error?.includes("Current password") ? error : undefined} />
-                        <button type="button" onClick={() => toggleField("current")} className="absolute right-3 top-9 text-gray-500">{hiddenFields.current ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                        <button type="button" onClick={() => toggleField("current")} className="absolute right-3 top-9 text-gray-500 bg-none">{hiddenFields.current ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                     </div>
                     <div className="relative">
                         <Input label="New Password" id="newPassword" type={hiddenFields.password ? "password" : "text"} placeholder="New Password" name="password" value={password} onChange={(event) => setPassword(event.target.value)} isRequired={false} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined}/>
-                        <button type="button" onClick={() => toggleField("password")} className="absolute right-3 top-9 text-gray-500">{hiddenFields.password ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                        <button type="button" onClick={() => toggleField("password")} className="absolute right-3 top-9 text-gray-500 bg-none">{hiddenFields.password ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                     </div>
                     <div className="relative">
                         <Input label="Confirm New Password" id="confirmPassword" type={hiddenFields.confirm ? "password" : "text"} placeholder="Confirm New Password" name="confirmPassword" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} isRequired={false} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined}/>
-                        <button type="button" onClick={() => toggleField("confirm")} className="absolute right-3 top-9 text-gray-500">{hiddenFields.confirm ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                        <button type="button" onClick={() => toggleField("confirm")} className="absolute right-3 top-9 text-gray-500 bg-none">{hiddenFields.confirm ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                     </div>
                     <p className="text-sm text-gray-500">Forgot your password? <button type="button" onClick={() => navigate("/forgot-password", { state: { isAdmin: true, fromProfile: true, email } })} className="text-blue-600 hover:underline">Click here</button></p>
                     

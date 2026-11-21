@@ -102,15 +102,15 @@ export const StudentChangePasswordPage = () => {
                     <form onSubmit={handleChangePassword} className="text-left">
                         <div className="relative">
                             <Input id="currentPassword" label="Old Password" type={hiddenFields.current ? "password" : "text"} name="currentPassword" placeholder="Enter your old password" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} isRequired={false} error={error?.includes("Current password") ? error : undefined}/>
-                            <button type="button" onClick={() => toggleField("current")} className="absolute right-3 top-9 text-gray-500">{hiddenFields.current ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                            <button type="button" onClick={() => toggleField("current")} className="absolute right-3 top-9 text-gray-500 bg-none">{hiddenFields.current ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                         </div>
                         <div className="relative">
                             <Input id="password" label="New Password" type={hiddenFields.password ? "password" : "text"} name="password" placeholder="Enter your new password" value={password} onChange={(event) => setPassword(event.target.value)} isRequired={false} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
-                            <button type="button" onClick={() => toggleField("password")} className="absolute right-3 top-9 text-gray-500">{hiddenFields.password ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                            <button type="button" onClick={() => toggleField("password")} className="absolute right-3 top-9 text-gray-500 bg-none">{hiddenFields.password ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                         </div>
                         <div className="relative">
                             <Input id="confirmPassword" label="Confirm New Password" type={hiddenFields.confirm ? "password" : "text"} name="confirmPassword" placeholder="Confirm your new password" value={confirmPassword} onChange={(event) => setConfirmPassword(event.target.value)} isRequired={false} error={error?.includes("Passwords") || error?.includes("Password") ? error : undefined} />
-                            <button type="button" onClick={() => toggleField("confirm")} className="absolute right-3 top-9 text-gray-500">{hiddenFields.confirm ? <EyeOff size={20} /> : <Eye size={20} />}</button>
+                            <button type="button" onClick={() => toggleField("confirm")} className="absolute right-3 top-9 text-gray-500 bg-none">{hiddenFields.confirm ? <EyeOff size={20} /> : <Eye size={20} />}</button>
                         </div>
                         <button type="submit" disabled={isLoading || lockSeconds > 0} className="bg-blue-800 w-full text-white py-3 px-4 rounded-lg font-medium mt-2 hover:bg-blue-900 disabled:bg-gray-400">
                             {isLoading ? "Saving..." : "Change Password"}

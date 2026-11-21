@@ -41,7 +41,8 @@ export const apiFetch = async (path: string, init: RequestInit = {}) => {
             const errorData = await response.json().catch(() => null) as ({ message?: string } & Record<string, unknown>) | null;
             message = errorData?.message ?? "";
             throw new ApiError(message || response.statusText || "Request failed.", response.status, errorData ?? {});
-        } else {
+        } 
+        else {
             message = await response.text().catch(() => "");
         }
         

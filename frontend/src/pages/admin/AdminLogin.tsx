@@ -68,7 +68,7 @@ export const AdminLoginPage = () => {
                         
                         <div className="mb-2 relative">
                             <Input label="Password" id="password" type={isHidden ? "password" : "text"} placeholder="Password" onChange={handleChange} name="password" value={form.password} error={error?.includes("Credentials") || error?.includes("Password") ? error : undefined} />
-                            <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-white">
+                            <button type="button" onClick={() => setIsHidden(!isHidden)} className="absolute right-3 top-9 text-gray-500 hover:text-gray-600 focus:outline-none bg-none">
                                 {isHidden ? <EyeOff size={"20"} /> : <Eye size={"20"} />}
                             </button>
                             {error && (<span className="absolute w-full min-w-0 -bottom-8 left-0 flex items-center gap-1 text-red-600 text-[10px]"><CircleAlert size={12} /><u>{error}</u></span>)}
